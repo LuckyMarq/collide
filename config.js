@@ -10,6 +10,7 @@ function ResourceConfig(source){
 			}
 		}else if(n.name == "resourceConfigs"){
 			for(var j in n.children){
+				console.log("config loaded: "+ n.children[j].text);
 				this.merge(new ResourceConfig(n.children[j].text))
 			}
 		}else{
