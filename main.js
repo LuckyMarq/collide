@@ -285,7 +285,7 @@ function initScene(){
 	
 	// graphics.addToDisplay(testMap,"gl_main")
 	player_weapons = [BeamWeapon,RocketWeapon,WaveWeapon,MineWeapon];
-	player_keyframes = ['triangle','square','circle','square'];
+	player_keyframes = ['triangle','rocket','circle','square'];
 	instance_keyframes = player_keyframes.slice(0,player_keyframes.length);
 	instance_weapons = player_weapons.slice(0,player_keyframes.length);
 	
@@ -306,7 +306,7 @@ function reinitScene(){
 	graphics.removeFromDisplay(currentMap,'gl_main');
 	
 	player_weapons = [BeamWeapon,RocketWeapon,WaveWeapon,MineWeapon];
-	player_keyframes = ['triangle','square','circle','square'];
+	player_keyframes = ['triangle','rocket','circle','square'];
 	instance_keyframes = player_keyframes.slice(0,player_keyframes.length);
 	instance_weapons = player_weapons.slice(0,player_keyframes.length);
 	

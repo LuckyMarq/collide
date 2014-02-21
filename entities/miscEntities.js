@@ -224,19 +224,14 @@ Entities.add('explosion_frag', Entities.create(
 					fillProperties(state, Entities.createStandardState(
 					{
 						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-							manager.fillEllipse(this.x,this.y,0,width/2,height/2,0,1,0.5,0,1);
+							manager.fillEllipse(this.x,this.y,this.z,width/2,height/2,0,1,0.5,0,1);
 							gl.enable(gl.BLEND);
-							gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
-							manager.fillEllipse(this.x,this.y,0,width,height,0,1,0.5,0,0.5);
+							gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+							manager.fillEllipse(this.x,this.y,this.z,width,height,0,1,0.5,0,0.5);
 							gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
 						}
 					},x,y,width,height,1.1));
-					state.tick = function(delta){
-						this.life-=delta;	
-						this.alive = this.life>0;
-						
-					}
-					
+					state.z = 0;
 					state.first = true;
 				}
 				state.x = x;
@@ -244,12 +239,14 @@ Entities.add('explosion_frag', Entities.create(
 				state.vel[0] = Math.random()*400 - 200;
 				state.vel[1] = Math.random()*400 - 200;
 				graphics.addToDisplay(state,'gl_main');
-				ticker.add(state);
 				physics.add(state);
+			},
+			update: function(state,delta){
+				state.life-=delta;	
+				state.alive = state.life>0;
 			},
 			destroy: function(state){
 				graphics.removeFromDisplay(state,'gl_main');
-				ticker.remove(state);
 				physics.remove(state);
 			}
 		};

@@ -128,6 +128,64 @@ Entities.add('player', Entities.create((function(){
 		return verts;
 	}
 	
+	var generateRocket = function(numOfVerts,radius){
+		var verts = new Array();
+		verts.push(0,0,0)
+		var sides;
+		var bottom;
+		var bottom1;
+		var bottom2;
+		numOfVerts-=6;
+		//get the number of vertices to be
+		//hidden in the triangles sides
+		if(numOfVerts%3 == 0){
+			sides=numOfVerts/3;
+			bottom=numOfVerts/3;
+		}else{
+			var div = Math.floor(numOfVerts/3);
+			var mod = numOfVerts%3
+			sides=div;
+			bottom=div+mod;
+		}
+		bottom1 = Math.floor(bottom/2);
+		bottom2 = Math.ceil(bottom/2);
+		
+		var pSides = 1/(sides+1);
+		var pBottom1 = 1/(bottom1+1);
+		var pBottom2 = 1/(bottom2+1);
+		
+		var pa = vec3.set(vec3.create(),0,radius,0);
+		var pb = vec3.set(vec3.create(),-radius,-radius*1.5,0);
+		var pc = vec3.set(vec3.create(),0,-radius/2,0);
+		var pd = vec3.set(vec3.create(),radius,-radius*1.5,0);
+		var temp = vec3.create();
+		
+		verts.push(pa[0],pa[1],pa[2]);
+		for(var j = 1; j<=sides; j++){
+			vec3.lerp(temp,pa,pb,pSides*j)
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pb[0],pb[1],pb[2]);
+		for(var j = 1; j<=bottom1; j++){
+			vec3.lerp(temp,pb,pc,pBottom1*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pc[0],pc[1],pc[2]);
+		for(var j = 1; j<=bottom2; j++){
+			vec3.lerp(temp,pc,pd,pBottom2*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pd[0],pd[1],pd[2]);
+		for(var j = 1; j<=sides; j++){
+			vec3.lerp(temp,pd,pa,pSides*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pa[0],pa[1],pa[2]);
+		
+		return verts;
+	}
+	
+	
 	var getColor = function(numOfVerts,r,g,b,a){
 		var colors = new Array()
 		for(var i = 0; i<numOfVerts; i++){
@@ -173,6 +231,9 @@ Entities.add('player', Entities.create((function(){
 				var square = fillProperties(generateSquare(verts,32),posProps);
 				var squareColor = fillProperties(getColor(verts,0.0,1.0,0.0,1.0),colProps);
 				
+				var rocketShape = fillProperties(generateRocket(verts,32),posProps);
+				var rocketColor = fillProperties(getColor(verts,1.0,0.0,0.0,1.0),colProps);
+				
 				var animator = new VertexAnimator('basic',
 					{
 						playerPosition:circle,
@@ -198,6 +259,12 @@ Entities.add('player', Entities.create((function(){
 						playerPosition:square,
 						playerColor:squareColor
 					},{});
+					
+				animator.addKeyframe('rocket',
+					{
+						playerPosition:rocketShape,
+						playerColor:rocketColor
+					},{});	
 				
 				state.animator = animator;
 			}
