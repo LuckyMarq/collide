@@ -116,7 +116,6 @@ Entities.add('enemy_suicider',Entities.create({
 				state.minLargeHealth = 0;
 				state.maxLargeHealth = 0;
 				p.life -= state.damage;
-				console.log(p.life,state.damage)
 				p.vel[0] += (state.vel[0]-p.vel[0])*state.impact;
 				p.vel[1] += (state.vel[1]-p.vel[1])*state.impact
 				state.alive = false;
