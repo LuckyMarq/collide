@@ -22,13 +22,6 @@ function RocketWeapon(){
 		}
 	}
 	
-	// this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-// 		if (this.barVisible) {
-// 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-// 				(screen.height-32)*(energy/100),0,1,1,0,1);
-// 		}	
-// 	}
-	
 	this.fire = function() {
 		if (time <= 0 && this.energy >= COST) {
 			this.energy -= COST;
@@ -44,14 +37,12 @@ function RocketWeapon(){
 	this.holdFire = function() {
 		vis = false;
 	};
-	
-	//graphics.addToDisplay(this, 'gl_main');
+
 }
 RocketWeapon.prototype = new GLDrawable();
-//RocketWeapon.prototype = {}
 
 // Rocket -- 
-Entities.add('rocket', Entities.create( // blows up before it touches???
+Entities.add('rocket', Entities.create(
 	(function(){
 		var damage = 50;
 		var buffered = false;
@@ -211,12 +202,7 @@ Entities.add('rocket', Entities.create( // blows up before it touches???
 						{
 							state.accel[0] = Math.cos(state.dir)*800;
 							state.accel[1] = Math.sin(state.dir)*800;
-							// todo:
-							// change to blast radius
-							// farther away less damage
-							// inverse quad
-							
-							
+
 						}
 						state.a.length = 0;
 						var enemies = physics.getColliders(state.a, state.x,
@@ -263,13 +249,6 @@ function MineWeapon(){
 		}
 	}
 	
-	// this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-// 		if (this.barVisible) {
-// 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-// 				(screen.height-32)*(energy/100),0,1,1,0,1);
-// 		}
-// 	};
-	
 	this.fire = function() {
 		if (time <= 0 && this.energy >= COST) {
 			vis = true;
@@ -283,7 +262,6 @@ function MineWeapon(){
 	this.holdFire = function() {
 		vis = false;
 	};
-	//graphics.addToDisplay(this, 'gl_main');
 }
 MineWeapon.prototype = new GLDrawable();
 
@@ -390,10 +368,6 @@ function WaveWeapon(){
 			manager.fillTriangle(p.cx + (Math.cos(theta)*(length/2)),p.cy+(Math.sin(theta)*(length/2)),0,thickness,length,0,0.6,0,1,1);
 			mvMatrix.pop();
 		}
-		// if (this.barVisible) {
-// 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-// 				(screen.height-32)*(energy/100),0,1,1,0,1);
-// 		}
 	};
 	this.fire = function() {
 		if (!hasPressed && this.energy>=COST) {
@@ -501,10 +475,6 @@ function BeamWeapon(){
 			hits.length = 0;
 			physics.rayTraceLine(hits,p.cx,p.cy,mouse.x,mouse.yInv);
 		}
-		// if (this.barVisible) {
-// 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-// 				(screen.height-32)*(energy/100),0,1,(overheat) ? 0 : 1,0,1);
-// 		}
 	};
 	this.fire = function() {
 		if (this.energy >= COST && !this.overheated) {
