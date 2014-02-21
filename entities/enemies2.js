@@ -1,51 +1,49 @@
 Entities.add('enemy',Entities.create({
-	create:function(state,x,y){
-		if(!state.enemyFirst){
-			(function(){
-				var life = life || 100;
-				state.scope = 1024;
-				Object.defineProperties(fillProperties(state,Entities.createStandardCollisionState({},x,y,32,32,1)),{
-							life:{
-								get: function(){
-									return life;
-								},
-								set: function(nLife){
-									if(nLife<life)this.onDamage(life-nLife);
-									life = nLife;
-									if(life<=0){
-										this.alive = false;
-									}
-								}
-							},
-							isEnemy:{
-								value: true,
-								writable: false
-							},
-							inActiveScope: {
-								get: function(){
-									var p = Entities.player.getInstance(0);
-									return (p && pythag(p.cx-(this.x+this.width/2),p.cy-(this.y+this.height/2))<this.scope);
-								},
-								set: function(){}
+	construct: function(state,x,y){
+		var life = life || 100;
+		state.scope = 1024;
+		(function(){
+			Object.defineProperties(fillProperties(state,Entities.createStandardCollisionState({},x,y,32,32,1)),{
+					life:{
+						get: function(){
+							return life;
+						},
+						set: function(nLife){
+							if(nLife<life)this.onDamage(life-nLife);
+							life = nLife;
+							if(life<=0){
+								this.alive = false;
 							}
-					})
-			})();
-			
-			state.onDamage = function(damage){};
-			
-			state.minSmallHealth = 0;
-			state.maxSmallHealth = 0;
-			
-			state.minMedHealth = 0;
-			state.maxMedHealth = 0;
-			
-			state.minLargeHealth = 0;
-			state.maxLargeHealth = 0;
-			
-			state.healthSpeed = 0;
-			
-			state.enemyFirst = true;
-		}
+						}
+					},
+					isEnemy:{
+						value: true,
+						writable: false
+					},
+					inActiveScope: {
+						get: function(){
+							var p = Entities.player.getInstance(0);
+							return (p && pythag(p.cx-(this.x+this.width/2),p.cy-(this.y+this.height/2))<this.scope);
+						},
+						set: function(){}
+					}
+				})
+		})();
+		
+		state.onDamage = function(damage){};
+		
+		state.minSmallHealth = 0;
+		state.maxSmallHealth = 0;
+		
+		state.minMedHealth = 0;
+		state.maxMedHealth = 0;
+		
+		state.minLargeHealth = 0;
+		state.maxLargeHealth = 0;
+		
+		state.healthSpeed = 0;
+	},
+	create:function(state,x,y){
 		state.set(x,y,0,0,0,0);
 		graphics.addToDisplay(state,'gl_main'); 
 		physics.add(state);
@@ -99,11 +97,13 @@ Entities.add('enemy',Entities.create({
 
 Entities.add('enemy_suicider',Entities.create({
 		parent: Entities.enemy,
-		create: function(state){
+		construct: function(state){
 			state.damage = 0;
 			state.impact = 0;
 			state.hitSound = Sound.createSound('player_hit');
 			state.hitSound.gain = 0.1;
+		},
+		create: function(state){
 		},
 		update: function(state,delta){
 			var p = Entities.player.getInstance(0);
@@ -126,24 +126,23 @@ Entities.add('enemy_suicider',Entities.create({
 
 Entities.add('enemy_direct_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
-	create: function(state){
-		if(!state.directSuiciderFirst){
-			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,1,0,0,1);
-			}
-			state.width = 32;
-			state.height = 32;
-			state.damage = 10;
-			state.maxSmallHealth = 10;
-			state.healthSpeed = 100;
-			state.deathSound = Sound.createSound('direct_suicider_death',false);
-			state.deathSound.gain = 0.1;
-			state.accelCap = 1000;
-			state.maxSpeed= 500;
-			state.accelMul = 50	;
-			state.impact = 0.2;
-			state.directSuiciderFirst = true;
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,1,0,0,1);
 		}
+		state.width = 32;
+		state.height = 32;
+		state.damage = 10;
+		state.maxSmallHealth = 10;
+		state.healthSpeed = 100;
+		state.deathSound = Sound.createSound('direct_suicider_death',false);
+		state.deathSound.gain = 0.1;
+		state.accelCap = 1000;
+		state.maxSpeed= 500;
+		state.accelMul = 50	;
+		state.impact = 0.2;
+	},
+	create: function(state){
 		state.life = 1;
 	},
 	update: function(state,delta){
@@ -163,29 +162,28 @@ Entities.add('enemy_direct_suicider',Entities.create({
 
 Entities.add('enemy_direct_move_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,Math.PI/4,0.81,0.09,0.56,1);
+		}
+		state.width = 24;
+		state.height = 24;
+		state.damage = 10;
+		state.maxSmallHealth = 5;
+		state.healthSpeed = 100;
+		state.deathSound = Sound.createSound('direct_suicider_death',false);
+		state.deathSound.gain = 0.1;
+		state.moveSpeed= 500;
+		state.accelMul = 50	;
+		state.impact = 0.2;
+		state.stunConst = 1;
+		state.stun = 0;
+		state.onDamage = function(damage){
+			this.stun += damage*this.stunConst;
+		}
+	},
 	create: function(state){
 		state.life = 1;
-		if(!state.directSuiciderFirst){
-			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,Math.PI/4,0.81,0.09,0.56,1);
-			}
-			state.width = 24;
-			state.height = 24;
-			state.damage = 10;
-			state.maxSmallHealth = 5;
-			state.healthSpeed = 100;
-			state.deathSound = Sound.createSound('direct_suicider_death',false);
-			state.deathSound.gain = 0.1;
-			state.moveSpeed= 500;
-			state.accelMul = 50	;
-			state.impact = 0.2;
-			state.stunConst = 1;
-			state.stun = 0;
-			state.onDamage = function(damage){
-				this.stun += damage*this.stunConst;
-			}
-			state.directSuiciderFirst = true;
-		}
 	},
 	update: function(state,delta){
 		if(state.stun>0){
@@ -206,31 +204,30 @@ Entities.add('enemy_direct_move_suicider',Entities.create({
 //basically a projectile
 Entities.add('enemy_meandering_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
-	create: function(state){
-		if(!state.directSuiciderFirst){
-			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				manager.fillTriangle(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,this.theta,1,1,0,1);
-			}
-			state.width = 48;
-			state.height = 48;
-			state.damage = 10;
-			state.maxSmallHealth = 5;
-			state.healthSpeed = 100;
-			state.deathSound = Sound.createSound('direct_suicider_death',false);
-			state.deathSound.gain = 0.1;
-			state.moveSpeed= 500;
-			state.accelMul = 50	;
-			state.impact = 0.2;
-			state.stunConst = 1;
-			state.stun = 0;
-			state.dragConst = 0;
-			state.moveSpeed = 200;
-			state.elasticity = 1;
-			state.onDamage = function(damage){
-				this.stun += damage*this.stunConst;
-			}
-			state.directSuiciderFirst = true;
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillTriangle(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,this.theta,1,1,0,1);
 		}
+		state.width = 48;
+		state.height = 48;
+		state.damage = 10;
+		state.maxSmallHealth = 5;
+		state.healthSpeed = 100;
+		state.deathSound = Sound.createSound('direct_suicider_death',false);
+		state.deathSound.gain = 0.1;
+		state.moveSpeed= 500;
+		state.accelMul = 50	;
+		state.impact = 0.2;
+		state.stunConst = 1;
+		state.stun = 0;
+		state.dragConst = 0;
+		state.moveSpeed = 200;
+		state.elasticity = 1;
+		state.onDamage = function(damage){
+			this.stun += damage*this.stunConst;
+		}
+	},
+	create: function(state){
 		var dir = Math.PI*2*Math.random();
 		state.vel[0] = state.moveSpeed;
 		Vector.setDir(state.vel,state.vel,dir);
@@ -249,30 +246,30 @@ Entities.add('enemy_meandering_suicider',Entities.create({
 
 Entities.add('enemy_breaker_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,1,0,1,1)
+			manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height/8,0,0,1,0,1)
+			manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width/8,this.height,0,0,1,0,1)
+		}
+		state.width = 64;
+		state.height = 64;
+		state.damage = 10;
+		state.healthSpeed = 100;
+		state.deathSound = Sound.createSound('direct_suicider_death',false);
+		state.deathSound.gain = 0.1;
+		state.moveSpeed= 500;
+		state.accelMul = 50	;
+		state.impact = 0.2;
+		state.stunConst = 0.5;
+		state.stun = 0;
+		state.onDamage = function(damage){
+			this.stun += damage*this.stunConst;
+		}
+	},
 	create: function(state){
 		state.life = 10;
-		if(!state.breakerSuiciderFirst){
-			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,1,0,1,1)
-				manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height/8,0,0,1,0,1)
-				manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width/8,this.height,0,0,1,0,1)
-			}
-			state.width = 64;
-			state.height = 64;
-			state.damage = 10;
-			state.healthSpeed = 100;
-			state.deathSound = Sound.createSound('direct_suicider_death',false);
-			state.deathSound.gain = 0.1;
-			state.moveSpeed= 500;
-			state.accelMul = 50	;
-			state.impact = 0.2;
-			state.stunConst = 0.5;
-			state.stun = 0;
-			state.onDamage = function(damage){
-				this.stun += damage*this.stunConst;
-			}
-			state.breakerSuiciderFirst = true;
-		}
+		state.stun = 0;
 	},
 	update: function(state,delta){
 		if(state.stun>0){
@@ -294,28 +291,28 @@ Entities.add('enemy_breaker_suicider',Entities.create({
 
 Entities.add('enemy_breaker_suicider_part',Entities.create({
 	parent: Entities.enemy_suicider,
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,1,0,1,1)
+		}
+		state.width = 24;
+		state.height = 24;
+		state.damage = 10;
+		state.maxSmallHealth = 3;
+		state.healthSpeed = 100;
+		state.deathSound = Sound.createSound('direct_suicider_death',false);
+		state.deathSound.gain = 0.1;
+		state.moveSpeed= 500;
+		state.accelMul = 50	;
+		state.impact = 0.2;
+		state.stunConst = 0.5;
+		state.onDamage = function(damage){
+			this.stun += damage*this.stunConst;
+		}
+		state.breakerSuiciderFirst = true;
+	},
 	create: function(state,x,y,vx,vy){
 		state.life = 1;
-		if(!state.breakerSuiciderFirst){
-			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,1,0,1,1)
-			}
-			state.width = 24;
-			state.height = 24;
-			state.damage = 10;
-			state.maxSmallHealth = 3;
-			state.healthSpeed = 100;
-			state.deathSound = Sound.createSound('direct_suicider_death',false);
-			state.deathSound.gain = 0.1;
-			state.moveSpeed= 500;
-			state.accelMul = 50	;
-			state.impact = 0.2;
-			state.stunConst = 0.5;
-			state.onDamage = function(damage){
-				this.stun += damage*this.stunConst;
-			}
-			state.breakerSuiciderFirst = true;
-		}
 		state.stun = 1;
 		state.vel[0]=vx||0;
 		state.vel[1]=vy||0;

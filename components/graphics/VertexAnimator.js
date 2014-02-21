@@ -19,7 +19,7 @@ var VertexAnimator = function(program,attributeArrays,uniforms,numOfVerts,setUni
 	var vertexAttribute;
 	var vertexSize;
 	var x=NaN,y=NaN,width=NaN,height=NaN,changed=true;
-	
+	var anim = this;
 	var Keyframe = function(attributeArrays,uniforms){
 		this.attributeArrays = attributeArrays;
 		this.uniforms = uniforms;
@@ -38,7 +38,7 @@ var VertexAnimator = function(program,attributeArrays,uniforms,numOfVerts,setUni
 			draw:(VERTEXANIMATOR_ALT_DRAW) ? (function(){
 				var floatArrays = null;
 				
-				return function(gl,delta,screen,manager,pMatrix,mvMatrix,drawType){
+				return function(gl,delta,screen,manager,pMatrix,mvMatrix,drawType,startPos,numOfVertsD){
 					if(floatArrays == null){
 						floatArrays = new Object();
 						for(var o in this.attributeArrays){
@@ -60,10 +60,13 @@ var VertexAnimator = function(program,attributeArrays,uniforms,numOfVerts,setUni
 					if(doUniforms){
 						setUniforms(this.uniforms,gl,delta,screen,manager);
 					}
+					manager.setUniform1f('basic','alpha',anim.alpha)
 					manager.setMatrixUniforms(program,pMatrix,mvMatrix.current);
-					gl.drawArrays(drawType,0,numOfVerts);
+					startPos = startPos || 0;
+					numOfVertsD = numOfVertsD || numOfVerts;
+					gl.drawArrays(drawType,startPos,numOfVertsD);
 				}
-			})() : function(gl,delta,screen,manager,pMatrix,mvMatrix,drawType){
+			})() : function(gl,delta,screen,manager,pMatrix,mvMatrix,drawType,startPos,numOfVertsD){
 				drawType =drawType || gl.TRIANGLE_FAN;
 				manager.bindProgram(program);
 				//set array buffers
@@ -74,9 +77,12 @@ var VertexAnimator = function(program,attributeArrays,uniforms,numOfVerts,setUni
 				if(doUniforms){
 					setUniforms(this.uniforms,gl,delta,screen,manager);
 				}
+				manager.setUniform1f('basic','alpha',anim.alpha)
 				manager.setMatrixUniforms(program,pMatrix,mvMatrix.current);
 				gl.drawArrays(drawType,0,numOfVerts);
-			
+				startPos = startPos || 0;
+				numOfVertsD = numOfVertsD || numOfVerts;
+				gl.drawArrays(drawType,startPos,numOfVertsD);
 			},
 			clone: function(){
 				var tempUniforms = {};
@@ -337,6 +343,17 @@ var VertexAnimator = function(program,attributeArrays,uniforms,numOfVerts,setUni
 	this.unpause = function(){
 		pause = false;
 	}
+	/**
+	*	draws a keyframe arbitrarily without changing the animator's state
+	*/
+	this.drawKeyframe = function(keyframe,gl,delta,screen,manager,pMatrix,mvMatrix,drawType,start,num){
+		if(keyframes[keyframe]){
+			keyframes[keyframe].draw(gl,delta,screen,manager,pMatrix,mvMatrix,drawType,start,num);
+		}else{
+			console.trace();
+			throw "keyframe does not exist"
+		}
+	}
 	var vertCheck = function(){
 		if(!vertexAttribute || !vertexSize) throw "vertex attribute undefined";
 	}
@@ -468,4 +485,6 @@ var VertexAnimator = function(program,attributeArrays,uniforms,numOfVerts,setUni
 	
 }
 
-VertexAnimator.prototype = new Box();
+VertexAnimator.prototype = fillProperties(new Box(),{
+	alpha: 1
+});
