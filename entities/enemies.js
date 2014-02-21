@@ -310,3 +310,59 @@ Entities.add('enemy_turret',Entities.create({
 		}
 	}
 }));
+
+Entities.add('enemy_shooter',Entities.create({
+	parent: Entities.enemy_suicider,
+	create: function(state){
+		if(!state.directSuiciderFirst){
+		var p = Entities.player.getInstance(0);
+			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				manager.fillTriangle(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,state.theta+Math.PI/2,1,1,0,1);
+			}
+			state.v = vec2.create();
+			state.theta = 0;
+			state.width = 80;
+			state.height = 80;
+			state.damage = 10;
+			state.maxSmallHealth = 10;
+			state.healthSpeed = 100;
+			state.deathSound = Sound.createSound('direct_suicider_death',false);
+			state.deathSound.gain = 0.1;
+			state.accelCap = 1000;
+			state.maxSpeed= 800;
+			state.accelMul = 75;
+			state.impact = 0.2;
+			state.moveSpeed = 400;
+			state.directSuiciderFirst = true;
+			state.delay = 0;
+			state.shotsound = Sound.createSound('rocket_fire',false);
+			state.shotsound.gain = 0.1;
+			state.radius = 300;
+		}
+		state.life = 3;			
+	},
+	update: function(state,delta){
+		if(state.inActiveScope){
+			state.delay += delta;
+			var p = Entities.player.getInstance(0);
+			//change where enemy looks
+			state.theta = Vector.getDir(vec2.set(state.v, state.x - p.cx, state.y - p.cy));
+			var dist = pythag(p.cx-state.x+state.width/2,p.cy-state.y+state.height/2);
+			//movement
+			
+			
+			//shooting
+			if(state.delay >= .8) {
+			Entities.enemyFollowBullet.newInstance(state.x + state.width/2, state.y + state.height/2);
+			state.shotsound.play(0)
+			state.delay = 0;
+			}
+		}
+	},
+	destroy: function(state,reset){
+		if(!reset){
+			state.deathSound.play(0)
+			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,0,0,0.1,state.vel[0],state.vel[1]);
+		}
+	}
+}));
