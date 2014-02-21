@@ -337,9 +337,12 @@ Entities.add('enemy_shooter',Entities.create({
 			state.delay = 0;
 			state.shotsound = Sound.createSound('rocket_fire',false);
 			state.shotsound.gain = 0.1;
-			state.radius = 300;
+			state.innerRadius = 250;
+			state.outerRadius = 300;
+			state.up = 1;
+			state.right = 1;
 		}
-		state.life = 3;			
+		state.life = 2;			
 	},
 	update: function(state,delta){
 		if(state.inActiveScope){
@@ -349,7 +352,40 @@ Entities.add('enemy_shooter',Entities.create({
 			state.theta = Vector.getDir(vec2.set(state.v, state.x - p.cx, state.y - p.cy));
 			var dist = pythag(p.cx-state.x+state.width/2,p.cy-state.y+state.height/2);
 			//movement
+			//top
+			if(state.y > p.cy){
+			state.up = 1;
+			}else{
+			state.up = 0;
+			}
+			if(state.y < p.cy + state.innerRadius && state.up == 1){
+				state.accelerateToward(state.x, state.y+100, 800);
+			}else if(state.y > p.cy + state.outerRadius && state.up == 1){
+				state.accelerateToward(state.x, state.y-100, 800);
+			//down
+			}else if(state.y > p.cy - state.innerRadius && state.up == 0){
+				state.accelerateToward(state.x, state.y-100, 800);
+			}else if(state.y < p.cy - state.outerRadius && state.up == 0){
+				state.accelerateToward(state.x, state.y+100, 800);
+			}
 			
+			if(state.x > p.cx){
+			state.right = 1;
+			}else{
+			state.right = 0;
+			}
+			
+			//right
+			if(state.x < p.cx + state.innerRadius && state.right == 1){
+				state.accelerateToward(state.x+100, state.y, 500);
+			}else if(state.x > p.cx + state.outerRadius && state.right == 1){
+				state.accelerateToward(state.x-100, state.y, 500);
+			//left
+			}else if(state.x > p.cx - state.innerRadius && state.right == 0){
+				state.accelerateToward(state.x-100, state.y, 500);
+			}else if(state.x < p.cx - state.outerRadius && state.right == 0){
+				state.accelerateToward(state.x+100, state.y, 500);
+			}
 			
 			//shooting
 			if(state.delay >= .8) {
