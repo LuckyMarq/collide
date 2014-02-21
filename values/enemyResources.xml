@@ -1,0 +1,5 @@
+<root>
+	<audio>
+		<file name='pew'>resources/audio/pew.wav</file>
+	</audio>
+</root>
