@@ -7,20 +7,24 @@ Entities.add('weapon_pickup',Entities.create(
 								draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
 									var u;
 									var p = Entities.player.getInstance(0);
-									mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,1);
-									mvMatrix.push()
+									
 									if(this.added){
 										u = this.time/this.startTime;
+										mvMatrix.translate(p.cx,p.cy,1)
 										mvMatrix.scale(1+(30*(1-u)),1+(30*(1-u)),1);
+										p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
 										this.time-=delta;
+									}else{
+										mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,1);
+										mvMatrix.push()
+										p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
+										mvMatrix.pop();
+										u = state.t/state.tm;
+										mvMatrix.scale(1+((state.maxScale-1)*u),1+((state.maxScale-1)*u),1);
+										p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix,gl.LINE_LOOP,1,31);
+										state.t+=delta;
+										state.t%=state.tm;
 									}
-									p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
-									mvMatrix.pop();
-									u = state.t/state.tm;
-									mvMatrix.scale(1+((state.maxScale-1)*u),1+((state.maxScale-1)*u),1);
-									p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix,gl.LINE_LOOP,1,31);
-									state.t+=delta;
-									state.t%=state.tm;
 								},
 								z: 1
 							},x,y,512,512,1));
@@ -47,6 +51,7 @@ Entities.add('weapon_pickup',Entities.create(
 					if(p.collision(state.x + (state.width/2) - 32, state.y + (state.height/2) -32,64,64)){
 						p.addWeapon(state.keyframe,state.weapon);
 						state.added = true;
+						state.boundless = true;
 					}
 				}
 				if(state.time<=0)state.alive = false;
