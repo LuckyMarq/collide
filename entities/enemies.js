@@ -335,7 +335,7 @@ Entities.add('enemy_shooter',Entities.create({
 			state.moveSpeed = 400;
 			state.directSuiciderFirst = true;
 			state.delay = 0;
-			state.shotsound = Sound.createSound('rocket_fire',false);
+			state.shotsound = Sound.createSound('pew',false);
 			state.shotsound.gain = 0.1;
 			state.innerRadius = 250;
 			state.outerRadius = 300;
