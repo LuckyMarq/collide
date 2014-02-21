@@ -1,6 +1,4 @@
-// TODO:
-// OVERHEAT NEEDED
-// weapons strictly do not charge when holding down fire
+
 // RocketWeapon -- 
 function RocketWeapon(){
 	this.boundless = true;
@@ -19,7 +17,7 @@ function RocketWeapon(){
 			if (time > 0)
 				time-=delta;
 			if (!vis) {
-				if (energy < 100)
+				if (energy < 100 && !Loop.paused)
 					energy+=RECHARGE_RATE;
 			}
 		}
@@ -30,11 +28,6 @@ function RocketWeapon(){
 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
 				(screen.height-32)*(energy/100),0,1,1,0,1);
 		}	
-// 		gl.enable(gl.BLEND);
-// 		gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
-// 		manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-// 			(screen.height-32)*(energy/100),0,1,1,0,1);
-// 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
 	}
 	
 	this.fire = function() {
@@ -291,7 +284,7 @@ function MineWeapon(){
 			if (time > 0)
 				time-=delta;
 			if (!vis) {
-				if (energy < 100)
+				if (energy < 100 && !Loop.paused)
 					energy+=RECHARGE_RATE;
 			}
 		}
@@ -398,9 +391,9 @@ function WaveWeapon(){
 	var damage = 0.5;
 	var vec = vec2.create();
 	var theta = 0;
-	var thickness = 156;
-	var length = 100;
-	var radius = 128;
+	var thickness = 300;
+	var length = 250;
+	var radius = length;
 
 	var sound = Sound.createSound('wave_fire');
 	sound.gain = 0.1;
@@ -473,7 +466,7 @@ function WaveWeapon(){
 	ticker.add({
 		tick: function(delta) {
 			if (!vis) {
-				if (energy < 100)
+				if (energy < 100 && !Loop.paused)
 					energy+=RECHARGE_RATE;
 			}
 		
@@ -579,7 +572,7 @@ function BeamWeapon(){
 	ticker.add(
 		{tick:function (delta) {
 			if (!vis || overheat) {
-				if (energy < 100)
+				if (energy < 100 && !Loop.paused)
 					energy+=RECHARGE_RATE;
 				if (energy > 100) {
 					overheat = false;
