@@ -389,16 +389,16 @@ Entities.add('enemy_shooter',Entities.create({
 			
 			//shooting
 			if(state.delay >= .8) {
-			Entities.enemyFollowBullet.newInstance(state.x + state.width/2, state.y + state.height/2);
-			state.shotsound.play(0)
-			state.delay = 0;
+				Entities.enemy_bullet.newInstance(state.x + state.width/2, state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2) ,p.cy-(state.y + state.height/2)));
+				state.shotsound.play(0)
+				state.delay = 0;
 			}
 		}
 	},
 	destroy: function(state,reset){
 		if(!reset){
 			state.deathSound.play(0)
-			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,0,0,0.1,state.vel[0],state.vel[1]);
+			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,1,0,0.1,state.vel[0],state.vel[1]);
 		}
 	}
 }));
