@@ -110,7 +110,8 @@ function Map(limit, roomChance, minWidth, maxWidth, minHeight, maxHeight, size, 
 			weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
 		}
 		var index = Math.round(Math.random()*(keyframes.length - 1));
-		Entities.weapon_pickup.newInstance(weaponRoom.x + size/2,weaponRoom.y + size/2,keyframes[index],weapons[index]);
+		Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,keyframes[index],weapons[index]);
+		
 		weaponRoom.weaponRoom = true;
 		//add enemies
 		if(enemies){
