@@ -11,6 +11,7 @@ function loadSource(){
 	//list script files in order here
 	var scriptSource = [
 		'misc.js',
+		'utils/Interpolator.js',
 		'config.js',
 		'utils/input.js',
 		'utils/collisions.js',

@@ -278,6 +278,7 @@ Entities.add('player', Entities.create((function(){
 					gl.enable(gl.BLEND);
 					gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)
 					manager.fillRect(32+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(life/100),0,1-(1*(life/100)),1*(life/100),0,this.alpha);
+					manager.fillRect(16+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(state.weaponManager.energy/100),0,1,(state.weaponManager.overheated)?0:1,0,this.alpha);
 					mvMatrix.translate(screen.x+screen.width - 48, screen.y+ 48,this.z);
 					
 					this.animator.alpha = this.alpha;
@@ -433,6 +434,7 @@ Entities.add('player', Entities.create((function(){
 			state.keyframes[0] = firstKeyframe;
 			state.animator.setCurrentKeyframe(firstKeyframe);
 			state.weaponManager.add(new firstWeapon());
+			ticker.add(state.weaponManager);
 			state.life = 100;
 			state.set(x,y,0,0,0,0);
 			graphics.addToDisplay(state,'gl_main');
@@ -446,6 +448,7 @@ Entities.add('player', Entities.create((function(){
 			graphics.removeFromDisplay(state.hud,'gl_main');
 			physics.remove(state);
 			ticker.remove(state);
+			ticker.remove(state.weaponManager);
 			if(graphics.getScreen('gl_main').follower == state)graphics.getScreen('gl_main').follower == null;
 			state.weaponManager.clear();
 			playerExplosion.play(0);

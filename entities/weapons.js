@@ -4,7 +4,7 @@ function RocketWeapon(){
 	this.boundless = true;
 	this.barVisible = false;
 	var time = 0;
-	var energy = 100;
+	this.energy = 100;
 	var COST = 10;
 	var RECHARGE_RATE = 1;
 	var vis = false;
@@ -12,27 +12,26 @@ function RocketWeapon(){
 	var dir = {0:0, 1:0, length:2};	
 	var sound = Sound.createSound('rocket_fire');
 	sound.gain = 0.1;
-	ticker.add(
-		{tick:function (delta) {
-			if (time > 0)
-				time-=delta;
-			if (!vis) {
-				if (energy < 100 && !Loop.paused)
-					energy+=RECHARGE_RATE;
-			}
-		}
-	});
 	
-	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-		if (this.barVisible) {
-			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-				(screen.height-32)*(energy/100),0,1,1,0,1);
-		}	
+	this.tick =function (delta) {
+		if (time > 0)
+			time-=delta;
+		if (!vis) {
+			if (this.energy < 100 && !Loop.paused)
+				this.energy+=RECHARGE_RATE;
+		}
 	}
 	
+	// this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
+// 		if (this.barVisible) {
+// 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
+// 				(screen.height-32)*(energy/100),0,1,1,0,1);
+// 		}	
+// 	}
+	
 	this.fire = function() {
-		if (time <= 0 && energy >= COST) {
-			energy -= COST;
+		if (time <= 0 && this.energy >= COST) {
+			this.energy -= COST;
 			vis = true;
 			time = 0.5;
 			dir[0] = mouse.x - p.cx;
@@ -46,7 +45,7 @@ function RocketWeapon(){
 		vis = false;
 	};
 	
-	graphics.addToDisplay(this, 'gl_main');
+	//graphics.addToDisplay(this, 'gl_main');
 }
 RocketWeapon.prototype = new GLDrawable();
 //RocketWeapon.prototype = {}
@@ -54,30 +53,13 @@ RocketWeapon.prototype = new GLDrawable();
 // Rocket -- 
 Entities.add('rocket', Entities.create( // blows up before it touches???
 	(function(){
-		var damage = 1;
+		var damage = 50;
 		var buffered = false;
+		var interp = getInverseExponentInterpolator(2);
+		var blastForce = 800;
 		return {
-			create: function(state,x,y,dir){
-				state.alive = true;
-				state.fuse = 5;
-				state.theta = Vector.getDir(dir) - Math.PI / 2;
-				state.delay = 0.5;
-				state.mx = mouse.x;
-				state.my = mouse.yInv;
-				state.a = []; // array for collision check
-				state.blastbox = new Object();
-				state.blastbox.width = 24;
-		 		state.blastbox.height = 24;
-				state.blastbox.x = x - 12;
-				state.blastbox.y = y - 12;
-				state.ray = [];
-				state.hits = physics.rayTrace(state.ray,x,y,mouse.x,mouse.yInv);
-				state.targetx = state.hits[state.hits.length - 2];
-				state.targety = state.hits[state.hits.length - 1];
-				state.sound = Sound.createSound('explosion_fire');
-				state.sound.gain = 0.1;
-				if(!state.first){
-					fillProperties(state, Entities.createStandardCollisionState(
+			construct: function(state,x,y,dir){
+				fillProperties(state, Entities.createStandardCollisionState(
 					{
 						glInit: function(manager)
 						{
@@ -94,37 +76,9 @@ Entities.add('rocket', Entities.create( // blows up before it touches???
 						}
 					},x,y,16,16,1)); // TODO: WHAT THE FUCK BOX
 					
-					state.tick = function(delta){
-						this.a = [];
-						this.fuse-=delta;
-						this.delay -= delta;
-						if (this.fuse<=0)
-						{
-							this.alive = false;
-						}
-						if (this.delay <= 0)
-						{
-							this.accelerateToward(this.targetx,this.targety,800);
-							// todo:
-							// change to blast radius
-							// farther away less damage
-							// inverse quad
-							var enemies = physics.getColliders(state.a, state.x,
-								state.y, state.width, state.height);
-							for (var i = 0; i < enemies.length; i++){
-								if (enemies[i].isEnemy && enemies[i].collision(this)) {
-									this.alive = false;
-									i = enemies.length;
-								}
-							}
-							this.a.length = 0;
-						}
-						this.blastbox.x = this.x + this.width/2 - this.blastbox.width/2;
-						this.blastbox.y = this.y + this.height/2 - this.blastbox.width/2;
-					}
 					
 					state.onCollision = function() {
-						this.alive = false;
+						if(this.delay<=0)this.alive = false;
 					}
 					
 					state.animator = new VertexAnimator("basic", 
@@ -225,39 +179,59 @@ Entities.add('rocket', Entities.create( // blows up before it touches???
 							})
 						},
 						{},6);
-						
-					
-					state.first = true;
-				}
+			},
+			create: function(state,x,y,dir){
+				state.alive = true;
+				state.fuse = 5;
+				state.theta = Vector.getDir(dir) - Math.PI / 2;
+				state.delay = 0.5;
+				state.a = []; // array for collision check
+				state.sound = Sound.createSound('explosion_fire');
+				state.sound.gain = 0.1;
 				state.animator.setCurrentKeyframe("fat",0);
 				state.animator.setCurrentKeyframe("slim", state.delay);
-				state.x = x;
-				state.y = y;
-				state.vel[0]=Entities.player.getInstance(0).vel[0] / 4;
-				state.vel[1]=Entities.player.getInstance(0).vel[1] / 4;
-				state.accel[0] = 0;
+				state.set(x,y,0,0,0,0)
+				state.width = 16;
+				state.height = 16;
+				state.dir = Vector.getDir(dir);
 				state.accel[1] = 0;
 				graphics.addToDisplay(state,'gl_main');
 				ticker.add(state);
 				physics.add(state);
 			},
+			update: function(state,delta){
+				state.a.length = 0;;
+						state.fuse-=delta;
+						state.delay -= delta;
+						if (state.fuse<=0)
+						{
+							state.alive = false;
+						}
+						if (state.delay <= 0)
+						{
+							state.accel[0] = Math.cos(state.dir)*800;
+							state.accel[1] = Math.sin(state.dir)*800;
+							// todo:
+							// change to blast radius
+							// farther away less damage
+							// inverse quad
+							
+							
+						}
+						state.a.length = 0;
+						var enemies = physics.getColliders(state.a, state.x,
+							state.y, state.width, state.height);
+						for (var i = 0; i < enemies.length; i++){
+							var e = enemies[i];
+							if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
+								state.alive = false;
+								i = enemies.length;
+							}
+						}
+			},
 			destroy: function(state){
 				state.sound.play(0);
-				var enemies = physics.getColliders(state.a, state.blastbox.x, state.blastbox.y, state.blastbox.width, state.blastbox.height);
-				for (var e in enemies) {
-					e = enemies[e];
-					if (e.isEnemy) { // add player damage and blast force
-						e.life -= damage;
-						if (e.life <= 0) {
-							e.alive = false;
-						} else {
-							//e.vel[0] = vec[0] * blastForce;
-							//e.vel[1] = vec[1] * blastForce;
-						}
-					}
-				}
-				for (var i = 0; i < 50; i++)
-					Entities.explosion.newInstance(state.x, state.y, 0.3);
+				Entities.explosion_basic.newInstance(state.x + state.width/2 - 64, state.y + state.height/2 - 64,128,0,damage,0,blastForce, interp);
 				graphics.removeFromDisplay(state,'gl_main');
 				ticker.remove(state);
 				physics.remove(state);
@@ -271,7 +245,7 @@ function MineWeapon(){
 	this.boundless = true;
 	this.barVisible = false;
 	var time = 0;
-	var energy = 100;
+	this.energy = 100;
 	var COST = 30;
 	var RECHARGE_RATE = 1;
 	var vis = false;
@@ -279,28 +253,27 @@ function MineWeapon(){
 	var p = Entities.player.getInstance(0);
 	var sound = Sound.createSound('mine_fire');
 	sound.gain = 0.1;
-	ticker.add(
-		{tick:function (delta) {
-			if (time > 0)
-				time-=delta;
-			if (!vis) {
-				if (energy < 100 && !Loop.paused)
-					energy+=RECHARGE_RATE;
-			}
-		}
-	});
 	
-	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-		if (this.barVisible) {
-			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-				(screen.height-32)*(energy/100),0,1,1,0,1);
+	this.tick=function (delta) {
+		if (time > 0)
+			time-=delta;
+		if (!vis) {
+			if (this.energy < 100 && !Loop.paused)
+				this.energy+=RECHARGE_RATE;
 		}
-	};
+	}
+	
+	// this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
+// 		if (this.barVisible) {
+// 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
+// 				(screen.height-32)*(energy/100),0,1,1,0,1);
+// 		}
+// 	};
 	
 	this.fire = function() {
-		if (time <= 0 && energy >= COST) {
+		if (time <= 0 && this.energy >= COST) {
 			vis = true;
-			energy -= COST;
+			this.energy -= COST;
 			sound.play(0);
 			Entities.mine.newInstance(p.cx,p.cy);
 			time = 1;
@@ -310,7 +283,7 @@ function MineWeapon(){
 	this.holdFire = function() {
 		vis = false;
 	};
-	graphics.addToDisplay(this, 'gl_main');
+	//graphics.addToDisplay(this, 'gl_main');
 }
 MineWeapon.prototype = new GLDrawable();
 
@@ -319,6 +292,7 @@ Entities.add('mine', Entities.create(
 	(function(){
 		var damage = 5;
 		var blastForce = 800;
+		var interp = getInverseExponentInterpolator(2);
 		var vec = vec2.create();		
 		var sound = Sound.createSound('explosion_fire');
 		sound.gain = 0.2;
@@ -369,8 +343,7 @@ Entities.add('mine', Entities.create(
 						}
 					}
 				}
-				for (var i = 0; i < 50; i++)
-					Entities.explosion.newInstance(state.x, state.y);
+				Entities.explosion_basic.newInstance(state.x + state.width/2 - 64,state.y + state.height/2 - 64,128,0,damage,0,blastForce, interp);
 				graphics.removeFromDisplay(state,'gl_main');
 				physics.remove(state);
 			}
@@ -383,7 +356,7 @@ function WaveWeapon(){
 	this.boundless = true;
 	this.barVisible = false;
 	var time = 0;
-	var energy = 100;
+	this.energy = 100;
 	var COST = 15;
 	var RECHARGE_RATE = 1;
 	var vis = false;
@@ -409,8 +382,6 @@ function WaveWeapon(){
 	var newA = true;
 	var a = [];
 	
-	graphics.addToDisplay(this, 'gl_main');
-	
 	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
 		if (vis) {
 			mvMatrix.push();
@@ -419,17 +390,17 @@ function WaveWeapon(){
 			manager.fillTriangle(p.cx + (Math.cos(theta)*(length/2)),p.cy+(Math.sin(theta)*(length/2)),0,thickness,length,0,0.6,0,1,1);
 			mvMatrix.pop();
 		}
-		if (this.barVisible) {
-			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-				(screen.height-32)*(energy/100),0,1,1,0,1);
-		}
+		// if (this.barVisible) {
+// 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
+// 				(screen.height-32)*(energy/100),0,1,1,0,1);
+// 		}
 	};
 	this.fire = function() {
-		if (!hasPressed && energy>=COST) {
+		if (!hasPressed && this.energy>=COST) {
 			hasPressed = true;
 			sound.play(0);
 			theta = Vector.getDir(vec2.set(vec, mouse.x - p.cx, mouse.yInv - p.cy));
-			energy -= COST;
+			this.energy -= COST;
 			vis = true;
 			// check for enemies
 			var enemies = physics.getColliders(a, p.cx - radius, p.cy - radius, radius*2, radius*2);
@@ -463,24 +434,25 @@ function WaveWeapon(){
 		hasPressed = false;
 	};
 	this.boundless = true;
-	ticker.add({
-		tick: function(delta) {
-			if (!vis) {
-				if (energy < 100 && !Loop.paused)
-					energy+=RECHARGE_RATE;
-			}
-		
-			damagePer = delta;
-			
-			if (newA){	
-				for (var i = 0; i < a.length; i++) {
-					a[i].accel[0] = 0;
-					a[i].accel[1] = 0;
-				}
-				newA = false;
-			}
+	
+	this.tick = function(delta) {
+		if (!vis) {
+			if (this.energy < 100 && !Loop.paused)
+				this.energy+=RECHARGE_RATE;
 		}
-	});
+		
+		damagePer = delta;
+			
+		if (newA){	
+			for (var i = 0; i < a.length; i++) {
+				a[i].accel[0] = 0;
+				a[i].accel[1] = 0;
+			}
+			newA = false;
+		}
+	}
+	
+	graphics.addToDisplay(this, 'gl_main');
 }
 WaveWeapon.prototype = new GLDrawable();
 
@@ -489,11 +461,11 @@ function BeamWeapon(){
 	this.boundless = true;
 	this.barVisible = false;
 	var time = 0;
-	var energy = 100;
+	this.energy = 100;
 	var COST = 0.8;
 	var RECHARGE_RATE = 1;
 	var vis = false;
-	var overheat = false;
+	this.overheated = false;
 	var p = Entities.player.getInstance(0);
 	var damage = 0.7;
 	var force = -80;
@@ -529,14 +501,14 @@ function BeamWeapon(){
 			hits.length = 0;
 			physics.rayTraceLine(hits,p.cx,p.cy,mouse.x,mouse.yInv);
 		}
-		if (this.barVisible) {
-			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-				(screen.height-32)*(energy/100),0,1,(overheat) ? 0 : 1,0,1);
-		}
+		// if (this.barVisible) {
+// 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
+// 				(screen.height-32)*(energy/100),0,1,(overheat) ? 0 : 1,0,1);
+// 		}
 	};
 	this.fire = function() {
-		if (energy >= COST && !overheat) {
-			energy -= COST;
+		if (this.energy >= COST && !this.overheated) {
+			this.energy -= COST;
 			if (!sound.playing) 
 				sound.play(0);
 			vis = true;
@@ -557,7 +529,7 @@ function BeamWeapon(){
 		} else {
 			sound.stop(0);
 			vis = false;
-			overheat = true;
+			this.overheated = true;
 		}
 	};
 	
@@ -569,18 +541,16 @@ function BeamWeapon(){
 		theta = 0;
 	}
 	
-	ticker.add(
-		{tick:function (delta) {
-			if (!vis || overheat) {
-				if (energy < 100 && !Loop.paused)
-					energy+=RECHARGE_RATE;
-				if (energy > 100) {
-					overheat = false;
-					energy = 100;
-				}
+	this.tick = function (delta) {
+		if (!vis || this.overheated) {
+			if (this.energy < 100 && !Loop.paused)
+				this.energy+=RECHARGE_RATE;
+			if (this.energy >= 100) {
+				this.overheated = false;
+				this.energy = 100;
 			}
 		}
-	});
+	}
 
 	graphics.addToDisplay(this, 'gl_main');
 }
@@ -588,7 +558,7 @@ BeamWeapon.prototype = new GLDrawable();
 
 
 // Explosion
-Entities.add('explosion', Entities.create(
+Entities.add('explosion_frag', Entities.create(
 	(function(){
 		return {
 			create: function(state,x,y,life){

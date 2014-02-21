@@ -150,3 +150,64 @@ Entities.add('shrink_burst',Entities.create(
 		this.newInstance(x,y,width,height,life,vx+Math.cos(theta)*speed,vy+Math.sin(theta)*speed,r,g,b,dragConst);
 	}
 }
+
+Entities.add('explosion', Entities.create(
+	(function(){
+		var miscArray = []
+		return {
+			create: function(state,x,y,size,minDamage,maxDamage,minForce,maxForce,interpolator){
+				state.x = x;
+				state.y = y;
+				state.width = size;
+				state.height = size;
+				state.damage = damage;
+				state.interpolator = interpolator;
+				miscArray.length = 0;
+				var cx = x+size/2;
+				var cy = y+size/2
+				var enemies = physics.getColliders(miscArray,x,y,size,size);
+				for(var i = 0; i<enemies.length; i++){
+					var e = enemies[i];
+					var u = e.x+ (e.width/2) - cx
+					var v = e.y+ (e.height/2) - cy;
+					var p = pythag(u,v)/size;
+					if(p < 1 && interpolator){
+						var dir = Vector.getDir(u,v);
+						var damage = interpolator(minDamage,maxDamage,p);
+						var force = interpolator(minForce,maxForce,p)/(e.mass || 1);
+						e.life-=damage;
+						e.vel[0] += force * Math.cos(dir);
+						e.vel[1] += force * Math.sin(dir);
+					}
+				}
+				state.alive = false;
+			},
+			update: function(state,delta){			
+			}
+		}
+	})())
+);
+
+Entities.add('explosion_basic', Entities.create(
+	{
+		parent: Entities.explosion,
+		construct: function(state){
+			fillProperties(state,new GLDrawable())
+			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				manager.fillEllipse(state.x+state.width/2,state.y+state.height/2,1,state.width,state.height,0,1,1,1,1);
+				state.time-=delta;
+				state.alive = state.time>0;
+			}
+		},
+		create: function(state,x,y,size,minDamage,maxDamage,minForce,maxForce,interpolator) {
+			state.alive = true;
+			time = 1;
+			for (var i = 0; i < 50; i++)
+				Entities.explosion_frag.newInstance(state.x+state.width/2, state.y+state.height/2);
+			graphics.addToDisplay(state,'gl_main');	
+		},
+		destroy : function(state){
+			graphics.removeFromDisplay(state,'gl_main');
+		}
+	}
+));
