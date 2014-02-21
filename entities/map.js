@@ -95,19 +95,34 @@ function Map(limit, roomChance, minWidth, maxWidth, minHeight, maxHeight, size, 
 	}
 	this.room = new Room(null,null,null,null,0,0);
 	
-	this.init = function(enemies,margin){
-		//create player
-		Entities.player.newInstance(this.room.x+size/2,this.room.y + size/2);
-		
+	this.init = function(enemies,margin,keyframes,weapons,player){
+		if(player){
+			player.set(this.room.x+size/2,this.room.y + size/2,0,0,0,0)
+		}else{
+			//create player
+			var index = Math.round(Math.random()*(keyframes.length -1))
+			Entities.player.newInstance(this.room.x+size/2,this.room.y + size/2,keyframes[index],weapons[index]);
+			weapons.splice(index,1);
+			keyframes.splice(index,1);
+		}
+		var weaponRoom = this.room;
+		while(weaponRoom == this.room){
+			weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
+		}
+		var index = Math.round(Math.random()*(keyframes.length - 1));
+		Entities.weapon_pickup.newInstance(weaponRoom.x + size/2,weaponRoom.y + size/2,keyframes[index],weapons[index]);
+		weaponRoom.weaponRoom = true;
 		//add enemies
 		if(enemies){
 			var populate = function(room,d){
-				for(var i in enemies){
-					var num = enemies[i].def.max * Math.random();
-					for(var j = 0; j< num; j++){
-						var x = room.x+ (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2)));
-						var y = room.y+ (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2)));
-						enemies[i].newInstance(x,y);
+				if(!room.weaponRoom){
+					for(var i in enemies){
+						var num = enemies[i].def.max * Math.random();
+						for(var j = 0; j< num; j++){
+							var x = room.x+ (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2)));
+							var y = room.y+ (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2)));
+							enemies[i].newInstance(x,y);
+						}
 					}
 				}
 				
@@ -122,16 +137,27 @@ function Map(limit, roomChance, minWidth, maxWidth, minHeight, maxHeight, size, 
 			if(this.room.east!=null)populate(this.room.east,2);
 			if(this.room.west!=null)populate(this.room.west,3);
 		}
+		
+		
 	}
+	
 }
 Map.prototype=fillProperties(new GLDrawable(),{
 	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
-		manager.stroke(1,1,0,1);
 		for(var i = 0; i<this.lines.length; i+=4){
-			if(screen.collision(Math.min(this.lines[i],this.lines[i+2]),Math.min(this.lines[i+1],this.lines[i+3]),Math.abs(this.lines[i]-this.lines[i+2]),Math.abs(this.lines[i+1]-this.lines[i+3]))){
-				manager.line(this.lines[i],this.lines[i+1],this.lines[i+2],this.lines[i+3],98);
+			var x = Math.min(this.lines[i],this.lines[i+2]);
+			var y = Math.min(this.lines[i+1],this.lines[i+3]);
+			var width = Math.abs(this.lines[i]-this.lines[i+2]);
+			var height = Math.abs(this.lines[i+1]-this.lines[i+3]);
+			if(screen.collision(x,y,width,height)){
+				//manager.line(this.lines[i],this.lines[i+1],this.lines[i+2],this.lines[i+3],98);
+				width = Math.max(6,width);
+				height = Math.max(6,height)
+				manager.fillRect(x+width/2,y+height/2,this.z,width,height,0,1,1,0,1)
+				
 			}
 		}
 	},
+	z:98,
 	boundless:true
 });

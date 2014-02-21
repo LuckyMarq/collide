@@ -141,9 +141,24 @@ function EntityDef(){
 			},
 			writable:false
 		},
+		doConstruct: {
+			value: function(state,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p){
+				if(this.parent){
+					this.parent.def.doConstruct(state,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);
+				}
+				this.construct(state,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);
+			},
+			writable:false
+		}
 	})
 }
 EntityDef.prototype={
+	/**
+	*	constructs the state object when it is created
+	* 	called once per state object
+	*/
+	construct: function(state,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p){
+	},
 	/**
 	* 	initializes the passed state object
 	*/
@@ -211,6 +226,7 @@ Entity.prototype=(function(){
 				this.instances[id] = instance;
 			}else{
 				instance = new EntityState(id,this.euid);
+				this.def.doConstruct(instance,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
 				this.instanceArray.push(instance);
 				this.instances[id] = instance;
 			}
@@ -282,3 +298,4 @@ importS('entities/weapons.js');
 importS('entities/enemies2.js');
 importS('entities/enemies.js');
 importS('entities/pickups.js');
+importS('entities/weaponPickups.js');

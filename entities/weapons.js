@@ -334,11 +334,7 @@ Entities.add('mine', Entities.create(
 				state.alive = true;
 				state.time = 1.5;
 				state.a = []; // array for collision check
-				state.blastbox = new Object();
-				state.blastbox.width = 50;
-		 		state.blastbox.height = 50;
-				state.blastbox.x = x - 25;
-				state.blastbox.y = y - 25;
+				state.blastbox = new Box(x - 25, y - 25, 50, 50);
 				
 				if(!state.first){
 					fillProperties(state, Entities.createStandardState(
@@ -347,38 +343,42 @@ Entities.add('mine', Entities.create(
 							manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,16,16,0,.5,1,.5,1);
 						}
 					},x,y,16,16,1.1));
-					state.tick = function(delta){
-						this.time-=delta;
- 						this.alive = this.time>0;
-					}
 					
 					state.first = true;
 				}
 				state.x = x - state.width/2;
 				state.y = y - state.height/2;
 				graphics.addToDisplay(state,'gl_main');
-				ticker.add(state);
 				physics.add(state);
+			},
+			update:function(state,delta){
+				state.time-=delta;
+				state.alive = state.time>0;
+				var enemies = physics.getColliders(state.a, state.x, state.y, state.width, state.height);
+				for(var i = 0; i<enemies.length; i++){
+					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
+						state.alive = false;
+					}
+				}
 			},
 			destroy: function(state){
 				sound.play(0);
 				var enemies = physics.getColliders(state.a, state.blastbox.x, state.blastbox.y, state.blastbox.width, state.blastbox.height);
 				for (var e in enemies) {
 					e = enemies[e];
-					vec2.set(vec, e.x - this.x, e.y - this.y);
+					vec2.set(vec, e.x - state.x, e.y - state.y);
 					Vector.setMag(vec, vec, 1);
-					if (e.isEnemy) { // add player damage
+					if (e.life && state.blastbox.collision(e)) { // add player damage
 						e.life -= damage;
 						if (e.life > 0) {
-							e.vel[0] = vec[0] * blastForce;
-							e.vel[1] = vec[1] * blastForce;
+							e.vel[0] += vec[0] * blastForce;
+							e.vel[1] += vec[1] * blastForce;
 						}
 					}
 				}
 				for (var i = 0; i < 50; i++)
 					Entities.explosion.newInstance(state.x, state.y);
 				graphics.removeFromDisplay(state,'gl_main');
-				ticker.remove(state);
 				physics.remove(state);
 			}
 		};
@@ -538,7 +538,7 @@ function BeamWeapon(){
 		}
 		if (this.barVisible) {
 			manager.fillRect(16+screen.x,screen.y+screen.height/2,-99,16,
-				(screen.height-32)*(energy/100),0,1,1,0,1);
+				(screen.height-32)*(energy/100),0,1,(overheat) ? 0 : 1,0,1);
 		}
 	};
 	this.fire = function() {
@@ -562,6 +562,7 @@ function BeamWeapon(){
 			t+=Math.PI*2/60
 			t%=Math.PI*2;
 		} else {
+			sound.stop(0);
 			vis = false;
 			overheat = true;
 		}

@@ -121,6 +121,23 @@ function initInput(){
 		})()
 	);
 	
+	keyboard.addKeyListener(112,'f1',(function(){
+		var pressed = false;
+		var mapView = false;
+		var scaleFactor = 10;
+		return {
+			onPress:function(){
+				if(!pressed){
+					pressed = true;
+					draw_bounding_boxes = !draw_bounding_boxes;
+				}
+			},
+			onRelease:function(){
+				pressed = false;
+			}
+		}
+		})()
+	)
 	mouse = new input.Mouse(window,document.getElementById("Display"));
 }
 
@@ -266,22 +283,18 @@ function initScene(){
 	
 	
 	// graphics.addToDisplay(testMap,"gl_main")
+	player_weapons = [BeamWeapon,RocketWeapon,WaveWeapon,MineWeapon];
+	player_keyframes = ['triangle','square','circle','square'];
+	instance_keyframes = player_keyframes.slice(0,player_keyframes.length);
+	instance_weapons = player_weapons.slice(0,player_keyframes.length);
+	
 	currentMap = new Map(9,0.5,256*4,512*4,256*4,512*4,640*4,128);
 	Entities.runner.def.max = 10;
 	Entities.enemy_direct_suicider.def.max = 5;
 	Entities.enemy_direct_move_suicider.def.max = 5;
 	Entities.enemy_breaker_suicider.def.max = 5;
 	Entities.enemy_meandering_suicider.def.max = 10;
-	currentMap.init([Entities.enemy_direct_suicider,Entities.enemy_direct_move_suicider,Entities.enemy_meandering_suicider,Entities.enemy_breaker_suicider],32);
-	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	// Entities.player.newInstance(currentScreen.width/2,currentScreen.height/2);
-	Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	Entities.runner.newInstance(Math.random()*500, Math.random()*500);
+	currentMap.init([Entities.enemy_direct_suicider,Entities.enemy_direct_move_suicider,Entities.enemy_meandering_suicider,Entities.enemy_breaker_suicider],32,instance_keyframes,instance_weapons);
 	physics.setGeometry(currentMap.lines);
 	graphics.addToDisplay(currentMap,'gl_main');
 }
@@ -290,8 +303,16 @@ function reinitScene(){
 	Entities.reset();
 	Entities.reset();
 	graphics.removeFromDisplay(currentMap,'gl_main');
+	
+	player_weapons = [BeamWeapon,RocketWeapon,WaveWeapon,MineWeapon];
+	player_keyframes = ['triangle','square','circle','square'];
+	instance_keyframes = player_keyframes.slice(0,player_keyframes.length);
+	instance_weapons = player_weapons.slice(0,player_keyframes.length);
+	
 	currentMap = new Map(9,0.5,256*4,512*4,256*4,512*4,640*4,128);
-	currentMap.init([Entities.runner,Entities.enemy_direct_suicider],32);
+	
+	currentMap.init([Entities.enemy_direct_suicider,Entities.enemy_direct_move_suicider,Entities.enemy_meandering_suicider,Entities.enemy_breaker_suicider],32,instance_keyframes,instance_weapons);
+	
 	physics.setGeometry(currentMap.lines);
 	graphics.addToDisplay(currentMap,'gl_main');
 }

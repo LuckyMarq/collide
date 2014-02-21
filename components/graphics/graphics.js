@@ -818,6 +818,7 @@ function initGraphics(){
 					vertexPosition:"aVertexPosition",
 				},
 				{
+					alpha: "uAlpha",
 					pMatrix:"uPMatrix",
 					mvMatrix:"uMVMatrix"
 				});
