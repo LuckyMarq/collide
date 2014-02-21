@@ -211,3 +211,71 @@ Entities.add('explosion_basic', Entities.create(
 		}
 	}
 ));
+
+Entities.add('explosion_frag', Entities.create(
+	(function(){
+		return {
+			create: function(state,x,y,life){
+				state.alive = true;
+				state.life = life || 0.5;
+				var width = 24;
+				var height = 24;
+				if(!state.first){
+					fillProperties(state, Entities.createStandardState(
+					{
+						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+							manager.fillEllipse(this.x,this.y,0,width/2,height/2,0,1,0.5,0,1);
+							gl.enable(gl.BLEND);
+							gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+							manager.fillEllipse(this.x,this.y,0,width,height,0,1,0.5,0,0.5);
+							gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
+						}
+					},x,y,width,height,1.1));
+					state.tick = function(delta){
+						this.life-=delta;	
+						this.alive = this.life>0;
+						
+					}
+					
+					state.first = true;
+				}
+				state.x = x;
+				state.y = y;
+				state.vel[0] = Math.random()*400 - 200;
+				state.vel[1] = Math.random()*400 - 200;
+				graphics.addToDisplay(state,'gl_main');
+				ticker.add(state);
+				physics.add(state);
+			},
+			destroy: function(state){
+				graphics.removeFromDisplay(state,'gl_main');
+				ticker.remove(state);
+				physics.remove(state);
+			}
+		};
+	})())
+);
+
+Entities.add('explosion_player', Entities.create(
+	{
+		parent: Entities.explosion,
+		construct: function(state){
+			fillProperties(state,new GLDrawable())
+			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				manager.fillEllipse(state.x+state.width/2,state.y+state.height/2,1,state.width,state.height,0,1,1,1,1);
+				state.time-=delta;
+				state.alive = state.time>0;
+			}
+		},
+		create: function(state,x,y,t) {
+			state.alive = true;
+			time = t;
+			for (var i = 0; i < 50; i++)
+				Entities.explosion_frag.newInstance(state.x+state.width/2, state.y+state.height/2, time);
+			graphics.addToDisplay(state,'gl_main');	
+		},
+		destroy : function(state){
+			graphics.removeFromDisplay(state,'gl_main');
+		}
+	}
+));
