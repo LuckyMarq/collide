@@ -452,8 +452,7 @@ Entities.add('player', Entities.create((function(){
 			if(graphics.getScreen('gl_main').follower == state)graphics.getScreen('gl_main').follower == null;
 			state.weaponManager.clear();
 			playerExplosion.play(0);
-			for (var i = 0; i < 50; i++)
-				Entities.explosion.newInstance(state.cx, state.cy,2);
+			Entities.explosion_player.newInstance(state.cx, state.cy,2);
 			ticker.addTimer(function(){reinitScene()},2,0);
 		}
 	};
