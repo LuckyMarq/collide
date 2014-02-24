@@ -137,8 +137,8 @@ Entities.add('health_burst_frag',Entities.create(
 	)
 )
 
-Entities.add('health_burst',Entities.create((function(){
-		return {
+Entities.add('health_burst',Entities.create(
+		{
 			create: function(state,x,y,num,size,speed,life,vx,vy){
 				for(var i = 0; i< num; i++ ){
 					var theta = Math.random()*(Math.PI*2)
@@ -149,7 +149,88 @@ Entities.add('health_burst',Entities.create((function(){
 			destroy: function(state){
 			}
 		}
-	})()
 	)
 )
+
+Entities.add('level_end',Entities.create(
+	{
+		construct: function(state,x,y){
+			fillProperties(state,fillProperties(new GLDrawable(),{
+				draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+					delta = (Date.now()-this.pTime)/1000;
+					this.pTime = Date.now();
+					this.t += delta*(this.period);
+					if(!this.triggered){
+						this.t %= 1;
+						var td =1/this.num;
+						for(var i = 0; i<this.num; i++){
+							var c = i%3;
+							var u = Math.max(0,1+Math.sin((Math.PI*2)*(this.t-(td*i))))
+							mvMatrix.identity();
+							mvMatrix.scale(u,u,1)
+							manager.fillRect(this.x+this.width/2,this.y+this.height/2,-99,128,128,(i%2==0)?(Math.PI/2)*this.t+(td*i):-(Math.PI/2)*this.t+(td*i),(c==0)?1:0,(c==1)?1:0,(c==2)?1:0)
+						}
+					}else{
+						var td =1/this.num;
+						for(var i = 0; i<this.num; i++){
+							var c = i%3;
+							var u = Math.max(0,1+Math.sin((Math.PI*2)*((this.t)-(td*i))) - i + this.t)
+							mvMatrix.identity();
+							mvMatrix.scale(u,u,1)
+							if(this.t>1){
+								mvMatrix.scale(this.t,this.t,1)
+							}
+							manager.fillRect(this.x+this.width/2,this.y+this.height/2,-99,128,128,(i%2==0)?(Math.PI/2)*this.t+(td*i):-(Math.PI/2)*this.t+(td*i),(c==0)?1:0,(c==1)?1:0,(c==2)?1:0)
+						}
+						if(this.t>this.animationTime){
+							this.alive = false;
+						}
+					}
+				},
+				pTime: Date.now(),
+				width: 256,
+				height:256,
+				x: x,
+				y: y,
+				t:0,
+				period: 1/3,
+				num: 20,
+				animationTime: 5,
+				triggered: false
+			}))
+		},
+		create: function(state,x,y){
+			state.x = x;
+			state.y = y;
+			state.triggered = false;
+			state.pTime = Date.now();
+			graphics.addToDisplay(state,'gl_main');
+		},
+		update: function(state,delta){
+			if(!state.triggered){
+				var p = Entities.player.getInstance(0);
+				if(p.collision(state)){
+					state.triggered = true;
+					Loop.paused = true;
+				}
+			}
+		},
+		destroy: function(state,reset){
+			if(!reset){
+				current_level++;
+				var p = Entities.player.getInstance(0);
+				Entities.reset();
+				Entities.reset();
+				graphics.removeFromDisplay(state,'gl_main');
+				
+				currentMap.rebuild(9,0.5,256*4,512*4,256*4,512*4,640*4,128);
+				
+				currentMap.init([Entities.enemy_direct_suicider,Entities.enemy_direct_move_suicider,Entities.enemy_meandering_suicider,Entities.enemy_breaker_suicider],32,instance_keyframes,instance_weapons,p);
+
+				physics.setGeometry(currentMap.lines);
+				Loop.paused = false;
+			}
+		}
+	}
+))
 

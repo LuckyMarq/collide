@@ -11,18 +11,18 @@ Entities.add('weapon_pickup',Entities.create(
 								u = this.time/this.startTime;
 								mvMatrix.translate(p.cx,p.cy,1)
 								mvMatrix.scale(1+(30*(1-u)),1+(30*(1-u)),1);
-								p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
+								p.animator.drawKeyframe(this.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
 								this.time-=delta;
 							}else{
 								mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,1);
 								mvMatrix.push()
-								p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
+								p.animator.drawKeyframe(this.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
 								mvMatrix.pop();
-								u = state.t/state.tm;
-								mvMatrix.scale(1+((state.maxScale-1)*u),1+((state.maxScale-1)*u),1);
-								p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix,gl.LINE_LOOP,1,31);
-								state.t+=delta;
-								state.t%=state.tm;
+								u = Math.sin(Math.PI * (this.t/this.tm));
+								mvMatrix.scale(1+((this.maxScale-1)*u),1+((this.maxScale-1)*u),1);
+								p.animator.drawKeyframe(this.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix,gl.LINE_LOOP,1,31);
+								this.t+=delta;
+								this.t%=this.tm;
 							}
 						},
 						z: 1

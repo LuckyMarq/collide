@@ -528,3 +528,5 @@ Entities.add('player', Entities.create((function(){
 Entities.player.getInstance = function(){
 	return this.instanceArray[0];
 }
+
+Entities.player.reset = function(){}

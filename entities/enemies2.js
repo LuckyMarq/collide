@@ -269,7 +269,7 @@ Entities.add('enemy_breaker_suicider',Entities.create({
 		}
 	},
 	create: function(state){
-		state.life = 10;
+		state.life = 5;
 		state.stun = 0;
 	},
 	update: function(state,delta){
