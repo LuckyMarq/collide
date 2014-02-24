@@ -374,6 +374,7 @@ function WaveWeapon(){
 			hasPressed = true;
 			sound.play(0);
 			theta = Vector.getDir(vec2.set(vec, mouse.x - p.cx, mouse.yInv - p.cy));
+			Entities.wave.newInstance(p.cx,p.cy,p.width,theta,radius);
 			this.energy -= COST;
 			vis = true;
 			// check for enemies
@@ -426,9 +427,76 @@ function WaveWeapon(){
 		}
 	}
 	
-	graphics.addToDisplay(this, 'gl_main');
+	// graphics.addToDisplay(this, 'gl_main');
 }
 WaveWeapon.prototype = new GLDrawable();
+
+
+Entities.add('wave',Entities.create({
+	construct: function(state,x,y,dir){
+		var angle = 50 * Math.PI/180;
+		fillProperties(state,fillProperties(new GLDrawable(),
+		{
+			glInit: function(manager){
+				if(!Entities.wave.initialized){
+					var color = new Array();
+					var verts = new Array();
+					verts.push(0,0,0);
+					var dt = angle/15;
+					var theta = -(angle/2);
+					verts.push()
+					for(var i = 0; i<15; i++){
+						verts.push(0.5*Math.cos(theta +  dt*i),0.5*Math.sin(theta +  dt*i),0)
+					}
+					color.push(0,0,0,0);
+					for(var i = 0; i<15; i++){
+						color.push(0,0,1,1);
+					}
+					manager.addArrayBuffer("wave_pos",true,verts,16,3)
+					manager.addArrayBuffer("wave_col",true,color,16,4)
+					Entities.wave.initialized = true
+				}
+			},
+			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				var p = Entities.player.getInstance(0);
+				this.t += delta;
+				manager.bindProgram('basic');
+				manager.setArrayBufferAsProgramAttribute('wave_pos','basic','vertexPosition');
+				manager.setArrayBufferAsProgramAttribute('wave_col','basic','vertexColor');
+				manager.setUniform1f('basic','alpha',1)
+				mvMatrix.translate(p.cx,p.cy,this.z);
+				var s = this.width + (this.length-this.width)*Math.min(1,(this.t/this.time));
+				mvMatrix.scale(s,s,1);
+				mvMatrix.rotateZ(this.dir);
+				manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current);
+				
+				gl.enable(gl.BLEND)
+				gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+				gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+				
+				if(this.t>(this.time+0.05)){
+					this.alive = false;
+				}
+			},
+			time: 0.1,
+			z:0,
+			boundless: true,
+		}))
+	},
+	create: function(state,x,y,size,dir,length){
+		state.t = 0;
+		state.x = x;
+		state.y = y;
+		state.size = size;
+		state.length = length*2;
+		state.dir = dir;
+		graphics.addToDisplay(state,'gl_main');
+	},
+	destroy: function(state,reset){
+		if(reset)this.initialized = false
+		graphics.removeFromDisplay(state,'gl_main');
+	}
+}))
 
 // BeamWeapon --
 function BeamWeapon(){

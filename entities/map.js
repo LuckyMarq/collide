@@ -175,8 +175,9 @@ function Map(config){
 		while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
 			weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
 		}
-		var index = Math.round(Math.random()*(keyframes.length - 1));
+		var index = Math.round(Math.random()*(this.keyframes.length - 1));
 		Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,this.keyframes[index],window[this.weapons[index]]);
+		console.log(this.keyframes[index])
 		weaponRoom.weaponRoom = true;
 		this.weapons.splice(index,1);
 		this.keyframes.splice(index,1);
