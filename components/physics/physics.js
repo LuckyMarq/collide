@@ -203,10 +203,10 @@ function initPhysics(){
 	var move = function(mover,delta){
 		//calculate drag
 		var dragConst = mover.dragConst || 0;
-		var mag = Vector.getMag(mover.vel)*dragConst;
+		var mag = Vector.getMag(mover.vel);
 		var dir =(Vector.getDir(mover.vel));
-		var u = Math.cos(dir)*mag;
-		var v = Math.sin(dir)*mag;
+		var u = Math.cos(dir)*mag*dragConst;
+		var v = Math.sin(dir)*mag*dragConst;
 		
 		var ax = mover.accel[0]-u;
 		var ay = mover.accel[1]-v;
@@ -221,6 +221,9 @@ function initPhysics(){
 		mover.vel[1] += ay*delta;
 		
 		var speed = Vector.getMag(mover.vel);
+		if(!isNaN(mover.targetSpeed) && Math.abs(speed-mover.targetSpeed)<=Math.abs(speed-mag)){
+			Vector.setMag(mover.vel,mover.vel,mover.targetSpeed);
+		}
 		if(speed<0.001 || (mover.minSpeed && speed<mover.minSpeed)){
 			mover.vel[0]=0;
 			mover.vel[1]=0;
@@ -877,6 +880,32 @@ MovementState.prototype = Object.defineProperties(
 			dif = dif || 0;
 			this.theta = Vector.getDir(x-this.x,y-this.y)+dif
 		},
+		accelerateToSpeed: function(dir,accel,deccel,speed){
+			var s = Vector.getMag(this.vel);
+			
+			if(Math.abs(s-speed)<0.001){
+				var x = accel * Math.cos(dir);
+				var y = accel * Math.sin(dir);
+				var vd = (this.vel[0] * this.vel[0]) + (this.vel[1] * this.vel[1]);
+				var u = (vd * (x*x + y*y))/(vd*vd);
+				this.accel[0] = x - (u * this.vel[0]);
+				this.accel[1] = y - (u * this.vel[1]);
+			}else if(s<speed){
+				var x = accel * Math.cos(dir);
+				var y = accel * Math.sin(dir);
+				this.accel[0] = x;
+				this.accel[1] = y;
+			}else{
+				var x = deccel * Math.cos(dir);
+				var y = deccel * Math.sin(dir);
+				var vd = (this.vel[0] * this.vel[0]) + (this.vel[1] * this.vel[1]);
+				var u = (vd * (x*x + y*y))/(vd*vd);
+				this.accel[0] = (x - (u * this.vel[0])) - (u * this.vel[0]);
+				this.accel[1] = (y - (u * this.vel[1])) - (u * this.vel[0]);
+			}
+			this.targetSpeed = speed
+		},
+		targetSpeed: NaN,
 		doMove:true
 	},
 	{

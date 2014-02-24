@@ -75,6 +75,8 @@
 		<program name='texture' vertex='texture_vs' fragment='texture_fs'></program> 
 	</shaders>
 	<configs>
+		<file name='misc'>values/misc.xml</file>
+		<file name='map'>values/map.xml</file>
 	</configs>
 	<resourceConfigs>
 		<file>values/weaponValues.xml</file>

@@ -7,10 +7,11 @@ function ResourceConfig(source){
 		if(n.name == "configs"){
 			for(var j in n.children){
 				this.configs[n.children[j].attributes["name"]] =  new XMLConfig(n.children[j].text)
+				console.log("config loaded: "+ n.children[j].text+" "+n.children[j].attributes["name"]);
 			}
 		}else if(n.name == "resourceConfigs"){
 			for(var j in n.children){
-				console.log("config loaded: "+ n.children[j].text);
+				console.log("resource config loaded: "+ n.children[j].text);
 				this.merge(new ResourceConfig(n.children[j].text))
 			}
 		}else{
@@ -44,7 +45,28 @@ ResourceConfig.prototype = {
 * sorts an xml file into a more convienient data structure
 */
 var XMLConfig = (function(){
-
+	
+	var parseValue = function(str){
+		var parts = str.split(';');
+		if(parts.length>1){
+			for(var i = 0; i<parts.length; i++){
+				parts[i] = parseValue(parts[i]);
+			}
+			return parts;
+		}else if(str=='true'){
+			return true;
+		}else if(str=='false'){
+			return false;
+		}else{
+			var f = parseFloat(str);
+			if(isNaN(f)){
+				return str;
+			}else{
+				return f;
+			}
+		}
+	}
+	
 	var ConfigNode = function(element){
 		this.attributes = {}
 		this.children = []
@@ -57,15 +79,17 @@ var XMLConfig = (function(){
 				if(n.nodeType ==  Node.TEXT_NODE){
 					this.text = n.data;
 					this.text =this.text.replace("\n","").trim();
+					this.value = parseValue(this.text);
 				}else if(n.nodeType == Node.ELEMENT_NODE){
 					this.children.push(new ConfigNode(n))
+					if(typeof this[n.nodeName] == 'undefined')this[n.nodeName] = this.children[this.children.length -1];
 				}else if(n.nodeType == Node.ATTRIBUTE_NODE){
-					this.attributes[n.nodeName] = n.nodeValue;
+					this.attributes[n.nodeName] = parseValue(n.nodeValue);
 				}
 			}
 		}
 		for(var i = 0; i<element.attributes.length; i++){
-			this.attributes[element.attributes[i].nodeName] = element.attributes[i].nodeValue;
+			this.attributes[element.attributes[i].nodeName] = parseValue(element.attributes[i].nodeValue);
 		}
 	}
 	ConfigNode.prototype = {
@@ -89,6 +113,13 @@ var XMLConfig = (function(){
 				console.log(str);
 				for(var i in this.children){
 					this.children[i].print(); 
+				}
+			}
+		},
+		getFirst: function(name){
+			for(var i = 0; i<this.children.length; i++){
+				if(this.children[i].name == name){
+					return this.children[i];
 				}
 			}
 		}

@@ -1,37 +1,36 @@
 Entities.add('weapon_pickup',Entities.create(
 		{
+			construct: function(state,x,y,keyframe, weapon){
+				fillProperties(state,Entities.createStandardCollisionState(
+					{
+						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+							var u;
+							var p = Entities.player.getInstance(0);
+							
+							if(this.added){
+								u = this.time/this.startTime;
+								mvMatrix.translate(p.cx,p.cy,1)
+								mvMatrix.scale(1+(30*(1-u)),1+(30*(1-u)),1);
+								p.animator.drawKeyframe(this.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
+								this.time-=delta;
+							}else{
+								mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,1);
+								mvMatrix.push()
+								p.animator.drawKeyframe(this.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
+								mvMatrix.pop();
+								u = Math.sin(Math.PI * (this.t/this.tm));
+								mvMatrix.scale(1+((this.maxScale-1)*u),1+((this.maxScale-1)*u),1);
+								p.animator.drawKeyframe(this.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix,gl.LINE_LOOP,1,31);
+								this.t+=delta;
+								this.t%=this.tm;
+							}
+						},
+						z: 1
+					},x,y,512,512,1));
+				state.pickupSound = Sound.createSound('health_small');
+				state.pickupSound.gain = 0.1;
+			},
 			create: function(state,x,y,keyframe,weapon){
-				if(!state.firstHealth){
-					fillProperties(state,Entities.createStandardCollisionState(
-							{
-								draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-									var u;
-									var p = Entities.player.getInstance(0);
-									
-									if(this.added){
-										u = this.time/this.startTime;
-										mvMatrix.translate(p.cx,p.cy,1)
-										mvMatrix.scale(1+(30*(1-u)),1+(30*(1-u)),1);
-										p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
-										this.time-=delta;
-									}else{
-										mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,1);
-										mvMatrix.push()
-										p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix);
-										mvMatrix.pop();
-										u = state.t/state.tm;
-										mvMatrix.scale(1+((state.maxScale-1)*u),1+((state.maxScale-1)*u),1);
-										p.animator.drawKeyframe(state.keyframe,gl,delta,screen,manager,pMatrix,mvMatrix,gl.LINE_LOOP,1,31);
-										state.t+=delta;
-										state.t%=state.tm;
-									}
-								},
-								z: 1
-							},x,y,512,512,1));
-					state.health = 1;
-					state.pickupSound = Sound.createSound('health_small');
-					state.pickupSound.gain = 0.1;
-				}
 				state.maxScale = 10;
 				state.tm = 1;
 				state.t = 0;

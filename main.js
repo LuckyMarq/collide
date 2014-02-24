@@ -163,7 +163,7 @@ function loadResources(callback){
 			callback();
 		}
 	}
-	
+	configs = resourceConfig.configs;
 	loadNextSound();
 }
 
@@ -212,7 +212,7 @@ function initScene(){
 				if(mouse.right){
 					b=0;
 				}
-				manager.point(mouse.x,mouse.yInv,0,12,r,g,b,1);
+				manager.point(mouse.x,mouse.yInv,-99.99,12,r,g,b,1);
 			},
 			tick: function(){
 				x = mouse.x;
@@ -282,14 +282,15 @@ function initScene(){
 	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
 	
 	
+	current_level = 1;
 	
 	// graphics.addToDisplay(testMap,"gl_main")
 	player_weapons = [BeamWeapon,RocketWeapon,WaveWeapon,MineWeapon];
-	player_keyframes = ['triangle','square','circle','square'];
+	player_keyframes = ['triangle','rocket','circle','square'];
 	instance_keyframes = player_keyframes.slice(0,player_keyframes.length);
 	instance_weapons = player_weapons.slice(0,player_keyframes.length);
 	
-	currentMap = new Map(9,0.5,256*4,512*4,256*4,512*4,640*4,128);
+	currentMap = new Map(configs.map);
 	Entities.runner.def.max = 10;
 	Entities.enemy_direct_suicider.def.max = 5;
 	Entities.enemy_direct_move_suicider.def.max = 5;
@@ -298,24 +299,24 @@ function initScene(){
 	currentMap.init([Entities.enemy_direct_suicider,Entities.enemy_direct_move_suicider,Entities.enemy_meandering_suicider,Entities.enemy_breaker_suicider],32,instance_keyframes,instance_weapons);
 	physics.setGeometry(currentMap.lines);
 	graphics.addToDisplay(currentMap,'gl_main');
+	graphics.setDisplayDimensions(configs.misc.displayDimensions.attributes.width,configs.misc.displayDimensions.attributes.height)
 }
 
 function reinitScene(){
+	current_level = 1;
 	Entities.reset();
 	Entities.reset();
-	graphics.removeFromDisplay(currentMap,'gl_main');
 	
 	player_weapons = [BeamWeapon,RocketWeapon,WaveWeapon,MineWeapon];
-	player_keyframes = ['triangle','square','circle','square'];
+	player_keyframes = ['triangle','rocket','circle','square'];
 	instance_keyframes = player_keyframes.slice(0,player_keyframes.length);
 	instance_weapons = player_weapons.slice(0,player_keyframes.length);
 	
-	currentMap = new Map(9,0.5,256*4,512*4,256*4,512*4,640*4,128);
+	currentMap.rebuild(9,0.5,256*4,512*4,256*4,512*4,640*4,128);
 	
 	currentMap.init([Entities.enemy_direct_suicider,Entities.enemy_direct_move_suicider,Entities.enemy_meandering_suicider,Entities.enemy_breaker_suicider],32,instance_keyframes,instance_weapons);
 	
 	physics.setGeometry(currentMap.lines);
-	graphics.addToDisplay(currentMap,'gl_main');
 }
 //initializes game
 loadSource();

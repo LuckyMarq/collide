@@ -231,12 +231,7 @@ Entities.add('explosion_frag', Entities.create(
 							gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
 						}
 					},x,y,width,height,1.1));
-					state.tick = function(delta){
-						this.life-=delta;	
-						this.alive = this.life>0;
-						
-					}
-					
+					state.z = 0;
 					state.first = true;
 				}
 				state.x = x;
@@ -244,12 +239,14 @@ Entities.add('explosion_frag', Entities.create(
 				state.vel[0] = Math.random()*400 - 200;
 				state.vel[1] = Math.random()*400 - 200;
 				graphics.addToDisplay(state,'gl_main');
-				ticker.add(state);
 				physics.add(state);
+			},
+			update: function(state,delta){
+				state.life-=delta;	
+				state.alive = state.life>0;
 			},
 			destroy: function(state){
 				graphics.removeFromDisplay(state,'gl_main');
-				ticker.remove(state);
 				physics.remove(state);
 			}
 		};
