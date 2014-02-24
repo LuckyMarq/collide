@@ -77,7 +77,7 @@
 	<configs>
 	</configs>
 	<resourceConfigs>
-		<!--<file>values/weaponValues.xml</file>-->
+		<file>values/weaponValues.xml</file>
 		<file>values/enemyResources.xml</file>
 	</resourceConfigs>
 </root>

@@ -45,6 +45,7 @@ RocketWeapon.prototype = new GLDrawable();
 Entities.add('rocket', Entities.create(
 	(function(){
 		var damage = 50;
+		var speed = 500;
 		var buffered = false;
 		var interp = getInverseExponentInterpolator(2);
 		var blastForce = 800;
@@ -188,6 +189,8 @@ Entities.add('rocket', Entities.create(
 				graphics.addToDisplay(state,'gl_main');
 				ticker.add(state);
 				physics.add(state);
+				state.vel[0] = Math.sin(state.dir)*speed;
+				state.vel[1] = Math.sin(state.dir)*speed;
 			},
 			update: function(state,delta){
 				state.a.length = 0;;
@@ -197,8 +200,6 @@ Entities.add('rocket', Entities.create(
 						{
 							state.alive = false;
 						}
-						state.accel[0] = Math.cos(state.dir)*800;
-						state.accel[1] = Math.sin(state.dir)*800;
 	
 						state.a.length = 0;
 						var enemies = physics.getColliders(state.a, state.x,
