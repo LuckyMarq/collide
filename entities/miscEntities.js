@@ -224,10 +224,10 @@ Entities.add('explosion_frag', Entities.create(
 					fillProperties(state, Entities.createStandardState(
 					{
 						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-							manager.fillEllipse(this.x,this.y,this.z,width/2,height/2,0,1,0.5,0,1);
+							manager.fillEllipse(this.x,this.y,0,width/2,height/2,0,1,0.5,0,1);
 							gl.enable(gl.BLEND);
-							gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-							manager.fillEllipse(this.x,this.y,this.z,width,height,0,1,0.5,0,0.5);
+							gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+							manager.fillEllipse(this.x,this.y,0,width,height,0,1,0.5,0,0.5);
 							gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
 						}
 					},x,y,width,height,1.1));
