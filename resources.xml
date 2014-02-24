@@ -77,9 +77,9 @@
 	<configs>
 		<file name='misc'>values/misc.xml</file>
 		<file name='map'>values/map.xml</file>
+		<file name='weaponValues'>values/weaponValues.xml</file>
 	</configs>
 	<resourceConfigs>
-		<file>values/weaponValues.xml</file>
 		<file>values/enemyResources.xml</file>
 	</resourceConfigs>
 </root>

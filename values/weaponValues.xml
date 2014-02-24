@@ -1,20 +1,22 @@
 <root>
-	<damage>
-		<rocket name='rocket'>1</rocket>
-		<mine name='mine'>5</mine>
-		<beam name='beam'>0.7</mine>
-		<wave name='wave'>0.5</wave>
-	</damage>
-	<cost>
-		<rocket name='rocket'>10</rocket>
-		<mine name='mine'>30</mine>
-		<beam name='beam'>0.8</mine>
-		<wave name='wave'>15</wave>
-	</cost>
-	<rate>
-		<rocket name='rocket'>1</rocket>
-		<mine name='mine'>1</mine>
-		<beam name='beam'>1</mine>
-		<wave name='wave'>1</wave>
-	</rate>
+	<beam>
+		<cost>0.8</cost>
+		<damage>0.7</damage>
+		<rechargeRate>1</rechargeRate>
+	</beam>
+	<mine>
+		<cost>30</cost>
+		<damage>5</damage>
+		<rechargeRate>1</rechargeRate>
+	</mine>
+	<rocket>
+		<cost>10</cost>
+		<damage>1</damage>
+		<rechargeRate>1</rechargeRate>
+	</rocket>
+	<wave>
+		<cost>15</cost>
+		<damage>0.5</damage>
+		<rechargeRate>1</rechargeRate>
+	</wave>
 </root>

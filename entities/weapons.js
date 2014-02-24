@@ -1,12 +1,13 @@
 
 // RocketWeapon -- 
 function RocketWeapon(){
+	var rocketConfig = configs.weaponValues.rocket;
 	this.boundless = true;
 	this.barVisible = false;
 	var time = 0;
 	this.energy = 100;
-	var COST = 10;
-	var RECHARGE_RATE = 1;
+	var COST = rocketConfig.cost.value;
+	var RECHARGE_RATE = rocketConfig.rechargeRate.value;
 	var vis = false;
 	var p = Entities.player.getInstance(0);
 	var dir = {0:0, 1:0, length:2};	
@@ -29,7 +30,7 @@ function RocketWeapon(){
 			time = 0.5;
 			dir[0] = mouse.x - p.cx;
 			dir[1] = mouse.yInv - p.cy;
-			Entities.rocket.newInstance(p.cx,p.cy, dir);
+			Entities.rocket.newInstance(rocketConfig,p.cx,p.cy, dir);
 			sound.play(0);
 		}
 	};
@@ -44,8 +45,8 @@ RocketWeapon.prototype = new GLDrawable();
 // Rocket -- 
 Entities.add('rocket', Entities.create(
 	(function(){
-		var damage = 50;
-		var speed = 500;
+		var damage = 0;
+		var speed = 1000;
 		var buffered = false;
 		var interp = getInverseExponentInterpolator(2);
 		var blastForce = 800;
@@ -66,8 +67,7 @@ Entities.add('rocket', Entities.create(
 							mvMatrix.rotateZ(this.theta);
 							this.animator.draw(gl,delta,screen,manager,pMatrix,mvMatrix);
 						}
-					},x,y,16,16,1)); // TODO: WHAT THE FUCK BOX
-					
+					},x,y,16,16,1));
 					
 					state.onCollision = function() {
 						if(this.delay<=0)this.alive = false;
@@ -172,11 +172,12 @@ Entities.add('rocket', Entities.create(
 						},
 						{},6);
 			},
-			create: function(state,x,y,dir){
+			create: function(state,rocketConfig,x,y,dir){
+				damage = rocketConfig.damage.value;
 				state.alive = true;
 				state.fuse = 5;
 				state.theta = Vector.getDir(dir) - Math.PI / 2;
-				state.delay = 0.5;
+				state.delay = 0.1;
 				state.a = []; // array for collision check
 				state.sound = Sound.createSound('explosion_fire');
 				state.sound.gain = 0.1;
@@ -189,7 +190,7 @@ Entities.add('rocket', Entities.create(
 				graphics.addToDisplay(state,'gl_main');
 				ticker.add(state);
 				physics.add(state);
-				state.vel[0] = Math.sin(state.dir)*speed;
+				state.vel[0] = Math.cos(state.dir)*speed;
 				state.vel[1] = Math.sin(state.dir)*speed;
 			},
 			update: function(state,delta){
@@ -199,8 +200,7 @@ Entities.add('rocket', Entities.create(
 						if (state.fuse<=0)
 						{
 							state.alive = false;
-						}
-	
+						}	
 						state.a.length = 0;
 						var enemies = physics.getColliders(state.a, state.x,
 							state.y, state.width, state.height);
@@ -225,12 +225,13 @@ Entities.add('rocket', Entities.create(
 
 // MineWeapon -- 
 function MineWeapon(){
+	var mineConfig = configs.weaponValues.mine;
 	this.boundless = true;
 	this.barVisible = false;
 	var time = 0;
 	this.energy = 100;
-	var COST = 30;
-	var RECHARGE_RATE = 1;
+	var COST = mineConfig.cost.value;
+	var RECHARGE_RATE = mineConfig.rechargeRate.value;
 	var vis = false;
 	var time = 0;
 	var p = Entities.player.getInstance(0);
@@ -251,7 +252,7 @@ function MineWeapon(){
 			vis = true;
 			this.energy -= COST;
 			sound.play(0);
-			Entities.mine.newInstance(p.cx,p.cy);
+			Entities.mine.newInstance(mineConfig,p.cx,p.cy);
 			time = 1;
 		}
 	};
@@ -265,14 +266,15 @@ MineWeapon.prototype = new GLDrawable();
 // Mine -- 
 Entities.add('mine', Entities.create(
 	(function(){
-		var damage = 5;
+		var damage = 0;
 		var blastForce = 800;
 		var interp = getInverseExponentInterpolator(2);
 		var vec = vec2.create();		
 		var sound = Sound.createSound('explosion_fire');
 		sound.gain = 0.2;
 		return {
-			create: function(state,x,y){
+			create: function(state,mineConfig,x,y){
+				damage = mineConfig.damage.value;
 				state.alive = true;
 				state.time = 1.5;
 				state.a = []; // array for collision check
@@ -328,15 +330,16 @@ Entities.add('mine', Entities.create(
 
 // WaveWeapon -- 
 function WaveWeapon(){
+	var waveConfig = configs.weaponValues.wave;
 	this.boundless = true;
 	this.barVisible = false;
 	var time = 0;
 	this.energy = 100;
-	var COST = 15;
-	var RECHARGE_RATE = 1;
+	var COST = waveConfig.cost.value;
+	var RECHARGE_RATE = waveConfig.rechargeRate.value;
 	var vis = false;
 	var p = Entities.player.getInstance(0);
-	var damage = 0.5;
+	var damage = waveConfig.damage.value;
 	var vec = vec2.create();
 	var theta = 0;
 	var thickness = 300;
@@ -429,16 +432,17 @@ WaveWeapon.prototype = new GLDrawable();
 
 // BeamWeapon --
 function BeamWeapon(){
+	var beamConfig = configs.weaponValues.beam;
 	this.boundless = true;
 	this.barVisible = false;
 	var time = 0;
 	this.energy = 100;
-	var COST = 0.8;
-	var RECHARGE_RATE = 1;
+	var COST = beamConfig.cost.value;
+	var RECHARGE_RATE = beamConfig.rechargeRate.value;
 	var vis = false;
 	this.overheated = false;
 	var p = Entities.player.getInstance(0);
-	var damage = 0.7;
+	var damage = beamConfig.damage.value;
 	var force = -80;
 	var vec = vec2.create();
 	var theta = 0;
