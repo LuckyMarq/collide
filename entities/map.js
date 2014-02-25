@@ -161,7 +161,7 @@ function Map(config){
 				config.rooms.width.min.value, config.rooms.width.max.value, config.rooms.height.min.value,
 				config.rooms.width.max.value, size, getNodeValue(config.rooms.connectorSize));
 	}
-	this.init = function(enemies,margin,keyframes,weapons,player){
+	this.init = function(player){
 		if(player){
 			player.set(this.room.x+size/2,this.room.y + size/2,0,0,0,0);
 		}else{
