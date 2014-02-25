@@ -435,8 +435,7 @@ Entities.add('player', Entities.create((function(){
 							onCollision: function(){
 								blipSound.play(0);
 								blipSound.gain = Vector.getMag(this.vel) * 0.0001
-							},
-							z: -98
+							}
 						}),
 				(function(){
 					var stateX = x+animator.x, stateY= y+animator.y;
