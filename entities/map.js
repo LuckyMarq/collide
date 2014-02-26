@@ -149,10 +149,12 @@ function Map(config){
 	this.keyframes = this.config.keyframes.value.slice(0,this.config.keyframes.value.length);
 	this.weapons = this.config.weapons.value.slice(0,this.config.weapons.value.length);
 	
-	this.rebuild = function(){
+	this.rebuild = function(reset){
 		config = getConfiguration(this.config);
-		this.keyframes = this.config.keyframes.value.slice(0,this.config.keyframes.value.length);
-		this.weapons = this.config.weapons.value.slice(0,this.config.weapons.value.length);
+		if(reset){
+			this.keyframes = this.config.keyframes.value.slice(0,this.config.keyframes.value.length);
+			this.weapons = this.config.weapons.value.slice(0,this.config.weapons.value.length);
+		}
 		num = 0;
 		lines.length = 0;
 		rooms.length = 0;

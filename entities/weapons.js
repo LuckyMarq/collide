@@ -302,25 +302,12 @@ Entities.add('mine', Entities.create(
 				for(var i = 0; i<enemies.length; i++){
 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
 						state.alive = false;
-						e.life -= damage;
+						enemies[i].life -= damage;
 					}
 				}
 			},
 			destroy: function(state){
 				sound.play(0);
-				var enemies = physics.getColliders(state.a, state.blastbox.x, state.blastbox.y, state.blastbox.width, state.blastbox.height);
-				for (var e in enemies) {
-					e = enemies[e];
-					vec2.set(vec, e.x - state.x, e.y - state.y);
-					Vector.setMag(vec, vec, 1);
-					if (e.life && state.blastbox.collision(e)) { // add player damage
-						e.life -= damage;
-						if (e.life > 0) {
-							e.vel[0] += vec[0] * blastForce;
-							e.vel[1] += vec[1] * blastForce;
-						}
-					}
-				}
 				Entities.explosion_basic.newInstance(state.x + state.width/2 - 64,state.y + state.height/2 - 64,128,0,damage,0,blastForce, interp);
 				graphics.removeFromDisplay(state,'gl_main');
 				physics.remove(state);
