@@ -46,6 +46,7 @@ RocketWeapon.prototype = new GLDrawable();
 Entities.add('rocket', Entities.create(
 	(function(){
 		var damage = 0;
+		var blastRadius = 64;
 		var speed = 1000;
 		var buffered = false;
 		var interp = getInverseExponentInterpolator(0.5);
@@ -57,6 +58,7 @@ Entities.add('rocket', Entities.create(
 				damage = configs.weaponValues.rocket.damage.value;
 				speed = configs.weaponValues.rocket.speed.value;
 				blastForce = configs.weaponValues.rocket.force.value;
+				blastRadius = configs.weaponValues.rocket.blastRadius.value;
 				fillProperties(state, Entities.createStandardCollisionState(
 					{
 						glInit: function(manager)
@@ -181,7 +183,7 @@ Entities.add('rocket', Entities.create(
 				state.alive = true;
 				state.fuse = rocketConfig.fuse.value;
 				state.theta = Vector.getDir(dir) - Math.PI / 2;
-				state.delay = 0.1;
+				state.delay = 0;
 				state.a = []; // array for collision check
 				state.sound = Sound.createSound('explosion_fire');
 				state.sound.gain = 0.1;
@@ -218,7 +220,7 @@ Entities.add('rocket', Entities.create(
 			},
 			destroy: function(state){
 				state.sound.play(0);
-				Entities.explosion_basic.newInstance(state.x + state.width/2 - 64, state.y + state.height/2 - 64,128,0,damage,0,blastForce, interp);
+				Entities.explosion_basic.newInstance(state.x + state.width/2 - blastRadius/2, state.y + state.height/2 - blastRadius/2,blastRadius,0,damage,0,blastForce, interp);
 				graphics.removeFromDisplay(state,'gl_main');
 				ticker.remove(state);
 				physics.remove(state);

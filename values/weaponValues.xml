@@ -18,6 +18,7 @@
 		<width>16</width>
 	</mine>
 	<rocket>
+		<blastRadius>128</blastRadius>
 		<cost>10</cost>
 		<damage>1</damage>
 		<force>800</force>
