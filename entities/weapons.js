@@ -59,6 +59,7 @@ Entities.add('rocket', Entities.create(
 				speed = configs.weaponValues.rocket.speed.value;
 				blastForce = configs.weaponValues.rocket.force.value;
 				blastRadius = configs.weaponValues.rocket.blastRadius.value;
+
 				fillProperties(state, Entities.createStandardCollisionState(
 					{
 						glInit: function(manager)
