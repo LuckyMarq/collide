@@ -300,4 +300,3 @@ importS('entities/enemies3.js');
 importS('entities/enemies.js');
 importS('entities/pickups.js');
 importS('entities/enemyWeapons.js');
-importS('entities/weaponPickups.js');
