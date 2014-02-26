@@ -2,21 +2,36 @@
 	<beam>
 		<cost>0.8</cost>
 		<damage>0.7</damage>
+		<force>-80</force>
+		<length>512</length>
 		<rechargeRate>1</rechargeRate>
 	</beam>
 	<mine>
 		<cost>30</cost>
 		<damage>5</damage>
+		<force>800</force>
+		<fuse>1.5</fuse>
+		<height>16</height>
 		<rechargeRate>1</rechargeRate>
+		<rof>1</rof>
+		<width>16</width>
 	</mine>
 	<rocket>
 		<cost>10</cost>
 		<damage>1</damage>
+		<force>800</force>
+		<fuse>5</fuse> <!-- Time before detonation -->
+		<height>16</height>
 		<rechargeRate>1</rechargeRate>
+		<rof>0.5</rof>
+		<speed>1000</speed>
+		<width>16</width>
 	</rocket>
 	<wave>
 		<cost>15</cost>
 		<damage>0.5</damage>
+		<force>800</force>
+		<radius>250</radius>
 		<rechargeRate>1</rechargeRate>
 	</wave>
 </root>
