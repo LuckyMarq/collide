@@ -225,6 +225,7 @@ Entities.add('enemy_turret',Entities.create({
 			state.delay = 0;
 			state.shotsound = Sound.createSound('rocket_fire');
 			state.shotsound.gain = 0.1;
+			state.rate = 5;
 		}
 		state.life = 5;			
 	},
@@ -234,7 +235,7 @@ Entities.add('enemy_turret',Entities.create({
 			var p = Entities.player.getInstance(0);
 			state.theta = Vector.getDir(vec2.set(state.v, state.x - p.cx, state.y - p.cy));
 			var dist = pythag(p.cx-state.x+state.width/2,p.cy-state.y+state.height/2);
-			if(state.delay >= .5) {
+			if(state.delay >= state.rate) {
 			Entities.enemyFollowBullet.newInstance(state.x + state.width/2, state.y + state.height/2);
 			state.shotsound.play(0)
 			state.delay = 0;
@@ -270,7 +271,7 @@ Entities.add('enemy_shooter',Entities.create({
 			state.maxSpeed= 800;
 			state.accelMul = 75;
 			state.impact = 0.2;
-			state.moveSpeed = 400;
+			state.moveSpeed = 800;
 			state.directSuiciderFirst = true;
 			state.delay = 0;
 			state.shotsound = Sound.createSound('pew',false);
@@ -279,6 +280,7 @@ Entities.add('enemy_shooter',Entities.create({
 			state.outerRadius = 300;
 			state.up = 1;
 			state.right = 1;
+			state.rate = .8;
 		}
 		state.life = 2;			
 	},
@@ -297,14 +299,14 @@ Entities.add('enemy_shooter',Entities.create({
 			state.up = 0;
 			}
 			if(state.y < p.cy + state.innerRadius && state.up == 1){
-				state.accelerateToward(state.x, state.y+100, 800);
+				state.accelerateToward(state.x, state.y+100, state.moveSpeed);
 			}else if(state.y > p.cy + state.outerRadius && state.up == 1){
-				state.accelerateToward(state.x, state.y-100, 800);
+				state.accelerateToward(state.x, state.y-100, state.moveSpeed);
 			//down
 			}else if(state.y > p.cy - state.innerRadius && state.up == 0){
-				state.accelerateToward(state.x, state.y-100, 800);
+				state.accelerateToward(state.x, state.y-100, state.moveSpeed);
 			}else if(state.y < p.cy - state.outerRadius && state.up == 0){
-				state.accelerateToward(state.x, state.y+100, 800);
+				state.accelerateToward(state.x, state.y+100, state.moveSpeed);
 			}
 			
 			if(state.x > p.cx){
@@ -315,18 +317,18 @@ Entities.add('enemy_shooter',Entities.create({
 			
 			//right
 			if(state.x < p.cx + state.innerRadius && state.right == 1){
-				state.accelerateToward(state.x+100, state.y, 500);
+				state.accelerateToward(state.x+100, state.y, state.moveSpeed);
 			}else if(state.x > p.cx + state.outerRadius && state.right == 1){
-				state.accelerateToward(state.x-100, state.y, 500);
+				state.accelerateToward(state.x-100, state.y, state.moveSpeed);
 			//left
 			}else if(state.x > p.cx - state.innerRadius && state.right == 0){
-				state.accelerateToward(state.x-100, state.y, 500);
+				state.accelerateToward(state.x-100, state.y, state.moveSpeed);
 			}else if(state.x < p.cx - state.outerRadius && state.right == 0){
-				state.accelerateToward(state.x+100, state.y, 500);
+				state.accelerateToward(state.x+100, state.y, state.moveSpeed);
 			}
 			
 			//shooting
-			if(state.delay >= .8) {
+			if(state.delay >= state.rate) {
 				Entities.enemy_bullet.newInstance(state.x + state.width/2, state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2) ,p.cy-(state.y + state.height/2)));
 				state.shotsound.play(0)
 				state.delay = 0;
@@ -366,6 +368,7 @@ Entities.add('enemy_tank',Entities.create({
 		state.g = 1;
 		state.b = 0;
 		state.scope = 1560;
+		state.decrease = 40;
 		state.onDamage = function(damage){
 			this.stun += damage*this.stunConst;
 		}
@@ -376,26 +379,26 @@ Entities.add('enemy_tank',Entities.create({
 	},
 	update: function(state,delta){		
 		if(state.life > 2 && state.life < 5){
-			state.height = 120;
-			state.width = 120;
-			state.damage = 30;
-			state.maxSpeed= 120;
+			state.height -= state.decrease;
+			state.width -= state.decrease;
+			state.damage -= 10;
+			state.maxSpeed += state.maxSpeed/2;
 			state.r = .3;
 			state.g = .9;
 			state.b = .4;
 		}else if(state.life > 1 && state.life < 2){
-			state.height = 60;
-			state.width = 60;
-			state.damage = 20;
-			state.maxSpeed= 150;
+			state.height -= state.decrease;
+			state.width -= state.decrease;
+			state.damage -= 10;
+			state.maxSpeed += state.maxSpeed/2;
 			state.r = .7;
 			state.g = .5;
 			state.b = .3;
 		}else if(state.life > 0 && state.life < 1){
-			state.height = 30;
-			state.width = 30;
-			state.damage = 10;
-			state.maxSpeed= 200;
+			state.height -= state.decrease;
+			state.width -= state.decrease;
+			state.damage -= 10;
+			state.maxSpeed += state.maxSpeed/2;
 			state.r = 1;
 			state.g = 0;
 			state.b = .1;
