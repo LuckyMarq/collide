@@ -85,68 +85,6 @@ Entities.add('runner',Entities.create(
 	})())	
 );
 
-Entities.add('shooter_tank',Entities.create(
-	(function(){
-		var mvec = new Array();
-		
-		return {
-			create: function(state,x,y){
-			state.isEnemy = true;
-				if(!state.first){
-					fillProperties(state,Entities.createStandardState(
-						{
-							draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-								var p = Entities.player.getInstance(0);
-								mvec[0] = p.x - this.x;
-								mvec[1] = p.y - this.y;
-								manager.fillRect(this.x + this.width/2,this.y +this.height/2,0,this.width,this.height,Vector.getDir(mvec) - Math.PI / 4,0,1,0,1);
-							},
-							width: 80,
-							height: 80
-						},x,y));
-					state.accel[0]=0;
-					state.maxSpeed = 80;
-					state.tick = function(delta){
-						var s = Entities.player.getInstance(0);
-						// test collision code
-						// var r = Entities.rocket;
-// 						for(var i = 0; i<r.position; i++){
-// 							if(this.collision(r.instanceArray[i])){
-// 								r.instanceArray[i].alive = false;
-// 								if (--state.life <= 0)
-// 								{
-// 									this.alive = false;
-// 								}
-// 								this.x += r.instanceArray[i].vel[0] * .064;
-// 								this.y += r.instanceArray[i].vel[1] * .064;
-// 								this.vel[0] += r.instanceArray[i].vel[0];
-// 								this.vel[1] += r.instanceArray[i].vel[1];
-// 							}
-// 						}
-// 						// ---- 
-					}
-					state.first = true;
-				}else{
-					state.x = x;
-					state.y = y;
-					state.vel[0]=50;
-					state.vel[1]=50;
-					state.accel[0]=0;
-				}
-				state.life = 3;
-				graphics.addToDisplay(state,'gl_main');
-				ticker.add(state);
-				physics.add(state);
-			},
-			destroy: function(state){
-				graphics.removeFromDisplay(state,'gl_main');
-				ticker.remove(state);
-				physics.remove(state);
-			}
-		};
-	})())	
-);
-
 Entities.add('enemy_indirect_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
 	create: function(state){
@@ -399,6 +337,79 @@ Entities.add('enemy_shooter',Entities.create({
 		if(!reset){
 			state.deathSound.play(0)
 			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,1,0,0.1,state.vel[0],state.vel[1]);
+		}
+	}
+}));
+
+
+Entities.add('enemy_tank',Entities.create({
+	parent: Entities.enemy_suicider,
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,state.r,state.g,state.b,1);
+		}
+		state.width = 160;
+		state.height = 160;
+		state.damage = 40;
+		state.maxSmallHealth = 5;
+		state.minMedHealth = 5;
+		state.maxMedHealth = 10;
+		state.healthSpeed = 100;
+		state.deathSound = Sound.createSound('direct_suicider_death',false);
+		state.deathSound.gain = 0.1;
+		state.moveSpeed= 200;
+		state.accelMul = 50	;
+		state.impact = 0.2;
+		state.stunConst = 1;
+		state.stun = 0;
+		state.r = 0;
+		state.g = 1;
+		state.b = 0;
+		state.onDamage = function(damage){
+			this.stun += damage*this.stunConst;
+		}
+	},
+	create: function(state){
+		state.life = 7;
+		state.stun = 1;
+	},
+	update: function(state,delta){		
+		if(state.life > 2 && state.life < 5){
+			state.height = 120;
+			state.width = 120;
+			state.damage = 30;
+			state.moveSpeed= 250;
+			state.r = .3;
+			state.g = .9;
+			state.b = .4;
+		}else if(state.life > 1 && state.life < 2){
+			state.height = 60;
+			state.width = 60;
+			state.damage = 20;
+			state.moveSpeed= 300;
+			state.r = .7;
+			state.g = .5;
+			state.b = .3;
+		}else if(state.life > 0 && state.life < 1){
+			state.height = 30;
+			state.width = 30;
+			state.damage = 10;
+			state.moveSpeed= 400;
+			state.r = 1;
+			state.g = 0;
+			state.b = .1;
+		}
+		if(state.stun>0){
+			state.stun = Math.max(state.stun-delta,0);
+		}else if(state.inActiveScope){
+			var p = Entities.player.getInstance(0);
+			state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
+		}
+	},
+	destroy: function(state,reset){
+		if(!reset){
+			state.deathSound.play(0)
+			Entities.shrink_burst.burst(8,state.x+state.width/2,state.y+state.height/2,24,24,4,200,0.81,0.09,0.56,0.1,state.vel[0],state.vel[1]);
 		}
 	}
 }));
