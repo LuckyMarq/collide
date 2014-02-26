@@ -7,6 +7,7 @@
 		<rechargeRate>1</rechargeRate>
 	</beam>
 	<mine>
+		<blastRadius>256</blastRadius>
 		<cost>30</cost>
 		<damage>5</damage>
 		<force>800</force>

@@ -277,24 +277,23 @@ Entities.add('mine', Entities.create(
 		return {
 			create: function(state,mineConfig,x,y){
 				damage = mineConfig.damage.value;
+				state.width = mineConfig.width.value;
+				state.height = mineConfig.height.value;
+				state.blastRadius = mineConfig.blastRadius.value;
 				blastForce = mineConfig.force.value;
 				state.alive = true;
 				state.time = mineConfig.fuse.value;
 				state.a = []; // array for collision check
-				state.blastbox = new Box(x - 25, y - 25, 50, 50);
+				state.blastbox = new Box(x - state.width/2, y - state.width/2, state.width, state.width);
+				
 				
 				if(!state.first){
 					fillProperties(state, Entities.createStandardState(
-		//			{
-		//				draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-		//					manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,mineConfig.width.value,mineConfig.height,0,.5,1,.5,1);
-		//				}
-		//			},x,y,mineConfig.width.value,mineConfig.height.value,1.1));
 					{
 						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-							manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,16,16,0,.5,1,.5,1);
+							manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,.5,1,.5,1);
 						}
-					},x,y,16,16,1.1));
+					},x,y,state.width,state.height,1.1));
 					
 					state.first = true;
 				}
@@ -328,7 +327,7 @@ Entities.add('mine', Entities.create(
 						}
 					}
 				}
-				Entities.explosion_basic.newInstance(state.x + state.width/2 - 64,state.y + state.height/2 - 64,128,0,damage,0,blastForce, interp);
+				Entities.explosion_basic.newInstance(state.x + state.width/2 - state.blastRadius/2,state.y + state.height/2 - state.blastRadius/2,state.blastRadius,0,damage,0,blastForce, interp);
 				graphics.removeFromDisplay(state,'gl_main');
 				physics.remove(state);
 			}
