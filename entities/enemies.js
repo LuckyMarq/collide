@@ -357,7 +357,7 @@ Entities.add('enemy_tank',Entities.create({
 		state.healthSpeed = 100;
 		state.deathSound = Sound.createSound('direct_suicider_death',false);
 		state.deathSound.gain = 0.1;
-		state.moveSpeed= 200;
+		state.moveSpeed= 300;
 		state.accelMul = 50	;
 		state.impact = 0.2;
 		state.stunConst = 1;
@@ -378,7 +378,7 @@ Entities.add('enemy_tank',Entities.create({
 			state.height = 120;
 			state.width = 120;
 			state.damage = 30;
-			state.moveSpeed= 250;
+			state.moveSpeed= 350;
 			state.r = .3;
 			state.g = .9;
 			state.b = .4;
@@ -386,7 +386,7 @@ Entities.add('enemy_tank',Entities.create({
 			state.height = 60;
 			state.width = 60;
 			state.damage = 20;
-			state.moveSpeed= 300;
+			state.moveSpeed= 400;
 			state.r = .7;
 			state.g = .5;
 			state.b = .3;
@@ -394,7 +394,7 @@ Entities.add('enemy_tank',Entities.create({
 			state.height = 30;
 			state.width = 30;
 			state.damage = 10;
-			state.moveSpeed= 400;
+			state.moveSpeed= 500;
 			state.r = 1;
 			state.g = 0;
 			state.b = .1;
@@ -403,7 +403,7 @@ Entities.add('enemy_tank',Entities.create({
 			state.stun = Math.max(state.stun-delta,0);
 		}else if(state.inActiveScope){
 			var p = Entities.player.getInstance(0);
-			state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
+			state.accelerateToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
 		}
 	},
 	destroy: function(state,reset){
