@@ -183,7 +183,7 @@ Entities.add('rocket', Entities.create(
 				state.alive = true;
 				state.fuse = rocketConfig.fuse.value;
 				state.theta = Vector.getDir(dir) - Math.PI / 2;
-				state.delay = 0;
+				state.delay = 0.1;
 				state.a = []; // array for collision check
 				state.sound = Sound.createSound('explosion_fire');
 				state.sound.gain = 0.1;
