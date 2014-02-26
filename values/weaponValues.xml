@@ -1,7 +1,7 @@
 <root>
 	<beam>
 		<cost>0.8</cost>
-		<damage>0.7</damage>
+		<damage>5</damage>
 		<force>-80</force>
 		<length>512</length>
 		<rechargeRate>1</rechargeRate>

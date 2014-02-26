@@ -48,10 +48,12 @@ Entities.add('rocket', Entities.create(
 		var damage = 0;
 		var speed = 1000;
 		var buffered = false;
-		var interp = getInverseExponentInterpolator(2);
+		var interp = getInverseExponentInterpolator(0.5);
 		var blastForce = 800;
 		return {
 			construct: function(state,x,y,dir){
+				var sizew = configs.weaponValues.rocket.width.value;
+				var sizeh = configs.weaponValues.rocket.height.value;
 				damage = configs.weaponValues.rocket.damage.value;
 				speed = configs.weaponValues.rocket.speed.value;
 				blastForce = configs.weaponValues.rocket.force.value;
@@ -70,7 +72,7 @@ Entities.add('rocket', Entities.create(
 							mvMatrix.rotateZ(this.theta);
 							this.animator.draw(gl,delta,screen,manager,pMatrix,mvMatrix);
 						}
-					},x,y,configs.weaponValues.rocket.width.value,configs.weaponValues.rocket.height.value,1));
+					},x,y,sizew,sizeh,1));
 					
 					state.onCollision = function() {
 						if(this.delay<=0)this.alive = false;
@@ -95,11 +97,11 @@ Entities.add('rocket', Entities.create(
 						rocketPosition: 
 							fillProperties([
 								0,0,0,
-								0,16,0,
-								-16,-16,0,
-								0,8,0,
-								16,-16,0,
-								0,16,0
+								0,sizeh,0,
+								-sizew,-sizew,0,
+								0,sizeh/2,0,
+								sizew,-sizew,0,
+								0,sizeh,0
 							],
 							{
 								attributeId: "vertexPosition",
@@ -128,11 +130,11 @@ Entities.add('rocket', Entities.create(
 						rocketPosition: 
 							fillProperties([
 								0,0,0,
-								0,16,0,
-								-8,-16,0,
+								0,sizeh,0,
+								-sizew/2,-sizeh/2,0,
 								0,0,0,
-								8,-16,0,
-								0,16,0
+								sizew/2,-sizeh/2,0,
+								0,sizeh,0
 							],
 							{
 								attributeId: "vertexPosition",
@@ -161,11 +163,11 @@ Entities.add('rocket', Entities.create(
 						rocketPosition: 
 							fillProperties([
 								0,0,0,
-								0,16,0,
-								-16,-16,0,
-								0,-4,0,
-								16,-16,0,
-								0,16,0
+								0,sizeh,0,
+								-sizew,-sizeh,0,
+								0,-sizeh/4,0,
+								sizew,-sizeh,0,
+								0,sizeh,0
 							],
 							{
 								attributeId: "vertexPosition",
@@ -270,33 +272,31 @@ Entities.add('mine', Entities.create(
 	(function(){
 		var damage = 0;
 		var blastForce = 800;
-		var interp = getInverseExponentInterpolator(2);
+		var interp = getInverseExponentInterpolator(0.5);
 		var vec = vec2.create();		
 		var sound = Sound.createSound('explosion_fire');
 		sound.gain = 0.2;
 		return {
+			construct: function(state,x,y) {
+				damage = configs.weaponValues.mine.damage.value;
+				blastForce = configs.weaponValues.mine.force.value;
+				
+				fillProperties(state, Entities.createStandardState(
+					{
+					draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+						manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,.5,1,.5,1);
+					}
+				},x,y,configs.weaponValues.mine.width,configs.weaponValues.mine.height,1.1));
+				
+			},
 			create: function(state,mineConfig,x,y){
-				damage = mineConfig.damage.value;
 				state.width = mineConfig.width.value;
 				state.height = mineConfig.height.value;
 				state.blastRadius = mineConfig.blastRadius.value;
-				blastForce = mineConfig.force.value;
 				state.alive = true;
 				state.time = mineConfig.fuse.value;
 				state.a = []; // array for collision check
 				state.blastbox = new Box(x - state.width/2, y - state.width/2, state.width, state.width);
-				
-				
-				if(!state.first){
-					fillProperties(state, Entities.createStandardState(
-					{
-						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-							manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,.5,1,.5,1);
-						}
-					},x,y,state.width,state.height,1.1));
-					
-					state.first = true;
-				}
 				state.x = x - state.width/2;
 				state.y = y - state.height/2;
 				graphics.addToDisplay(state,'gl_main');
@@ -309,6 +309,7 @@ Entities.add('mine', Entities.create(
 				for(var i = 0; i<enemies.length; i++){
 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
 						state.alive = false;
+						enemies[i].life -= damage;
 					}
 				}
 			},
@@ -362,15 +363,6 @@ function WaveWeapon(){
 	var newA = true;
 	var a = [];
 	
-//	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-//		if (vis) {
-//			mvMatrix.push();
-//			theta = Vector.getDir(vec2.set(vec, mouse.x - p.cx, mouse.yInv - p.cy));
-//			mvMatrix.rotateZ(theta + Math.PI / 2);
-//			manager.fillTriangle(p.cx + (Math.cos(theta)*(length/2)),p.cy+(Math.sin(theta)*(length/2)),0,thickness,length,0,0.6,0,1,1);
-//			mvMatrix.pop();
-//		}
-//	};
 	this.fire = function() {
 		if (!hasPressed && this.energy>=COST) {
 			hasPressed = true;
@@ -428,8 +420,6 @@ function WaveWeapon(){
 			newA = false;
 		}
 	}
-	
-	// graphics.addToDisplay(this, 'gl_main');
 }
 WaveWeapon.prototype = new GLDrawable();
 
@@ -515,6 +505,7 @@ function BeamWeapon(){
 	var force = beamConfig.force.value;
 	var vec = vec2.create();
 	var theta = 0;
+	var dt = 1;
 	var t = 0;
 	var t2 = 10;
 	var length = beamConfig.length.value;
@@ -556,7 +547,7 @@ function BeamWeapon(){
 			if (traceResult.length > 3) {
 				for (var i = 1; i < traceResult.length -2; i++) {
 					traceResult[i].accelerateToward(p.cx, p.cy, force * 3/i);
-					traceResult[i].life -= damage * 1/i;
+					traceResult[i].life -= dt * damage * 1/i;
 				}
 			}
 			verts.length = 0
@@ -580,6 +571,7 @@ function BeamWeapon(){
 	}
 	
 	this.tick = function (delta) {
+		dt = delta;
 		if (!vis || this.overheated) {
 			if (this.energy < 100 && !Loop.paused)
 				this.energy+=RECHARGE_RATE;

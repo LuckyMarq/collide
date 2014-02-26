@@ -219,10 +219,6 @@ Entities.add('explosion_basic', Entities.create(
 			Entities.shockwave.newInstance(state.x+state.width/2, state.y+state.height/2, 0, linearInterpolation,0,size,0.2,1,0.5,0,1)
 			for (var i = 0; i < 50; i++)
 				Entities.explosion_frag.newInstance(state.x+state.width/2, state.y+state.height/2);
-			graphics.addToDisplay(state,'gl_main');	
-		},
-		destroy : function(state){
-			graphics.removeFromDisplay(state,'gl_main');
 		}
 	}
 ));
@@ -384,3 +380,46 @@ Entities.add('explosion_player', Entities.create(
 		}
 	}
 ));
+
+Entities.add('bloom_square',Entities.create({
+	construct: function(state){
+		fillProperties(state,fillProperties(new GLDrawable(),{
+			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				this.t+=delta;
+				this.t%=this.period;
+				var u = this.t/this.period;
+				
+				var theta = (Math.PI * 2)*u;
+				
+				manager.fillRect(this.x+this.width/2,this.y+this.height/2,this.z,this.width,this.height,theta,this.r1,this.g1,this.b1,this.a)
+				mvMatrix.scale(0.5,0.5,1)
+				manager.fillRect(this.x+this.width/2,this.y+this.height/2,this.z,this.width,this.height,-theta*2,this.r2,this.g2,this.b2,this.a)
+				mvMatrix.scale(0.5,0.5,1)
+				manager.fillRect(this.x+this.width/2,this.y+this.height/2,this.z,this.width,this.height,theta*3,this.r3,this.g3,this.b3,this.a)
+			}
+		}))
+	},
+	create: function(state,x,y,z,width,height,period,r1,g1,b1,r2,g2,b2,r3,g3,b3,a){
+		state.x = x;
+		state.y = y;
+		state.z = z;
+		state.width = width;
+		state.height = height;
+		state.period = period;
+		state.r1 = r1;
+		state.g1 = g1;
+		state.b1 = b1;
+		state.r2 = r2;
+		state.b2 = b2;
+		state.g2 = g2;
+		state.r3 = r3;
+		state.b3 = b3;
+		state.g3 = g3;
+		state.t = 0;
+		graphics.addToDisplay(state,'gl_main')
+	},
+	destroy: function(state){
+		graphics.removeFromDisplay(state,'gl_main')
+	}
+
+}))

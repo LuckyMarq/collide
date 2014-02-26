@@ -247,7 +247,7 @@ function reinitScene(){
 	Entities.reset();
 	Entities.reset();
 	
-	currentMap.rebuild();
+	currentMap.rebuild(true);
 	
 	currentMap.init();
 	
