@@ -13,6 +13,7 @@ var input = {
 		element.addEventListener(
 			'keydown',
 			function(e){
+				e.preventDefault();
 				k.press(e);
 			},		
 			false);

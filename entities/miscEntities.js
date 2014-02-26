@@ -1,15 +1,14 @@
 Entities.add('basic_collider',Entities.create(
 	(function(){
 		return {
+			construct: function(state,x,y){
+				fillProperties(state,Entities.createStandardCollisionState(
+					{
+						
+					},x,y,32,32,1));
+				state.dragConst = 0.1
+			},
 			create: function(state,x,y){
-				if(!state.firstBasicCollider){
-					fillProperties(state,Entities.createStandardCollisionState(
-						{
-							
-						},x,y,32,32,1));
-					state.firstBasicCollider = true;
-					state.dragConst = 0.1
-				}
 				state.set(x,y,0,0,0,0);
 				graphics.addToDisplay(state,'gl_main');
 				physics.add(state);
@@ -103,21 +102,45 @@ Entities.add('shrink_burst',Entities.create(
 	(function(){
 		return {
 			parent: Entities.basic_collider,
-			create: function(state,x,y,width,height,life,vx,vy,r,g,b,dragConst){
-				if(!state.firstShrinkCollider){
-					state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-						var f = this.life/this.startLife
-						this.alpha = f;
-						this.width = this.startWidth * f;
-						this.height = this.startHeight * f;
-						gl.enable(gl.BLEND);
-						gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
-						manager.fillEllipse(this.x+(this.width/2),this.y+(this.width/2),0,this.width,this.height,0,this.r,this.g,this.b,0.5*this.alpha);
-						manager.fillEllipse(this.x+(this.width/2),this.y+(this.width/2),0,this.width/2,this.height/2,0,this.r,this.g,this.b,this.alpha);
-						gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
+			construct:function(state,x,y,width,height,life,vx,vy,r,g,b,dragConst){
+				state.glInit = function(manager){
+					if(!Entities.shrink_burst.initialized){
+						var color = [];
+						color.push(1,1,1,1)
+						for(var i = 0; i<15; i++){
+							color.push(1,1,1,0)
+						}
+						manager.addArrayBuffer('shrink_burst_color',true,color,16,4);
+						Entities.shrink_burst.initialized=true;
 					}
-					state.firstShrinkCollider = true;
 				}
+				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+					var f = this.life/this.startLife
+					this.alpha = f;
+					this.width = this.startWidth * f;
+					this.height = this.startHeight * f;
+					
+					manager.bindProgram('basic');
+					manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
+					manager.setArrayBufferAsProgramAttribute('shrink_burst_color','basic','vertexColor');
+					manager.setUniform1f('basic','alpha',this.alpha);
+					manager.setUniform1f('basic','tintWeight',1);
+					gl.uniform3f(manager.getProgram('basic').tint,this.r,this.g,this.b)
+					mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,0);
+					mvMatrix.scale(this.width,this.height,1);
+					manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+					gl.enable(gl.BLEND);
+					gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+					gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+					mvMatrix.scale(0.5,0.5,1);
+					manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+					gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+					manager.setUniform1f('basic','alpha',1);
+					manager.setUniform1f('basic','tintWeight',0);
+				}
+				state.z = 0;
+			},
+			create: function(state,x,y,width,height,life,vx,vy,r,g,b,dragConst){
 				
 				state.r = r || 0;
 				state.g = g || 0;
@@ -150,3 +173,253 @@ Entities.add('shrink_burst',Entities.create(
 		this.newInstance(x,y,width,height,life,vx+Math.cos(theta)*speed,vy+Math.sin(theta)*speed,r,g,b,dragConst);
 	}
 }
+
+Entities.add('explosion', Entities.create(
+	(function(){
+		var miscArray = []
+		return {
+			create: function(state,x,y,size,minDamage,maxDamage,minForce,maxForce,interpolator){
+				state.x = x;
+				state.y = y;
+				state.width = size;
+				state.height = size;
+				state.damage = damage;
+				state.interpolator = interpolator;
+				miscArray.length = 0;
+				var cx = x+size/2;
+				var cy = y+size/2
+				var enemies = physics.getColliders(miscArray,x,y,size,size);
+				for(var i = 0; i<enemies.length; i++){
+					var e = enemies[i];
+					var u = e.x+ (e.width/2) - cx
+					var v = e.y+ (e.height/2) - cy;
+					var p = pythag(u,v)/size;
+					if(p < 1 && interpolator){
+						var dir = Vector.getDir(u,v);
+						var damage = interpolator(minDamage,maxDamage,p);
+						var force = interpolator(minForce,maxForce,p)/(e.mass || 1);
+						e.life-=damage;
+						e.vel[0] += force * Math.cos(dir);
+						e.vel[1] += force * Math.sin(dir);
+					}
+				}
+				state.alive = false;
+			},
+			update: function(state,delta){			
+			}
+		}
+	})())
+);
+
+Entities.add('explosion_basic', Entities.create(
+	{
+		parent: Entities.explosion,
+		create: function(state,x,y,size,minDamage,maxDamage,minForce,maxForce,interpolator) {
+			state.alive =false;
+			Entities.shockwave.newInstance(state.x+state.width/2, state.y+state.height/2, 0, linearInterpolation,0,size,0.2,1,0.5,0,1)
+			for (var i = 0; i < 50; i++)
+				Entities.explosion_frag.newInstance(state.x+state.width/2, state.y+state.height/2);
+		}
+	}
+));
+
+Entities.add('explosion_frag', Entities.create(
+	(function(){
+		return {
+			create: function(state,x,y,life){
+				state.alive = true;
+				state.life = life || 0.5;
+				if(!state.first){
+					fillProperties(state, Entities.createStandardState(
+					{
+						glInit: function(manager){
+							if(!Entities.explosion_frag.initialized){
+								var color = [];
+								color.push(1,0.5,0,1)
+								for(var i = 0; i<15; i++){
+									color.push(1,0.5,0,0)
+								}
+								manager.addArrayBuffer('explosion_frag_color',true,color,16,4);
+								Entities.explosion_frag.initialized=true;
+							}
+						},
+						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+							// manager.fillEllipse(this.x,this.y,0,width/2,height/2,0,1,0.5,0,1);
+							manager.bindProgram('basic');
+							manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
+							manager.setArrayBufferAsProgramAttribute('explosion_frag_color','basic','vertexColor');
+							manager.setUniform1f('basic','alpha',1);
+							mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,this.z);
+							mvMatrix.scale(this.width,this.height,1);
+							manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+							gl.enable(gl.BLEND);
+							gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+						}
+					},x,y,24,24,1.1));
+					state.z = 0;
+					state.first = true;
+				}
+				state.width = 24;
+				state.height = 24;
+				state.x = x;
+				state.y = y;
+				state.vel[0] = Math.random()*400 - 200;
+				state.vel[1] = Math.random()*400 - 200;
+				graphics.addToDisplay(state,'gl_main');
+				physics.add(state);
+			},
+			update: function(state,delta){
+				state.life-=delta;	
+				state.alive = state.life>0;
+			},
+			destroy: function(state){
+				graphics.removeFromDisplay(state,'gl_main');
+				physics.remove(state);
+			}
+		};
+	})())
+);
+
+Entities.add('shockwave',Entities.create(
+	{
+		construct:function(state){
+			fillProperties(state,new GLDrawable())
+			state.glInit = function(manager){
+				if(!Entities.shockwave.initialized){
+					var color = [];
+					color.push(1,1,1,0)
+					for(var i = 0; i<63; i++){
+						color.push(1,1,1,1)
+					}
+					manager.addArrayBuffer('shockwave_color',true,color,16,4);
+					var verts = [];
+					verts.push(0,0,0);
+					var t = Math.PI*2/62;
+					for(var i = 0; i<63; i++ ){
+						verts.push(Math.cos(t*i)*0.5,Math.sin(t*i)*0.5,0)
+					}
+					manager.addArrayBuffer('shockwave_pos',true,verts,16,3);
+					Entities.shockwave.initialized=true;
+				}
+			}
+			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				var u = 1-(this.t/this.tInit);
+				var ra = this.interp(this.initRadius,this.finalRadius,u);
+				var r = this.interp(this.ri,this.rf,u);
+				var g = this.interp(this.gi,this.gf,u);
+				var b = this.interp(this.bi,this.bf,u);
+				var a = this.interp(this.ai,this.af,u);
+				manager.bindProgram('basic');
+				manager.setArrayBufferAsProgramAttribute('shockwave_pos','basic','vertexPosition');
+				manager.setArrayBufferAsProgramAttribute('shockwave_color','basic','vertexColor');
+				manager.setUniform1f('basic','alpha',a);
+				manager.setUniform1f('basic','tintWeight',1);
+				gl.uniform3f(manager.getProgram('basic').tint,r,g,b,a)
+				mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,0);
+				mvMatrix.scale(ra,ra,1);
+				manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+				gl.enable(gl.BLEND);
+				gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+				gl.drawArrays(gl.TRIANGLE_FAN,0,64);
+				manager.setUniform1f('basic','alpha',1);
+				manager.setUniform1f('basic','tintWeight',0);
+			}
+		},
+		create: function(state,x,y,z,interpolator,rInit,rFinal,t,ri,gi,bi,ai,rf,gf,bf,af){
+			state.x = x-(rFinal/2);
+			state.y = y-(rFinal/2);
+			state.z = z;
+			state.interp = interpolator;
+			state.width = rFinal;
+			state.height = rFinal;
+			state.initRadius = rInit;
+			state.finalRadius = rFinal;
+			state.t = t || 1;
+			state.tInit = t || 1;
+			state.ri = ri;
+			state.gi = gi;
+			state.bi = bi; 
+			state.ai = ai;
+			state.rf = rf || ri;
+			state.gf = gf || gi;
+			state.bf = bf || bi; 
+			state.af = af || ai;
+			graphics.addToDisplay(state,'gl_main')
+		},
+		update: function(state,delta){
+			state.t -=delta;
+			if(state.t<=0) state.alive = false;
+		},
+		destroy: function(state){
+			graphics.removeFromDisplay(state,'gl_main')
+		}
+	}
+))
+
+Entities.add('explosion_player', Entities.create(
+	{
+		parent: Entities.explosion,
+		construct: function(state){
+			fillProperties(state,new GLDrawable())
+			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				manager.fillEllipse(state.x+state.width/2,state.y+state.height/2,1,state.width,state.height,0,1,1,1,1);
+				state.time-=delta;
+				state.alive = state.time>0;
+			}
+		},
+		create: function(state,x,y,t) {
+			state.alive = true;
+			time = t;
+			for (var i = 0; i < 50; i++)
+				Entities.explosion_frag.newInstance(state.x+state.width/2, state.y+state.height/2, time);
+			graphics.addToDisplay(state,'gl_main');	
+		},
+		destroy : function(state){
+			graphics.removeFromDisplay(state,'gl_main');
+		}
+	}
+));
+
+Entities.add('bloom_square',Entities.create({
+	construct: function(state){
+		fillProperties(state,fillProperties(new GLDrawable(),{
+			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				this.t+=delta;
+				this.t%=this.period;
+				var u = this.t/this.period;
+				
+				var theta = (Math.PI * 2)*u;
+				
+				manager.fillRect(this.x+this.width/2,this.y+this.height/2,this.z,this.width,this.height,theta,this.r1,this.g1,this.b1,this.a)
+				mvMatrix.scale(0.5,0.5,1)
+				manager.fillRect(this.x+this.width/2,this.y+this.height/2,this.z,this.width,this.height,-theta*2,this.r2,this.g2,this.b2,this.a)
+				mvMatrix.scale(0.5,0.5,1)
+				manager.fillRect(this.x+this.width/2,this.y+this.height/2,this.z,this.width,this.height,theta*3,this.r3,this.g3,this.b3,this.a)
+			}
+		}))
+	},
+	create: function(state,x,y,z,width,height,period,r1,g1,b1,r2,g2,b2,r3,g3,b3,a){
+		state.x = x;
+		state.y = y;
+		state.z = z;
+		state.width = width;
+		state.height = height;
+		state.period = period;
+		state.r1 = r1;
+		state.g1 = g1;
+		state.b1 = b1;
+		state.r2 = r2;
+		state.b2 = b2;
+		state.g2 = g2;
+		state.r3 = r3;
+		state.b3 = b3;
+		state.g3 = g3;
+		state.t = 0;
+		graphics.addToDisplay(state,'gl_main')
+	},
+	destroy: function(state){
+		graphics.removeFromDisplay(state,'gl_main')
+	}
+
+}))

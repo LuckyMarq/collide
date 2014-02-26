@@ -128,6 +128,64 @@ Entities.add('player', Entities.create((function(){
 		return verts;
 	}
 	
+	var generateRocket = function(numOfVerts,radius){
+		var verts = new Array();
+		verts.push(0,0,0)
+		var sides;
+		var bottom;
+		var bottom1;
+		var bottom2;
+		numOfVerts-=6;
+		//get the number of vertices to be
+		//hidden in the triangles sides
+		if(numOfVerts%3 == 0){
+			sides=numOfVerts/3;
+			bottom=numOfVerts/3;
+		}else{
+			var div = Math.floor(numOfVerts/3);
+			var mod = numOfVerts%3
+			sides=div;
+			bottom=div+mod;
+		}
+		bottom1 = Math.floor(bottom/2);
+		bottom2 = Math.ceil(bottom/2);
+		
+		var pSides = 1/(sides+1);
+		var pBottom1 = 1/(bottom1+1);
+		var pBottom2 = 1/(bottom2+1);
+		
+		var pa = vec3.set(vec3.create(),0,radius,0);
+		var pb = vec3.set(vec3.create(),-radius,-radius*1.5,0);
+		var pc = vec3.set(vec3.create(),0,-radius/2,0);
+		var pd = vec3.set(vec3.create(),radius,-radius*1.5,0);
+		var temp = vec3.create();
+		
+		verts.push(pa[0],pa[1],pa[2]);
+		for(var j = 1; j<=sides; j++){
+			vec3.lerp(temp,pa,pb,pSides*j)
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pb[0],pb[1],pb[2]);
+		for(var j = 1; j<=bottom1; j++){
+			vec3.lerp(temp,pb,pc,pBottom1*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pc[0],pc[1],pc[2]);
+		for(var j = 1; j<=bottom2; j++){
+			vec3.lerp(temp,pc,pd,pBottom2*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pd[0],pd[1],pd[2]);
+		for(var j = 1; j<=sides; j++){
+			vec3.lerp(temp,pd,pa,pSides*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pa[0],pa[1],pa[2]);
+		
+		return verts;
+	}
+	
+	
 	var getColor = function(numOfVerts,r,g,b,a){
 		var colors = new Array()
 		for(var i = 0; i<numOfVerts; i++){
@@ -173,6 +231,9 @@ Entities.add('player', Entities.create((function(){
 				var square = fillProperties(generateSquare(verts,32),posProps);
 				var squareColor = fillProperties(getColor(verts,0.0,1.0,0.0,1.0),colProps);
 				
+				var rocketShape = fillProperties(generateRocket(verts,32),posProps);
+				var rocketColor = fillProperties(getColor(verts,1.0,0.0,0.0,1.0),colProps);
+				
 				var animator = new VertexAnimator('basic',
 					{
 						playerPosition:circle,
@@ -198,6 +259,12 @@ Entities.add('player', Entities.create((function(){
 						playerPosition:square,
 						playerColor:squareColor
 					},{});
+					
+				animator.addKeyframe('rocket',
+					{
+						playerPosition:rocketShape,
+						playerColor:rocketColor
+					},{});	
 				
 				state.animator = animator;
 			}
@@ -278,6 +345,7 @@ Entities.add('player', Entities.create((function(){
 					gl.enable(gl.BLEND);
 					gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)
 					manager.fillRect(32+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(life/100),0,1-(1*(life/100)),1*(life/100),0,this.alpha);
+					manager.fillRect(16+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(state.weaponManager.energy/100),0,1,(state.weaponManager.overheated)?0:1,0,this.alpha);
 					mvMatrix.translate(screen.x+screen.width - 48, screen.y+ 48,this.z);
 					
 					this.animator.alpha = this.alpha;
@@ -367,8 +435,7 @@ Entities.add('player', Entities.create((function(){
 							onCollision: function(){
 								blipSound.play(0);
 								blipSound.gain = Vector.getMag(this.vel) * 0.0001
-							},
-							z: -98
+							}
 						}),
 				(function(){
 					var stateX = x+animator.x, stateY= y+animator.y;
@@ -433,6 +500,7 @@ Entities.add('player', Entities.create((function(){
 			state.keyframes[0] = firstKeyframe;
 			state.animator.setCurrentKeyframe(firstKeyframe);
 			state.weaponManager.add(new firstWeapon());
+			ticker.add(state.weaponManager);
 			state.life = 100;
 			state.set(x,y,0,0,0,0);
 			graphics.addToDisplay(state,'gl_main');
@@ -446,11 +514,11 @@ Entities.add('player', Entities.create((function(){
 			graphics.removeFromDisplay(state.hud,'gl_main');
 			physics.remove(state);
 			ticker.remove(state);
+			ticker.remove(state.weaponManager);
 			if(graphics.getScreen('gl_main').follower == state)graphics.getScreen('gl_main').follower == null;
 			state.weaponManager.clear();
 			playerExplosion.play(0);
-			for (var i = 0; i < 50; i++)
-				Entities.explosion.newInstance(state.cx, state.cy,2);
+			Entities.explosion_player.newInstance(state.cx, state.cy,2);
 			ticker.addTimer(function(){reinitScene()},2,0);
 		}
 	};
@@ -459,3 +527,5 @@ Entities.add('player', Entities.create((function(){
 Entities.player.getInstance = function(){
 	return this.instanceArray[0];
 }
+
+Entities.player.reset = function(){}

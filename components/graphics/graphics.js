@@ -804,6 +804,26 @@ function initGraphics(){
 					}
 					return verts;
 				})(),16,3);
+				
+			this.addArrayBuffer('primitive_circle_fan',true,(function(){
+					var verts = [];
+					var current = [0.0,0.5,0.0];
+					var numOfVerts = 15;
+					var theta = (Math.PI*2)/(numOfVerts-1)
+					var c = Math.cos(theta);
+					var s = Math.sin(theta);
+					
+					verts.push(0,0,0)
+					for(var i = 0; i<numOfVerts; i++){
+						verts.push(current[0],current[1],current[2]);
+						var u =current[0];
+						var v =current[1]
+						current[0]= c*u - s*v;
+						current[1]= s*u + c*v;
+						current[2]=0;
+					}
+					return verts;
+				})(),16,3);
 		
 			this.addArrayBuffer('sprite_texture_coords',false,[
 				1.0, 1.0, 0.0,
@@ -822,7 +842,12 @@ function initGraphics(){
 					pMatrix:"uPMatrix",
 					mvMatrix:"uMVMatrix"
 				});
-			this.addShader('basic_fs','resources/shaders/basic.fs',{},{})
+			this.addShader('basic_fs','resources/shaders/basic.fs',
+				{},
+				{
+					tint:"uTint",
+					tintWeight:'uTintWeight'
+				})
 			this.addProgram('basic','basic_vs','basic_fs');
 			this.bindProgram('basic');
 			
