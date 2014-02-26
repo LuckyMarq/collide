@@ -48,7 +48,7 @@ Entities.add('rocket', Entities.create(
 		var damage = 0;
 		var speed = 1000;
 		var buffered = false;
-		var interp = getInverseExponentInterpolator(2);
+		var interp = getInverseExponentInterpolator(0.5);
 		var blastForce = 800;
 		return {
 			construct: function(state,x,y,dir){
@@ -208,7 +208,7 @@ Entities.add('rocket', Entities.create(
 							var e = enemies[i];
 							if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
 								state.alive = false;
-								i = enemies.length;
+								e.life -= damage;
 							}
 						}
 			},
@@ -268,7 +268,7 @@ Entities.add('mine', Entities.create(
 	(function(){
 		var damage = 0;
 		var blastForce = 800;
-		var interp = getInverseExponentInterpolator(2);
+		var interp = getInverseExponentInterpolator(0.5);
 		var vec = vec2.create();		
 		var sound = Sound.createSound('explosion_fire');
 		sound.gain = 0.2;
@@ -302,6 +302,7 @@ Entities.add('mine', Entities.create(
 				for(var i = 0; i<enemies.length; i++){
 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
 						state.alive = false;
+						e.life -= damage;
 					}
 				}
 			},
