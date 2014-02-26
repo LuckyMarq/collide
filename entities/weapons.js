@@ -27,7 +27,7 @@ function RocketWeapon(){
 		if (time <= 0 && this.energy >= COST) {
 			this.energy -= COST;
 			vis = true;
-			time = 0.5;
+			time = rocketConfig.rof.value;
 			dir[0] = mouse.x - p.cx;
 			dir[1] = mouse.yInv - p.cy;
 			Entities.rocket.newInstance(rocketConfig,p.cx,p.cy, dir);
@@ -52,6 +52,11 @@ Entities.add('rocket', Entities.create(
 		var blastForce = 800;
 		return {
 			construct: function(state,x,y,dir){
+				var sizew = configs.weaponValues.rocket.width.value;
+				var sizeh = configs.weaponValues.rocket.height.value;
+				damage = configs.weaponValues.rocket.damage.value;
+				speed = configs.weaponValues.rocket.speed.value;
+				blastForce = configs.weaponValues.rocket.force.value;
 				fillProperties(state, Entities.createStandardCollisionState(
 					{
 						glInit: function(manager)
@@ -67,7 +72,7 @@ Entities.add('rocket', Entities.create(
 							mvMatrix.rotateZ(this.theta);
 							this.animator.draw(gl,delta,screen,manager,pMatrix,mvMatrix);
 						}
-					},x,y,16,16,1));
+					},x,y,sizew,sizeh,1));
 					
 					state.onCollision = function() {
 						if(this.delay<=0)this.alive = false;
@@ -92,11 +97,11 @@ Entities.add('rocket', Entities.create(
 						rocketPosition: 
 							fillProperties([
 								0,0,0,
-								0,16,0,
-								-16,-16,0,
-								0,8,0,
-								16,-16,0,
-								0,16,0
+								0,sizeh,0,
+								-sizew,-sizew,0,
+								0,sizeh/2,0,
+								sizew,-sizew,0,
+								0,sizeh,0
 							],
 							{
 								attributeId: "vertexPosition",
@@ -125,11 +130,11 @@ Entities.add('rocket', Entities.create(
 						rocketPosition: 
 							fillProperties([
 								0,0,0,
-								0,16,0,
-								-8,-16,0,
+								0,sizeh,0,
+								-sizew/2,-sizeh/2,0,
 								0,0,0,
-								8,-16,0,
-								0,16,0
+								sizew/2,-sizeh/2,0,
+								0,sizeh,0
 							],
 							{
 								attributeId: "vertexPosition",
@@ -158,11 +163,11 @@ Entities.add('rocket', Entities.create(
 						rocketPosition: 
 							fillProperties([
 								0,0,0,
-								0,16,0,
-								-16,-16,0,
-								0,-4,0,
-								16,-16,0,
-								0,16,0
+								0,sizeh,0,
+								-sizew,-sizeh,0,
+								0,-sizeh/4,0,
+								sizew,-sizeh,0,
+								0,sizeh,0
 							],
 							{
 								attributeId: "vertexPosition",
@@ -173,9 +178,8 @@ Entities.add('rocket', Entities.create(
 						{},6);
 			},
 			create: function(state,rocketConfig,x,y,dir){
-				damage = rocketConfig.damage.value;
 				state.alive = true;
-				state.fuse = 5;
+				state.fuse = rocketConfig.fuse.value;
 				state.theta = Vector.getDir(dir) - Math.PI / 2;
 				state.delay = 0.1;
 				state.a = []; // array for collision check
@@ -184,8 +188,8 @@ Entities.add('rocket', Entities.create(
 				state.animator.setCurrentKeyframe("fat",0);
 				state.animator.setCurrentKeyframe("slim", state.delay);
 				state.set(x,y,0,0,0,0)
-				state.width = 16;
-				state.height = 16;
+				state.width = rocketConfig.width.value;
+				state.height = rocketConfig.height.value;
 				state.dir = Vector.getDir(dir);
 				graphics.addToDisplay(state,'gl_main');
 				ticker.add(state);
@@ -194,23 +198,23 @@ Entities.add('rocket', Entities.create(
 				state.vel[1] = Math.sin(state.dir)*speed;
 			},
 			update: function(state,delta){
-				state.a.length = 0;;
-						state.fuse-=delta;
-						state.delay -= delta;
-						if (state.fuse<=0)
-						{
-							state.alive = false;
-						}	
-						state.a.length = 0;
-						var enemies = physics.getColliders(state.a, state.x,
-							state.y, state.width, state.height);
-						for (var i = 0; i < enemies.length; i++){
-							var e = enemies[i];
-							if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
-								state.alive = false;
-								e.life -= damage;
-							}
-						}
+				state.a.length = 0;
+				state.fuse-=delta;
+				state.delay -= delta;
+				if (state.fuse<=0)
+				{
+					state.alive = false;
+				}	
+				state.a.length = 0;
+				var enemies = physics.getColliders(state.a, state.x,
+					state.y, state.width, state.height);
+				for (var i = 0; i < enemies.length; i++){
+					var e = enemies[i];
+					if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
+						state.alive = false;
+						i = enemies.length;
+					}
+				}
 			},
 			destroy: function(state){
 				state.sound.play(0);
@@ -253,7 +257,7 @@ function MineWeapon(){
 			this.energy -= COST;
 			sound.play(0);
 			Entities.mine.newInstance(mineConfig,p.cx,p.cy);
-			time = 1;
+			time = mineConfig.rof.value;
 		}
 	};
 	
@@ -273,23 +277,26 @@ Entities.add('mine', Entities.create(
 		var sound = Sound.createSound('explosion_fire');
 		sound.gain = 0.2;
 		return {
-			create: function(state,mineConfig,x,y){
-				damage = mineConfig.damage.value;
-				state.alive = true;
-				state.time = 1.5;
-				state.a = []; // array for collision check
-				state.blastbox = new Box(x - 25, y - 25, 50, 50);
+			construct: function(state,x,y) {
+				damage = configs.weaponValues.mine.damage.value;
+				blastForce = configs.weaponValues.mine.force.value;
 				
-				if(!state.first){
-					fillProperties(state, Entities.createStandardState(
+				fillProperties(state, Entities.createStandardState(
 					{
-						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-							manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,16,16,0,.5,1,.5,1);
-						}
-					},x,y,16,16,1.1));
-					
-					state.first = true;
-				}
+					draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+						manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,.5,1,.5,1);
+					}
+				},x,y,configs.weaponValues.mine.width,configs.weaponValues.mine.height,1.1));
+				
+			},
+			create: function(state,mineConfig,x,y){
+				state.width = mineConfig.width.value;
+				state.height = mineConfig.height.value;
+				state.blastRadius = mineConfig.blastRadius.value;
+				state.alive = true;
+				state.time = mineConfig.fuse.value;
+				state.a = []; // array for collision check
+				state.blastbox = new Box(x - state.width/2, y - state.width/2, state.width, state.width);
 				state.x = x - state.width/2;
 				state.y = y - state.height/2;
 				graphics.addToDisplay(state,'gl_main');
@@ -308,7 +315,20 @@ Entities.add('mine', Entities.create(
 			},
 			destroy: function(state){
 				sound.play(0);
-				Entities.explosion_basic.newInstance(state.x + state.width/2 - 64,state.y + state.height/2 - 64,128,0,damage,0,blastForce, interp);
+				var enemies = physics.getColliders(state.a, state.blastbox.x, state.blastbox.y, state.blastbox.width, state.blastbox.height);
+				for (var e in enemies) {
+					e = enemies[e];
+					vec2.set(vec, e.x - state.x, e.y - state.y);
+					Vector.setMag(vec, vec, 1);
+					if (e.life && state.blastbox.collision(e)) { // add player damage
+						e.life -= damage;
+						if (e.life > 0) {
+							e.vel[0] += vec[0] * blastForce;
+							e.vel[1] += vec[1] * blastForce;
+						}
+					}
+				}
+				Entities.explosion_basic.newInstance(state.x + state.width/2 - state.blastRadius/2,state.y + state.height/2 - state.blastRadius/2,state.blastRadius,0,damage,0,blastForce, interp);
 				graphics.removeFromDisplay(state,'gl_main');
 				physics.remove(state);
 			}
@@ -320,8 +340,6 @@ Entities.add('mine', Entities.create(
 function WaveWeapon(){
 	var waveConfig = configs.weaponValues.wave;
 	this.boundless = true;
-	this.barVisible = false;
-	var time = 0;
 	this.energy = 100;
 	var COST = waveConfig.cost.value;
 	var RECHARGE_RATE = waveConfig.rechargeRate.value;
@@ -330,33 +348,21 @@ function WaveWeapon(){
 	var damage = waveConfig.damage.value;
 	var vec = vec2.create();
 	var theta = 0;
-	var thickness = 300;
-	var length = 250;
-	var radius = length;
+	var radius = waveConfig.radius.value;
 
 	var sound = Sound.createSound('wave_fire');
 	sound.gain = 0.1;
 
-	var mag = 800;
+	var mag = waveConfig.force.value;
 	var wAngle = 50 * Math.PI/180;
 	var eAngle = 0;
 	var evec = vec2.create();
 	
 	var hasPressed = false;
-	var forceTime = 1;
 	
 	var newA = true;
 	var a = [];
 	
-	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-		if (vis) {
-			mvMatrix.push();
-			theta = Vector.getDir(vec2.set(vec, mouse.x - p.cx, mouse.yInv - p.cy));
-			mvMatrix.rotateZ(theta + Math.PI / 2);
-			manager.fillTriangle(p.cx + (Math.cos(theta)*(length/2)),p.cy+(Math.sin(theta)*(length/2)),0,thickness,length,0,0.6,0,1,1);
-			mvMatrix.pop();
-		}
-	};
 	this.fire = function() {
 		if (!hasPressed && this.energy>=COST) {
 			hasPressed = true;
@@ -414,8 +420,6 @@ function WaveWeapon(){
 			newA = false;
 		}
 	}
-	
-	// graphics.addToDisplay(this, 'gl_main');
 }
 WaveWeapon.prototype = new GLDrawable();
 
@@ -491,7 +495,6 @@ function BeamWeapon(){
 	var beamConfig = configs.weaponValues.beam;
 	this.boundless = true;
 	this.barVisible = false;
-	var time = 0;
 	this.energy = 100;
 	var COST = beamConfig.cost.value;
 	var RECHARGE_RATE = beamConfig.rechargeRate.value;
@@ -499,14 +502,13 @@ function BeamWeapon(){
 	this.overheated = false;
 	var p = Entities.player.getInstance(0);
 	var damage = beamConfig.damage.value;
-	var force = -80;
+	var force = beamConfig.force.value;
 	var vec = vec2.create();
 	var theta = 0;
+	var dt = 1;
 	var t = 0;
 	var t2 = 10;
-	var laserWidth = 32;
-	var thickness = 4;
-	var length = 512;
+	var length = beamConfig.length.value;
 	var verts = 
 				[0.0, 0.0, 0.0,
 				 0.0, 0.0, 0.0,
@@ -545,7 +547,7 @@ function BeamWeapon(){
 			if (traceResult.length > 3) {
 				for (var i = 1; i < traceResult.length -2; i++) {
 					traceResult[i].accelerateToward(p.cx, p.cy, force * 3/i);
-					traceResult[i].life -= damage * 1/i;
+					traceResult[i].life -= dt * damage * 1/i;
 				}
 			}
 			verts.length = 0
@@ -569,6 +571,7 @@ function BeamWeapon(){
 	}
 	
 	this.tick = function (delta) {
+		dt = delta;
 		if (!vis || this.overheated) {
 			if (this.energy < 100 && !Loop.paused)
 				this.energy+=RECHARGE_RATE;
