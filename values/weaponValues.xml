@@ -9,18 +9,18 @@
 	<mine>
 		<blastRadius>256</blastRadius>
 		<cost>30</cost>
-		<damage>5</damage>
+		<damage>10</damage>
 		<force>800</force>
 		<fuse>1.5</fuse>
 		<height>16</height>
 		<rechargeRate>1</rechargeRate>
-		<rof>1</rof>
+		<rof>1</rof> <!-- Rate of Fire -->
 		<width>16</width>
 	</mine>
 	<rocket>
 		<blastRadius>128</blastRadius>
 		<cost>10</cost>
-		<damage>1</damage>
+		<damage>5</damage>
 		<force>800</force>
 		<fuse>5</fuse> <!-- Time before detonation -->
 		<height>16</height>

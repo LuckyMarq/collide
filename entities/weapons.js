@@ -588,3 +588,4 @@ function BeamWeapon(){
 	graphics.addToDisplay(this, 'gl_main');
 }
 BeamWeapon.prototype = new GLDrawable();
+

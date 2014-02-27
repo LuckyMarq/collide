@@ -297,6 +297,20 @@ Entities.add('projectile', Entities.create(
 	})())
 );
 
+Entities.add('t_rocket', Entities.create(
+	(function(){
+		return {
+			parent: Entites.projectile,
+			create: function(state,weaponConfig,x,y,damage) {
+				// TODO: move from weapons
+			},
+			update: function(state,delta) {
+			
+			}
+		}
+	})())
+);
+
 Entities.add('shockwave',Entities.create(
 	{
 		construct:function(state){
