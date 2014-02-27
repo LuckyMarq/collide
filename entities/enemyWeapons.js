@@ -17,6 +17,7 @@ Entities.add('player_only_projectile',Entities.create(
 			if(p.collision(state)){
 				p.life -= state.damage;
 				state.alive = false;
+				state.hitSound.play(0);
 			}
 		},
 		create: function(state,x,y){
@@ -46,10 +47,10 @@ Entities.add('enemy_bullet', Entities.create(
 			state.c = Math.cos(dir);
 			state.s = Math.sin(dir);
 			state.speed = 600;
-		},
-		update: function(state,delta){
 			state.vel[0] = state.speed*state.c;
 			state.vel[1] = state.speed*state.s;
+		},
+		update: function(state,delta){
 		}
 	}
 ))

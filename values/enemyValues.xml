@@ -1,0 +1,27 @@
+<root>
+	<enemyTurret>
+		<life>5</life>
+		<damage>10</damage>
+		<fireSpeed>.5</fireSpeed>
+		<height>80</height>
+		<width>80</width>
+	</enemyTurret>
+	<enemyShooter>
+		<life>2</life>
+		<damage>10</damage>
+		<speed>800</speed>
+		<fireSpeed>.8</fireSpeed>
+		<innerRadius>250</innerRadius>
+		<outerRadius>300</outerRadius>
+		<height>80</height>
+		<width>80</width>
+	</enemyShooter>
+	<enemyTank>
+		<life>7</life>
+		<damage>40</damage>
+		<speed>80</speed>
+		<height>160</height>
+		<width>160</width>
+		<decreaseRate>40</decreaseRate>
+	</enemyTank>
+</root>
