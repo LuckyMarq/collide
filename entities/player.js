@@ -381,6 +381,7 @@ Entities.add('player', Entities.create((function(){
 							cx: x,
 							cy: y,
 							tick: function(delta){
+								if(!this.active)return;
 								movementCheck();
 								weaponsCheck();
 								var change = (!animator.animating);
@@ -459,7 +460,7 @@ Entities.add('player', Entities.create((function(){
 								return life;
 							},
 							set: function(nLife){
-								life = Math.min(nLife,this.maxLife);
+								if(!god_mode)life = Math.min(nLife,this.maxLife);
 							},
 							configurable: true
 						},
@@ -517,6 +518,10 @@ Entities.add('player', Entities.create((function(){
 			physics.add(state);
 			ticker.add(state);
 			graphics.getScreen('gl_main').follower = state;
+		},
+		update: function(state,delta){
+			var s = graphics.getScreen('gl_main')
+			currentMap.visit(s.x,s.y,s.width,s.height)
 		},
 		destroy: function(state){
 			graphics.removeFromDisplay(state,'gl_main');
@@ -577,9 +582,6 @@ Entities.add('player_trail_particles',Entities.create(
 							gl.enable(gl.BLEND);
 							gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
 							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
-							mvMatrix.scale(0.5,0.5,1);
-							manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
-							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
 							manager.setUniform1f('basic','alpha',1);
 							manager.setUniform1f('basic','tintWeight',0);
 						}
@@ -612,3 +614,96 @@ Entities.player_trail_particles.burst = function(x,y,size,num,life,r,g,b){
 		this.newInstance(x+Math.cos(t)*rad,y+Math.sin(t)*rad,life,r,g,b);
 	}
 }
+
+Entities.add('player_init_particles',Entities.create({
+	construct: function(state){
+		fillProperties(state,fillProperties(new GLDrawable(),{
+			glInit: function(manager){
+				if(!Entities.player_init_particles.initialized){
+					var color = [];
+					color.push(1,1,1,1)
+					for(var i = 0; i<15; i++){
+						color.push(1,1,1,0)
+					}
+					manager.addArrayBuffer('player_init_color',true,color,16,4);
+					Entities.player_init_particles.initialized = true;
+				}
+			},
+			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				var u = Math.pow(1-(this.life/this.lifeStart),5);
+				// manager.fillEllipse(this.x,this.y,0,width/2,height/2,0,1,0.5,0,1);
+				manager.bindProgram('basic');
+				manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
+				manager.setArrayBufferAsProgramAttribute('player_init_color','basic','vertexColor');
+				manager.setUniform1f('basic','alpha',u);
+				manager.setUniform1f('basic','tintWeight',1);
+				gl.uniform3f(manager.getProgram('basic').tint,this.r,this.g,this.b)
+				mvMatrix.translate((this.x1+(this.x2-this.x1)*u),(this.y1+(this.y2-this.y1)*u),this.z);
+				mvMatrix.scale(this.size*u,this.size*u,1);
+				manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+				gl.enable(gl.BLEND);
+				gl.blendFuncSeparate(gl.SRC_COLOR,gl.ONE,gl.SRC_ALPHA, gl.DST_ALPHA);
+				gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+				manager.setUniform1f('basic','alpha',1);
+				manager.setUniform1f('basic','tintWeight',0);
+			},
+			z:0,
+			boundless:true
+		}))
+	},
+	create: function(state,x1,y1,x2,y2,r,g,b,size,life){
+		state.r = r;
+		state.g = g;
+		state.b = b;
+		state.x = x1;
+		state.y = y1;
+		state.x1 = x1;
+		state.y1 = y1;
+		state.x2 = x2;
+		state.y2 = y2;
+		state.size = size;
+		state.width = size;
+		state.height = size;
+		state.life = life;
+		state.lifeStart = life;
+		graphics.addToDisplay(state,'gl_main');
+	},
+	update: function(state,delta){
+		state.life -=delta;
+		if(state.life<0)state.alive = false;
+	},
+	destroy: function(state){
+		graphics.removeFromDisplay(state,'gl_main');
+	}
+}));
+
+Entities.add('player_initializer',Entities.create({
+	create: function(state,x,y,player){
+		for(var i =0; i<50; i++){
+			var theta = Math.random()*(Math.PI*2)
+			var size = 128 * (1-Math.pow(Math.random(),3))
+			Entities.player_init_particles.newInstance(x+Math.cos(theta)*size, y+Math.sin(theta)*size,x,y,0.1,1,0.1,64,3)
+		}
+		if(player){
+			player.visible = false;
+			player.active = false;
+			player.set(x+player.x-player.cx,y+player.y-player.cy,0,0,0,0);
+			state.player = player;
+		}
+		state.x=x;
+		state.y=y;
+		state.life = 3;
+	},
+	update: function(state,delta){
+		state.life -= delta;
+		if(state.life<0)state.alive = false;
+	},
+	destroy: function(state){
+		Entities.shockwave.newInstance(state.x,state.y,0,getExponentInterpolator(1),0,10000,1,0,1,0,1,0,1,0,0)
+		if(state.player){
+			state.player.visible = true;
+			state.player.active = true;
+			state.player.set(state.x+state.player.x-state.player.cx,state.y+state.player.y-state.player.cy,0,0,0,0);
+		}
+	}
+}))

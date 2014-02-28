@@ -266,6 +266,8 @@ function initScene(){
 	graphics.addToDisplay(cursor,"gl_main")
 	ticker.add(cursor);
 	
+	god_mode = configs.misc.godMode.value;
+	
 	current_level = 1;
 	
 	// graphics.addToDisplay(testMap,"gl_main")
