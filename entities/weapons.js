@@ -189,20 +189,47 @@ function WaveWeapon(){
 			newA = true;
 			if (enemies.length > 1) {
 				for (var i = 0; i < a.length; i++) {
-					if (a[i] != p)
-					{
-						var dist = Math.sqrt(Math.pow(a[i].x - p.cx,2) + Math.pow(a[i].y - p.cy,2));
-						if (dist < radius) {
-							var eAngle = Vector.getDir(vec2.set(evec, a[i].x - p.cx, a[i].y - p.cy));
-							if ((eAngle > theta && eAngle < wAngle + theta) || 
-								(eAngle - 2*Math.PI < theta && eAngle - 2*Math.PI > -wAngle + theta) ||
-								((eAngle > theta - 2*Math.PI && eAngle < wAngle + theta - 2*Math.PI) || 
-								(eAngle - 2*Math.PI < theta - 2*Math.PI && eAngle - 2*Math.PI > -wAngle + theta - 2*Math.PI))) {					
-								Vector.setMag(evec, evec, 1);
-								a[i].vel[0] = evec[0] * mag;
-								a[i].vel[1] = evec[1] * mag;
-								if(a[i].life)a[i].life -= damage;
-							}
+					var enemy = a[i];
+					var inRange = false;
+					var dist = Math.sqrt(Math.pow(enemy.x - p.cx,2) + Math.pow(enemy.y - p.cy,2));
+					if (dist < radius) {
+						var eAngle = Vector.getDir(vec2.set(evec, enemy.x - p.cx, enemy.y - p.cy));
+						if ((eAngle > theta && eAngle < wAngle + theta) || 
+							(eAngle - 2*Math.PI < theta && eAngle - 2*Math.PI > -wAngle + theta) ||
+							((eAngle > theta - 2*Math.PI && eAngle < wAngle + theta - 2*Math.PI) || 
+							(eAngle - 2*Math.PI < theta - 2*Math.PI && eAngle - 2*Math.PI > -wAngle + theta - 2*Math.PI))) {					
+								
+							inRange = true;
+						}
+					}
+					if (!inRange && Collisions.boxBox(p.cx-radius,p.cy-radius,radius*2,radius*2,enemy.x,enemy,y,enemy.width,enemy.height)) {
+						
+						var x = Math.cos(theta - wAngle/2) * radius;
+						var y = Math.sin(theta - wAngle/2) * radius;
+						if ((Collisions.lineLine(p.cx, p.cy, x, y,enemy.x,enemy.y,enemy.x,enemy.y+enemy.height)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x,enemy.y,enemy.x+enemy.width,enemy.y)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x+enemy.width,enemy.y+enemy.height,enemy.x+enemy.width,enemy.y)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x+enemy.width,enemy.y+enemy.height,enemy.x,enemy.y+enemy.height))) {
+						
+							inRange = true;
+						}
+							
+						x = Math.cos(theta + wAngle/2) * radius;
+						y = Math.sin(theta + wAngle/2) * radius;
+						if ((Collisions.lineLine(p.cx, p.cy, x, y,enemy.x,enemy.y,enemy.x,enemy.y+enemy.height)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x,enemy.y,enemy.x+enemy.width,enemy.y)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x+enemy.width,enemy.y+enemy.height,enemy.x+enemy.width,enemy.y)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x+enemy.width,enemy.y+enemy.height,enemy.x,enemy.y+enemy.height))) {
+							
+							inRange = true;	
+						}
+					}
+					if (inRange) {
+						Vector.setMag(evec, evec, 1);
+						if(enemy.isEnemy) {
+							enemy.vel[0] = evec[0] * mag;
+							enemy.vel[1] = evec[1] * mag;
+							enemy.life -= damage;
 						}
 					}
 				}
