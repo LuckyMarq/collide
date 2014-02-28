@@ -60,6 +60,6 @@
 		<maxMedHealth>5</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
 		<maxLargeHealth>0</maxLargeHealth>
-		<scope>1560></scope>
+		<scope>1000></scope>
 	</enemyTank>
 </root>

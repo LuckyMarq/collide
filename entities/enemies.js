@@ -374,3 +374,50 @@ Entities.add('enemy_tank',Entities.create({
 		}
 	}
 }));
+
+Entities.add('enemy_spinner',Entities.create({
+	parent: Entities.enemy_suicider,
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,1,0,0,1);
+		}
+		state.width = 50;
+		state.height = 50;
+		state.damage = 1;
+		state.minSmallHealth = 0;
+		state.maxSmallHealth = 0;
+		state.minMedHealth = 0;
+		state.maxMedHealth = 0;
+		state.minLargeHealth = 0;
+		state.maxLargeHealth = 0;
+		state.healthSpeed = 100;
+		state.deathSound = Sound.createSound('direct_suicider_death',false);
+		state.deathSound.gain = 0.1;
+		state.moveSpeed= 200;
+		state.maxSpeed= 500;
+		state.accelMul = 50	;
+		state.impact = 0.2;
+		state.stunConst = 1;
+		state.stun = 0;
+		state.scope = 400;
+		state.theta = 1;
+		state.onDamage = function(damage){
+			this.stun += damage*this.stunConst;
+		}
+	},
+	create: function(state){
+		state.life = 2;
+		state.stun = 1;
+	},
+	update: function(state,delta){
+		if(state.inActiveScope){
+			
+		}
+	},
+	destroy: function(state,reset){
+		if(!reset){
+			state.deathSound.play(0)
+			Entities.shrink_burst.burst(8,state.x+state.width/2,state.y+state.height/2,24,24,4,200,0.81,0.09,0.56,0.1,state.vel[0],state.vel[1]);
+		}
+	}
+}));
