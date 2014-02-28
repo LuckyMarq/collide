@@ -304,6 +304,12 @@ Entities.add('player', Entities.create((function(){
 					state.accel[0] = Math.cos(angle)*acceleration;
 					state.accel[1] = Math.sin(angle)*acceleration;
 				}else{
+					var p = gamepad.padA[0];
+					if(p && p.leftStick.mag>0.1){
+						state.accel[0] = acceleration * p.leftStick.xAxis;
+						state.accel[1] = -acceleration * p.leftStick.yAxis;
+						return;
+					}
 					state.accel[0]=0;
 					state.accel[1]=0;
 				}
@@ -326,12 +332,14 @@ Entities.add('player', Entities.create((function(){
 			// weapon manager
 			// This section is used for weapons testing
 			var weaponsCheck = function() {
+				var p = gamepad.padA[0]; 
 				if (mouse.left)
 				{
-					state.weaponManager.fire();
+					state.weaponManager.fire((Math.PI*2)-Vector.getDir(mouse.x-state.cx,mouse.y-state.cy));
 				}
-				else
-				{
+				else if(p&&p.rightStick.mag>0.5){
+					state.weaponManager.fire((Math.PI*2)-p.rightStick.dir)
+				}else{
 					state.weaponManager.holdFire();
 				}
 			}
@@ -413,12 +421,13 @@ Entities.add('player', Entities.create((function(){
 								}
 								
 								var mx= mouse.x,my=mouse.yInv;
-								theta = Vector.getDir(vec2.set(mvec,mx-state.cx,my-state.cy))-r;
+								theta = Vector.getDir(this.vel)-r;
 								animator.theta = theta;
 								
 								if(this.life<=0){
 									this.alive = false;
 								}
+								Entities.player_trail_particles.burst(this.x+this.width/2,this.y+this.height/2,Math.min(this.width,this.height)/4,Math.min(1,(delta/0.016)*2),1,1-(1*(this.life/100)),1*(this.life/100),0)
 							},
 							glInit: function(manager){
 								animator.glInit(manager);
@@ -529,3 +538,77 @@ Entities.player.getInstance = function(){
 }
 
 Entities.player.reset = function(){}
+
+Entities.add('player_trail_particles',Entities.create(
+		{
+			create: function(state,x,y,life,r,g,b){
+				state.alive = true;
+				state.life = life || 0.5;
+				state.lifeStart = state.life;
+				state.r = r;
+				state.g = g;
+				state.b = b;
+				if(!state.first){
+					fillProperties(state, Entities.createStandardState(
+					{
+						glInit: function(manager){
+							if(!Entities.player_trail_particles.initialized){
+								var color = [];
+								color.push(1,1,1,1)
+								for(var i = 0; i<15; i++){
+									color.push(1,1,1,0)
+								}
+								manager.addArrayBuffer('player_trail_color',true,color,16,4);
+								Entities.player_trail_particles.initialized=true;
+							}
+						},
+						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+							var u = this.life/this.lifeStart;
+							// manager.fillEllipse(this.x,this.y,0,width/2,height/2,0,1,0.5,0,1);
+							manager.bindProgram('basic');
+							manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
+							manager.setArrayBufferAsProgramAttribute('player_trail_color','basic','vertexColor');
+							manager.setUniform1f('basic','alpha',u);
+							manager.setUniform1f('basic','tintWeight',1);
+							gl.uniform3f(manager.getProgram('basic').tint,this.r,this.g,this.b)
+							mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,this.z);
+							mvMatrix.scale(this.width*u,this.height*u,1);
+							manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+							gl.enable(gl.BLEND);
+							gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+							mvMatrix.scale(0.5,0.5,1);
+							manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+							manager.setUniform1f('basic','alpha',1);
+							manager.setUniform1f('basic','tintWeight',0);
+						}
+					},x,y,24,24,1.1));
+					state.z = 1;
+					state.first = true;
+				}
+				state.width = 16;
+				state.height = 16;
+				state.x = x-state.width/2;
+				state.y = y-state.height/2;
+				graphics.addToDisplay(state,'gl_main');
+				// physics.add(state);
+			},
+			update: function(state,delta){
+				state.life-=delta;	
+				state.alive = state.life>0;
+			},
+			destroy: function(state){
+				graphics.removeFromDisplay(state,'gl_main');
+				// physics.remove(state);
+			}
+		}
+	));
+
+Entities.player_trail_particles.burst = function(x,y,size,num,life,r,g,b){
+	for(var i = 0; i< num; i++){
+		var t = Math.random()*(Math.PI*2);
+		var rad = Math.pow(Math.random(),2)* size;
+		this.newInstance(x+Math.cos(t)*rad,y+Math.sin(t)*rad,life,r,g,b);
+	}
+}
