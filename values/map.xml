@@ -13,6 +13,7 @@
 						<min>9</min>
 						<max>12</max>
 						<density>0.25</density>
+						<connectivity>0.75</connectivity>
 						<width>
 							<min>1024</min>
 							<max>2048</max>
@@ -48,6 +49,7 @@
 						<min>12</min>
 						<max>16</max>
 						<density>0.75</density>
+						<connectivity>0.75</connectivity>
 						<width>
 							<min>1024</min>
 							<max>2048</max>
@@ -87,6 +89,7 @@
 						<min>14</min>
 						<max>18</max>
 						<density>0.75</density>
+						<connectivity>0.5</connectivity>
 						<width>
 							<min>1024</min>
 							<max>2048</max>
@@ -130,6 +133,7 @@
 						<min>14</min>
 						<max>18</max>
 						<density>0.75</density>
+						<connectivity>0.75</connectivity>
 						<width>
 							<min>1024</min>
 							<max>2048</max>

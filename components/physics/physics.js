@@ -883,28 +883,24 @@ MovementState.prototype = Object.defineProperties(
 		accelerateToSpeed: function(dir,accel,deccel,speed){
 			var s = Vector.getMag(this.vel);
 			
-			if(Math.abs(s-speed)<0.001){
+			if(s>=speed/**Math.abs(s-speed)<0.1*/){
 				var x = accel * Math.cos(dir);
 				var y = accel * Math.sin(dir);
 				var vd = (this.vel[0] * this.vel[0]) + (this.vel[1] * this.vel[1]);
-				var u = (vd * (x*x + y*y))/(vd*vd);
+				var u = (x*this.vel[0] + y*this.vel[1])/vd;
 				this.accel[0] = x - (u * this.vel[0]);
 				this.accel[1] = y - (u * this.vel[1]);
+				Vector.setMag(this.vel,this.vel,speed)
 			}else if(s<speed){
 				var x = accel * Math.cos(dir);
 				var y = accel * Math.sin(dir);
 				this.accel[0] = x;
 				this.accel[1] = y;
-			}else{
-				var x = deccel * Math.cos(dir);
-				var y = deccel * Math.sin(dir);
-				var vd = (this.vel[0] * this.vel[0]) + (this.vel[1] * this.vel[1]);
-				var u = (vd * (x*x + y*y))/(vd*vd);
-				this.accel[0] = (x - (u * this.vel[0])) - (u * this.vel[0]);
-				this.accel[1] = (y - (u * this.vel[1])) - (u * this.vel[0]);
 			}
 			this.targetSpeed = speed
+			this.tartgetDir = dir;
 		},
+		tartgetDir: NaN,
 		targetSpeed: NaN,
 		doMove:true
 	},
