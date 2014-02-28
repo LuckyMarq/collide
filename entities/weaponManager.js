@@ -10,9 +10,9 @@ function WeaponManager()
 WeaponManager.prototype = Object.defineProperties(
 	{
 		// Fires the weapon: starting collision checks and drawing
- 		fire: function() {
+ 		fire: function(dir) {
  			if (!Loop.paused)
- 				this.currentWeapon.fire();
+ 				this.currentWeapon.fire(dir);
  			return;
  		},
  	

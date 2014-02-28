@@ -95,8 +95,8 @@ function initInput(){
 	
 	keyboard.addKeyListener(9,'tab',(function(){
 		var pressed = false;
-		var mapView = false;
-		var scaleFactor = 10;
+		map_view = false;
+		map_scale_factor = 10;
 		return {
 			onPress:function(){
 				if(!pressed){
@@ -104,12 +104,12 @@ function initInput(){
 					if(graphics){
 						var screen = graphics.getScreen('gl_main');
 						if(screen){
-							if(mapView){
-								screen.scale(1/scaleFactor);
-								mapView = false;
+							if(map_view){
+								screen.scale(1/map_scale_factor);
+								map_view = false;
 								Loop.paused = false; 
 							}else{
-								ticker.addTimer(function(){screen.scale(scaleFactor);mapView = true;Loop.paused = true;},0,0,false);
+								ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
 							}
 						}
 					}
@@ -140,6 +140,8 @@ function initInput(){
 		})()
 	)
 	mouse = new input.Mouse(window,document.getElementById("Display"));
+	
+	gamepad = new input.Gamepad();
 }
 
 function loadResources(callback){ 
@@ -200,6 +202,43 @@ function initScene(){
 	
 	ticker.add(fpsCounter);
 	
+	ticker.add({
+		sePressed: false,
+		stPressed: false,
+		tick: function(){
+			for(var o in gamepad.pads){
+				var p = gamepad.pads[o];
+				if(p.start){
+					if(!this.sePressed){
+						Loop.paused = !Loop.paused;
+						this.sePressed = true;
+					}
+				}else{
+					this.sePressed = false;
+				}
+				if(p.select){
+					if(!this.stPressed){
+						Loop.paused = !Loop.paused;
+						this.stPressed = true;
+						if(graphics){
+							var screen = graphics.getScreen('gl_main');
+							if(screen){
+								if(map_view){
+									screen.scale(1/map_scale_factor);
+									map_view = false;
+									Loop.paused = false; 
+								}else{
+									ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
+								}
+							}
+						}
+					}
+				}else{
+					this.stPressed = false;
+				}
+			}
+		}
+	})
 	var cursor = fillProperties(new GLDrawable(),(function(){
 		var first = true;
 		var x=0, y=0;

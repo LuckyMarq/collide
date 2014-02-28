@@ -281,22 +281,6 @@ Entities.add('explosion_frag', Entities.create(
 	})())
 );
 
-Entities.add('projectile', Entities.create(
-	(function(){
-		return {
-			create: function(state,weaponConfig,x,y,damage){
-				state.x = x;
-				state.y = y;
-				state.config = weaponConfig;
-				state.damage = damage;
-				state.alive = false;
-			},
-			update: function(state,delta){			
-			}
-		}
-	})())
-);
-
 Entities.add('shockwave',Entities.create(
 	{
 		construct:function(state){

@@ -261,10 +261,11 @@ Entities.add('level_end',Entities.create(
 				x: x,
 				y: y,
 				t:0,
-				period: 1/3,
+				period: 1,
 				num: 20,
-				animationTime: 5,
-				triggered: false
+				animationTime: 8,
+				triggered: false,
+				sound: Sound.createSound('victory_fanfare')
 			}))
 		},
 		create: function(state,x,y){
@@ -279,6 +280,7 @@ Entities.add('level_end',Entities.create(
 				var p = Entities.player.getInstance(0);
 				if(p.collision(state)){
 					state.triggered = true;
+					state.sound.play(0);
 					Loop.paused = true;
 				}
 			}

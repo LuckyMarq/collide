@@ -52,16 +52,16 @@ function Map(config){
 		num++;
 		while(((this.north==null && this.east == null && this.south==null && this.west == null)||first) && num<limit){
 			first = false;
-			if((Math.random() <= roomChance) && north == null && check(x, y+size) && num<limit){
+			if((Math.random() <= roomChance) && north == null && check(x, y+size)){
 				this.north = new Room(null,null,this,null,x,y+size, limit, roomChance,minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth);
 			}
-			if((Math.random() <= roomChance) && south == null && check(x, y-size) && num<limit){
+			if((Math.random() <= roomChance) && south == null && check(x, y-size)){
 				this.south = new Room(this,null,null,null,x,y-size,limit, roomChance,minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth);
 			}
-			if((Math.random() <= roomChance) && east == null && check(x+size,y) && num<limit){
+			if((Math.random() <= roomChance) && east == null && check(x+size,y)){
 				this.east = new Room(null,null,null,this, x+size,y,limit, roomChance,minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth);
 			}
-			if((Math.random() <= roomChance) && west == null && check(x-size, y) && num<limit){
+			if((Math.random() <= roomChance) && west == null && check(x-size, y)){
 				this.west= new Room(null,this,null,null,x-size,y,limit, roomChance,minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth);
 			}      
 		}
@@ -228,11 +228,9 @@ Map.prototype=fillProperties(new GLDrawable(),{
 			var width = Math.abs(this.lines[i]-this.lines[i+2]);
 			var height = Math.abs(this.lines[i+1]-this.lines[i+3]);
 			if(screen.collision(x,y,width,height)){
-				//manager.line(this.lines[i],this.lines[i+1],this.lines[i+2],this.lines[i+3],98);
 				width = Math.max(6,width);
 				height = Math.max(6,height)
-				manager.fillRect(x+width/2,y+height/2,this.z,width,height,0,this.r,this.g,this.b,1)
-				
+				manager.fillRect(x+width/2,y+height/2,this.z,width,height,0,this.r,this.g,this.b,1);
 			}
 		}
 	},
