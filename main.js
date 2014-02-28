@@ -104,7 +104,7 @@ function initInput(){
 					if(graphics){
 						var screen = graphics.getScreen('gl_main');
 						if(screen){
-							if(mapView){
+							if(map_view){
 								screen.scale(1/map_scale_factor);
 								map_view = false;
 								Loop.paused = false; 

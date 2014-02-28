@@ -189,7 +189,7 @@ Entities.add('player', Entities.create((function(){
 	var getColor = function(numOfVerts,r,g,b,a){
 		var colors = new Array()
 		for(var i = 0; i<numOfVerts; i++){
-			colors.push(r,g,b,a);
+			colors.push(0,1,0,1);
 		}
 		return colors;
 	}
