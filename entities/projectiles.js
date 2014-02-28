@@ -1,44 +1,44 @@
-Entities.add('projectile', Entities.create(
-	(function(){
-		return {
-			create: function(state,weaponConfig,x,y,dir){
-				state.a = [];
-				state.x = x;
-				state.y = y;
-				state.width = weaponConfig.width.value;
-				state.height = weaponConfig.height.value;
-				state.dir = Vector.getDir(dir);
-				state.speed = weaponConfig.speed.value;
-				state.vel[0] = Math.cos(state.dir)*speed;
-				state.vel[1] = Math.sin(state.dir)*speed;
-				state.config = weaponConfig;
-				state.damage = weaponConfig.damage.value;
-				state.fuse = weaponConfig.fuse.value;
-				state.alive = false;
-				state.onCollision = function() {
-					state.alive = false;
-				}
-			},
-			update: function(state,delta){
-				state.a.length = 0;	
-				state.fuse -= delta;
-				if (state.fuse < 0) state.alive = false;
-				
-				var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
-				for (var i = 0; i < enemies.length; i++) {
-					var e = enemies[i];
-					if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
-						state.alive = false;
-						state.x = state.px
-						state.y = state.py;
-						i = enemies.length;
-						e.life -= damage;
-					}
-				}
-			}
-		}
-	})())
-);
+// Entities.add('projectile', Entities.create(
+// 	(function(){
+// 		return {
+// 			create: function(state,weaponConfig,x,y,dir){
+// 				state.a = [];
+// 				state.x = x;
+// 				state.y = y;
+// 				state.width = weaponConfig.width.value;
+// 				state.height = weaponConfig.height.value;
+// 				state.dir = Vector.getDir(dir);
+// 				state.speed = weaponConfig.speed.value;
+// 				state.vel[0] = Math.cos(state.dir)*speed;
+// 				state.vel[1] = Math.sin(state.dir)*speed;
+// 				state.config = weaponConfig;
+// 				state.damage = weaponConfig.damage.value;
+// 				state.fuse = weaponConfig.fuse.value;
+// 				state.alive = false;
+// 				state.onCollision = function() {
+// 					state.alive = false;
+// 				}
+// 			},
+// 			update: function(state,delta){
+// 				state.a.length = 0;	
+// 				state.fuse -= delta;
+// 				if (state.fuse < 0) state.alive = false;
+// 				
+// 				var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
+// 				for (var i = 0; i < enemies.length; i++) {
+// 					var e = enemies[i];
+// 					if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
+// 						state.alive = false;
+// 						state.x = state.px
+// 						state.y = state.py;
+// 						i = enemies.length;
+// 						e.life -= damage;
+// 					}
+// 				}
+// 			}
+// 		}
+// 	})())
+// );
 
 // Rocket -- 
 Entities.add('rocket', Entities.create(
@@ -51,8 +51,8 @@ Entities.add('rocket', Entities.create(
 		var blastForce = 800;
 		return {
 			construct: function(state,x,y,dir){
-				var state.width = configs.weaponValues.rocket.width.value;
-				var state.height = configs.weaponValues.rocket.height.value;
+				state.width = configs.weaponValues.rocket.width.value;
+				state.height = configs.weaponValues.rocket.height.value;
 				damage = configs.weaponValues.rocket.damage.value;
 				speed = configs.weaponValues.rocket.speed.value;
 				blastForce = configs.weaponValues.rocket.force.value;
