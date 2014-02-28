@@ -291,6 +291,7 @@ Entity.prototype=(function(){
 	}
 })();
 
+importS('entities/projectiles.js');
 importS('entities/weaponManager.js');
 importS('entities/player.js');
 importS('entities/miscEntities.js');
