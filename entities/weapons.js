@@ -23,13 +23,11 @@ function RocketWeapon(){
 		}
 	}
 	
-	this.fire = function() {
+	this.fire = function(dir) {
 		if (time <= 0 && this.energy >= COST) {
 			this.energy -= COST;
 			vis = true;
 			time = rocketConfig.rof.value;
-			dir[0] = mouse.x - p.cx;
-			dir[1] = mouse.yInv - p.cy;
 			Entities.rocket.newInstance(rocketConfig,p.cx,p.cy, dir);
 			sound.play(0);
 		}
@@ -183,7 +181,7 @@ Entities.add('rocket', Entities.create(
 			create: function(state,rocketConfig,x,y,dir){
 				state.alive = true;
 				state.fuse = rocketConfig.fuse.value;
-				state.theta = Vector.getDir(dir) - Math.PI / 2;
+				state.theta = dir-(Math.PI/2)
 				state.delay = 0.1;
 				state.a = []; // array for collision check
 				state.sound = Sound.createSound('explosion_fire');
@@ -193,7 +191,7 @@ Entities.add('rocket', Entities.create(
 				state.set(x,y,0,0,0,0)
 				state.width = rocketConfig.width.value;
 				state.height = rocketConfig.height.value;
-				state.dir = Vector.getDir(dir);
+				state.dir = dir;
 				graphics.addToDisplay(state,'gl_main');
 				ticker.add(state);
 				physics.add(state);
@@ -215,7 +213,10 @@ Entities.add('rocket', Entities.create(
 					var e = enemies[i];
 					if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
 						state.alive = false;
+						state.x = state.px
+						state.y = state.py;
 						i = enemies.length;
+						e.life -= damage;
 					}
 				}
 			},
@@ -254,7 +255,7 @@ function MineWeapon(){
 		}
 	}
 	
-	this.fire = function() {
+	this.fire = function(dir) {
 		if (time <= 0 && this.energy >= COST) {
 			vis = true;
 			this.energy -= COST;
@@ -366,11 +367,11 @@ function WaveWeapon(){
 	var newA = true;
 	var a = [];
 	
-	this.fire = function() {
+	this.fire = function(dir) {
 		if (!hasPressed && this.energy>=COST) {
 			hasPressed = true;
 			sound.play(0);
-			theta = Vector.getDir(vec2.set(vec, mouse.x - p.cx, mouse.yInv - p.cy));
+			theta = dir;
 			Entities.wave.newInstance(p.cx,p.cy,p.width,theta,radius);
 			this.energy -= COST;
 			vis = true;
@@ -538,7 +539,7 @@ function BeamWeapon(){
 			physics.rayTraceLine(hits,p.cx,p.cy,mouse.x,mouse.yInv);
 		}
 	};
-	this.fire = function() {
+	this.fire = function(dir) {
 		if (this.energy >= COST && !this.overheated) {
 			this.energy -= COST;
 			if (!sound.playing) 
@@ -546,7 +547,7 @@ function BeamWeapon(){
 			vis = true;
 			hits.length = 0;
 		
-			var traceResult = physics.rayTrace(hits,p.cx,p.cy,mouse.x,mouse.yInv);
+			var traceResult = physics.rayTrace(hits,p.cx,p.cy,p.cx+Math.cos(dir),p.cy+Math.sin(dir));
 			if (traceResult.length > 3) {
 				for (var i = 1; i < traceResult.length -2; i++) {
 					traceResult[i].accelerateToward(p.cx, p.cy, force * 3/i);
@@ -554,7 +555,7 @@ function BeamWeapon(){
 				}
 			}
 			verts.length = 0
-			verts = physics.getCone(verts,p.cx,p.cy,mouse.x,mouse.yInv,theta);
+			verts = physics.getCone(verts,p.cx,p.cy,p.cx+Math.cos(dir),p.cy+Math.sin(dir),theta);
 			theta = (0.01) + (0.005 *Math.sin(t));
 			t+=Math.PI*2/60
 			t%=Math.PI*2;
