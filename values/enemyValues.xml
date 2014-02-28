@@ -2,10 +2,17 @@
 	<enemyTurret>
 		<life>5</life>
 		<damage>10</damage>
-		<fireSpeed>.5</fireSpeed>
+		<fireSpeed>3</fireSpeed>
 		<height>80</height>
 		<width>80</width>
 	</enemyTurret>
+	<enemyIndirectSuicider>
+		<life>1</life>
+		<damage>10</damage>
+		<speed>400</speed>
+		<height>25</height>
+		<width>25</width>
+	</enemyIndirectSuicider>
 	<enemyShooter>
 		<life>2</life>
 		<damage>10</damage>
@@ -19,9 +26,14 @@
 	<enemyTank>
 		<life>7</life>
 		<damage>40</damage>
-		<speed>80</speed>
+		<speed1>80</speed1>
+		<speed2>120</speed2>
+		<speed3>140</speed3>
+		<speed4>160</speed4>
 		<height>160</height>
 		<width>160</width>
-		<decreaseRate>40</decreaseRate>
+		<shrink2>130</shrink2>
+		<shrink3>100</shrink3>
+		<shrink4>70</shrink4>
 	</enemyTank>
 </root>
