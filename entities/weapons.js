@@ -179,7 +179,6 @@ Entities.add('rocket', Entities.create(
 						{},6);
 			},
 			create: function(state,rocketConfig,x,y,dir){
-				state.alive = true;
 				state.fuse = rocketConfig.fuse.value;
 				state.theta = dir-(Math.PI/2)
 				state.delay = 0.1;
@@ -188,12 +187,11 @@ Entities.add('rocket', Entities.create(
 				state.sound.gain = 0.1;
 				state.animator.setCurrentKeyframe("fat",0);
 				state.animator.setCurrentKeyframe("slim", state.delay);
-				state.set(x,y,0,0,0,0)
+				state.set(x-state.width/2,y-state.height/2,0,0,0,0)
 				state.width = rocketConfig.width.value;
 				state.height = rocketConfig.height.value;
 				state.dir = dir;
 				graphics.addToDisplay(state,'gl_main');
-				ticker.add(state);
 				physics.add(state);
 				state.vel[0] = Math.cos(state.dir)*speed;
 				state.vel[1] = Math.sin(state.dir)*speed;
@@ -215,8 +213,8 @@ Entities.add('rocket', Entities.create(
 						state.alive = false;
 						state.x = state.px
 						state.y = state.py;
-						i = enemies.length;
 						e.life -= damage;
+						break;
 					}
 				}
 			},
@@ -224,7 +222,6 @@ Entities.add('rocket', Entities.create(
 				state.sound.play(0);
 				Entities.explosion_basic.newInstance(state.x + state.width/2 - blastRadius/2, state.y + state.height/2 - blastRadius/2,blastRadius,0,damage,0,blastForce, interp);
 				graphics.removeFromDisplay(state,'gl_main');
-				ticker.remove(state);
 				physics.remove(state);
 			}
 		};
