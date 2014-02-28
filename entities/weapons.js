@@ -40,197 +40,6 @@ function RocketWeapon(){
 }
 RocketWeapon.prototype = new GLDrawable();
 
-// Rocket -- 
-Entities.add('rocket', Entities.create(
-	(function(){
-		var damage = 0;
-		var blastRadius = 64;
-		var speed = 1000;
-		var buffered = false;
-		var interp = getInverseExponentInterpolator(0.5);
-		var blastForce = 800;
-		return {
-			construct: function(state,x,y,dir){
-				var sizew = configs.weaponValues.rocket.width.value;
-				var sizeh = configs.weaponValues.rocket.height.value;
-				damage = configs.weaponValues.rocket.damage.value;
-				speed = configs.weaponValues.rocket.speed.value;
-				blastForce = configs.weaponValues.rocket.force.value;
-				blastRadius = configs.weaponValues.rocket.blastRadius.value;
-
-				fillProperties(state, Entities.createStandardCollisionState(
-					{
-						glInit: function(manager)
-						{
-							if (!buffered)
-							{
-								this.animator.glInit(manager);
-								buffered = true;
-							}
-						},
-						draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-							mvMatrix.translate(this.x+this.width/2, this.y+this.height/2, 0);
-							mvMatrix.rotateZ(this.theta);
-							this.animator.draw(gl,delta,screen,manager,pMatrix,mvMatrix);
-						}
-					},x,y,sizew,sizeh,1));
-					
-					state.onCollision = function() {
-						if(this.delay<=0)this.alive = false;
-					}
-					
-					state.animator = new VertexAnimator("basic", 
-						{
-						rocketColor: 
-							fillProperties([
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1
-							],
-							{
-								attributeId: "vertexColor",
-								items: 6,
-								itemSize: 4
-							}), 
-						rocketPosition: 
-							fillProperties([
-								0,0,0,
-								0,sizeh,0,
-								-sizew,-sizew,0,
-								0,sizeh/2,0,
-								sizew,-sizew,0,
-								0,sizeh,0
-							],
-							{
-								attributeId: "vertexPosition",
-								items: 6,
-								itemSize: 3
-							})
-						},
-						{},6);
-						
-					state.animator.addKeyframe("slim", 
-						{
-						rocketColor: 
-							fillProperties([
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1
-							],
-							{
-								attributeId: "vertexColor",
-								items: 6,
-								itemSize: 4
-							}), 
-						rocketPosition: 
-							fillProperties([
-								0,0,0,
-								0,sizeh,0,
-								-sizew/2,-sizeh/2,0,
-								0,0,0,
-								sizew/2,-sizeh/2,0,
-								0,sizeh,0
-							],
-							{
-								attributeId: "vertexPosition",
-								items: 6,
-								itemSize: 3
-							})
-						},
-						{},6);
-						
-					state.animator.addKeyframe("fat", 
-						{
-						rocketColor: 
-							fillProperties([
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1,
-								0.8,0,0,1
-							],
-							{
-								attributeId: "vertexColor",
-								items: 6,
-								itemSize: 4
-							}), 
-						rocketPosition: 
-							fillProperties([
-								0,0,0,
-								0,sizeh,0,
-								-sizew,-sizeh,0,
-								0,-sizeh/4,0,
-								sizew,-sizeh,0,
-								0,sizeh,0
-							],
-							{
-								attributeId: "vertexPosition",
-								items: 6,
-								itemSize: 3
-							})
-						},
-						{},6);
-			},
-			create: function(state,rocketConfig,x,y,dir){
-				state.alive = true;
-				state.fuse = rocketConfig.fuse.value;
-				state.theta = dir-(Math.PI/2)
-				state.delay = 0.1;
-				state.a = []; // array for collision check
-				state.sound = Sound.createSound('explosion_fire');
-				state.sound.gain = 0.1;
-				state.animator.setCurrentKeyframe("fat",0);
-				state.animator.setCurrentKeyframe("slim", state.delay);
-				state.set(x,y,0,0,0,0)
-				state.width = rocketConfig.width.value;
-				state.height = rocketConfig.height.value;
-				state.dir = dir;
-				graphics.addToDisplay(state,'gl_main');
-				ticker.add(state);
-				physics.add(state);
-				state.vel[0] = Math.cos(state.dir)*speed;
-				state.vel[1] = Math.sin(state.dir)*speed;
-			},
-			update: function(state,delta){
-				state.a.length = 0;
-				state.fuse-=delta;
-				state.delay -= delta;
-				if (state.fuse<=0)
-				{
-					state.alive = false;
-				}	
-				state.a.length = 0;
-				var enemies = physics.getColliders(state.a, state.x,
-					state.y, state.width, state.height);
-				for (var i = 0; i < enemies.length; i++){
-					var e = enemies[i];
-					if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
-						state.alive = false;
-						state.x = state.px
-						state.y = state.py;
-						i = enemies.length;
-						e.life -= damage;
-					}
-				}
-			},
-			destroy: function(state){
-				state.sound.play(0);
-				Entities.explosion_basic.newInstance(state.x + state.width/2 - blastRadius/2, state.y + state.height/2 - blastRadius/2,blastRadius,0,damage,0,blastForce, interp);
-				graphics.removeFromDisplay(state,'gl_main');
-				ticker.remove(state);
-				physics.remove(state);
-			}
-		};
-	})())
-);
-
 // MineWeapon -- 
 function MineWeapon(){
 	var mineConfig = configs.weaponValues.mine;
@@ -380,20 +189,47 @@ function WaveWeapon(){
 			newA = true;
 			if (enemies.length > 1) {
 				for (var i = 0; i < a.length; i++) {
-					if (a[i] != p)
-					{
-						var dist = Math.sqrt(Math.pow(a[i].x - p.cx,2) + Math.pow(a[i].y - p.cy,2));
-						if (dist < radius) {
-							var eAngle = Vector.getDir(vec2.set(evec, a[i].x - p.cx, a[i].y - p.cy));
-							if ((eAngle > theta && eAngle < wAngle + theta) || 
-								(eAngle - 2*Math.PI < theta && eAngle - 2*Math.PI > -wAngle + theta) ||
-								((eAngle > theta - 2*Math.PI && eAngle < wAngle + theta - 2*Math.PI) || 
-								(eAngle - 2*Math.PI < theta - 2*Math.PI && eAngle - 2*Math.PI > -wAngle + theta - 2*Math.PI))) {					
-								Vector.setMag(evec, evec, 1);
-								a[i].vel[0] = evec[0] * mag;
-								a[i].vel[1] = evec[1] * mag;
-								if(a[i].life)a[i].life -= damage;
-							}
+					var enemy = a[i];
+					var inRange = false;
+					var dist = Math.sqrt(Math.pow(enemy.x - p.cx,2) + Math.pow(enemy.y - p.cy,2));
+					if (dist < radius) {
+						var eAngle = Vector.getDir(vec2.set(evec, enemy.x - p.cx, enemy.y - p.cy));
+						if ((eAngle > theta && eAngle < wAngle + theta) || 
+							(eAngle - 2*Math.PI < theta && eAngle - 2*Math.PI > -wAngle + theta) ||
+							((eAngle > theta - 2*Math.PI && eAngle < wAngle + theta - 2*Math.PI) || 
+							(eAngle - 2*Math.PI < theta - 2*Math.PI && eAngle - 2*Math.PI > -wAngle + theta - 2*Math.PI))) {					
+								
+							inRange = true;
+						}
+					}
+					if (!inRange && Collisions.boxBox(p.cx-radius,p.cy-radius,radius*2,radius*2,enemy.x,enemy,y,enemy.width,enemy.height)) {
+						
+						var x = Math.cos(theta - wAngle/2) * radius;
+						var y = Math.sin(theta - wAngle/2) * radius;
+						if ((Collisions.lineLine(p.cx, p.cy, x, y,enemy.x,enemy.y,enemy.x,enemy.y+enemy.height)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x,enemy.y,enemy.x+enemy.width,enemy.y)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x+enemy.width,enemy.y+enemy.height,enemy.x+enemy.width,enemy.y)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x+enemy.width,enemy.y+enemy.height,enemy.x,enemy.y+enemy.height))) {
+						
+							inRange = true;
+						}
+							
+						x = Math.cos(theta + wAngle/2) * radius;
+						y = Math.sin(theta + wAngle/2) * radius;
+						if ((Collisions.lineLine(p.cx, p.cy, x, y,enemy.x,enemy.y,enemy.x,enemy.y+enemy.height)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x,enemy.y,enemy.x+enemy.width,enemy.y)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x+enemy.width,enemy.y+enemy.height,enemy.x+enemy.width,enemy.y)) ||
+							(Collisions.lineLine(p.cx, p.cy, x, y,enemy.x+enemy.width,enemy.y+enemy.height,enemy.x,enemy.y+enemy.height))) {
+							
+							inRange = true;	
+						}
+					}
+					if (inRange) {
+						Vector.setMag(evec, evec, 1);
+						if(enemy.isEnemy) {
+							enemy.vel[0] = evec[0] * mag;
+							enemy.vel[1] = evec[1] * mag;
+							enemy.life -= damage;
 						}
 					}
 				}
@@ -589,3 +425,4 @@ function BeamWeapon(){
 	graphics.addToDisplay(this, 'gl_main');
 }
 BeamWeapon.prototype = new GLDrawable();
+
