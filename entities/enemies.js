@@ -5,10 +5,15 @@ Entities.add('enemy_indirect_suicider',Entities.create({
 			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 				manager.fillRect(this.x + this.width/2,this.y +this.height/2,0,this.width,this.height,0,.3,0,.7,1);
 			}
-			state.width = 25;
-			state.height = 25;
-			state.damage = 10;
-			state.maxSmallHealth = 10;
+			state.width = configs.enemyValues.enemyIndirectSuicider.width.value;
+			state.height = configs.enemyValues.enemyIndirectSuicider.height.value;
+			state.damage = configs.enemyValues.enemyIndirectSuicider.damage.value;
+			state.minSmallHealth = configs.enemyValues.enemyIndirectSuicider.minSmallHealth.value;
+			state.maxSmallHealth = configs.enemyValues.enemyIndirectSuicider.maxSmallHealth.value;
+			state.minMedHealth = configs.enemyValues.enemyIndirectSuicider.minMedHealth.value;
+			state.maxMedHealth = configs.enemyValues.enemyIndirectSuicider.maxMedHealth.value;
+			state.minLargeHealth = configs.enemyValues.enemyIndirectSuicider.minMaxHealth.value;
+			state.maxLargeHealth = configs.enemyValues.enemyIndirectSuicider.maxMaxHealth.value;
 			state.healthSpeed = 100;
 			state.deathSound = Sound.createSound('direct_suicider_death',false);
 			state.deathSound.gain = 0.1;
@@ -16,14 +21,14 @@ Entities.add('enemy_indirect_suicider',Entities.create({
 			state.maxSpeed= 800;
 			state.accelMul = 75;
 			state.impact = 0.2;
-			state.moveSpeed = 400;
+			state.moveSpeed = configs.enemyValues.enemyIndirectSuicider.speed.value;
 			state.directSuiciderFirst = true;
 		}
 		var dir = Math.PI*2*Math.random();
 		state.vel[0] = state.moveSpeed;
 		Vector.setDir(state.vel,state.vel,dir);
-		state.life = 1;			
-		state.range = 8;
+		state.life = configs.enemyValues.enemyIndirectSuicider.life.value;
+		state.range = configs.enemyValues.enemyIndirectSuicider.range.value;
 	},
 	update: function(state,delta){
 		if(state.inActiveScope){
@@ -141,10 +146,15 @@ Entities.add('enemy_turret',Entities.create({
 		}
 		state.v = vec2.create();
 		state.theta = 0;
-		state.width = 80;
-		state.height = 80;
-		state.damage = 10;
-		state.maxSmallHealth = 10;
+		state.width = configs.enemyValues.enemy_turret.width.value;
+		state.height = configs.enemyValues.enemy_turret.height.value;
+		state.damage = configs.enemyValues.enemy_turret.damage.value;
+		state.minSmallHealth = configs.enemyValues.enemy_turret.minSmallHealth.value;
+		state.maxSmallHealth = configs.enemyValues.enemy_turret.maxSmallHealth.value;
+		state.minMedHealth = configs.enemyValues.enemy_turret.minMedHealth.value;
+		state.maxMedHealth = configs.enemyValues.enemy_turret.maxMedHealth.value;
+		state.minLargeHealth = configs.enemyValues.enemy_turret.minMedHealth.value;
+		state.maxLargeHealth = configs.enemyValues.enemy_turret.maxMedHealth.value;
 		state.healthSpeed = 100;
 		state.deathSound = Sound.createSound('direct_suicider_death',false);
 		state.deathSound.gain = 0.1;
@@ -156,11 +166,11 @@ Entities.add('enemy_turret',Entities.create({
 		state.delay = 0;
 		state.shotsound = Sound.createSound('pew');
 		state.shotsound.gain = 0.1;
-		state.rate = 3;
+		state.rate = configs.enemyValues.enemy_turret.fireSpeed.value;
 		state.t = 0;
 	},
 	create: function(state){
-		state.life = 3;			
+		state.life = configs.enemyValues.enemy_turret.life.value;
 	},
 	update: function(state,delta){
 		if(state.inActiveScope){
@@ -193,10 +203,15 @@ Entities.add('enemy_shooter',Entities.create({
 			}
 			state.v = vec2.create();
 			state.theta = 0;
-			state.width = 80;
-			state.height = 80;
-			state.damage = 10;
-			state.maxSmallHealth = 10;
+			state.width =  configs.enemyValues.enemyShooter.width.value;
+			state.height =  configs.enemyValues.enemyShooter.height.value;
+			state.damage =  configs.enemyValues.enemyShooter.damage.value;
+			state.minSmallHealth = configs.enemyValues.enemyShooter.minSmallHealth.value;
+			state.maxSmallHealth = configs.enemyValues.enemyShooter.maxSmallHealth.value;
+			state.minMedHealth = configs.enemyValues.enemyShooter.minMedHealth.value;
+			state.maxMedHealth = configs.enemyValues.enemyShooter.maxMedHealth.value;
+			state.minLargeHealth = configs.enemyValues.enemyShooter.minMedHealth.value;
+			state.maxLargeHealth = configs.enemyValues.enemyShooter.maxMedHealth.value;
 			state.healthSpeed = 100;
 			state.deathSound = Sound.createSound('direct_suicider_death',false);
 			state.deathSound.gain = 0.1;
@@ -209,13 +224,13 @@ Entities.add('enemy_shooter',Entities.create({
 			state.delay = 0;
 			state.shotsound = Sound.createSound('pew',false);
 			state.shotsound.gain = 0.1;
-			state.innerRadius = 250;
-			state.outerRadius = 300;
+			state.innerRadius =  configs.enemyValues.enemyShooter.innerRadius.value;
+			state.outerRadius =  configs.enemyValues.enemyShooter.outerRadius.value;
 			state.up = 1;
 			state.right = 1;
-			state.rate = .8;
+			state.rate = configs.enemyValues.enemyShooter.fireSpeed.value;
 		}
-		state.life = 2;			
+		state.life =  configs.enemyValues.enemyShooter.life.value;
 	},
 	update: function(state,delta){
 		if(state.inActiveScope){
@@ -283,36 +298,40 @@ Entities.add('enemy_tank',Entities.create({
 		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,state.r,state.g,state.b,1);
 		}
-		state.width = 160;
-		state.shrink2 = 130;
-		state.shrink3 = 100;
-		state.shrink4 = 70;
-		state.height = 160;
-		state.damage = 40;
-		state.minMedHealth = 3;
-		state.maxMedHealth = 7;
+		state.width = configs.enemyValues.enemyTank.width.value;
+		state.shrink2 = configs.enemyValues.enemyTank.shrink2.value;
+		state.shrink3 = configs.enemyValues.enemyTank.shrink3.value;
+		state.shrink4 = configs.enemyValues.enemyTank.shrink4.value;
+		state.height = configs.enemyValues.enemyTank.height.value;
+		state.damage = configs.enemyValues.enemyTank.damage.value;
+		state.minSmallHealth = configs.enemyValues.enemyTank.minSmallHealth.value;
+		state.maxSmallHealth = configs.enemyValues.enemyTank.maxSmallHealth.value;
+		state.minMedHealth = configs.enemyValues.enemyTank.minMedHealth.value;
+		state.maxMedHealth = configs.enemyValues.enemyTank.maxMedHealth.value;
+		state.minLargeHealth = configs.enemyValues.enemyTank.minMedHealth.value;
+		state.maxLargeHealth = configs.enemyValues.enemyTank.maxMedHealth.value;
 		state.healthSpeed = 100;
 		state.deathSound = Sound.createSound('direct_suicider_death',false);
 		state.deathSound.gain = 0.1;
 		state.moveSpeed= 50;
-		state.maxSpeed= 100;
-		state.maxSpeed2= 120;
-		state.maxSpeed3= 140;
-		state.maxSpeed4= 160;
+		state.maxSpeed= configs.enemyValues.enemyTank.speed1.value;
+		state.maxSpeed2= configs.enemyValues.enemyTank.speed2.value;
+		state.maxSpeed3= configs.enemyValues.enemyTank.speed3.value;
+		state.maxSpeed4= configs.enemyValues.enemyTank.speed4.value;
 		state.accelMul = 50	;
 		state.impact = 0.2;
 		state.stunConst = 1;
 		state.stun = 0;
 		state.r = 0;
 		state.g = 1;
-		state.b = 0;
-		state.scope = 1560;
+		state.b = 1;
+		state.scope = configs.enemyValues.enemyTank.scope.value;
 		state.onDamage = function(damage){
 			this.stun += damage*this.stunConst;
 		}
 	},
 	create: function(state){
-		state.life = 7;
+		state.life = configs.enemyValues.enemyTank.life.value;
 		state.stun = 1;
 	},
 	update: function(state,delta){	
@@ -322,24 +341,24 @@ Entities.add('enemy_tank',Entities.create({
 			state.damage = 20;
 			state.maxSpeed = state.maxSpeed2;
 			state.r = .3;
-			state.g = .9;
-			state.b = .4;
+			state.g = .6;
+			state.b = .6;
 		}else if(state.life > 1 && state.life < 3){
 			state.height = state.shrink3;
 			state.width = state.shrink3;
 			state.damage = 15;
 			state.maxSpeed = state.maxSpeed3;
-			state.r = .7;
-			state.g = .5;
-			state.b = .3;
+			state.r = .8;
+			state.g = .4;
+			state.b = .4;
 		}else if(state.life > 0 && state.life < 1){
 			state.height = state.shrink4;
 			state.width = state.shrink4;
 			state.damage = 10;
 			state.maxSpeed = state.maxSpeed4;
 			state.r = 1;
-			state.g = 0;
-			state.b = .1;
+			state.g = .2;
+			state.b = .2;
 		}
 		if(state.stun>0){
 			state.stun = Math.max(state.stun-delta,0);

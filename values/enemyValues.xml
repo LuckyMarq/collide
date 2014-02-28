@@ -1,39 +1,65 @@
 <root>
-	<enemyTurret>
-		<life>5</life>
-		<damage>10</damage>
-		<fireSpeed>3</fireSpeed>
-		<height>80</height>
-		<width>80</width>
-	</enemyTurret>
 	<enemyIndirectSuicider>
 		<life>1</life>
 		<damage>10</damage>
 		<speed>400</speed>
 		<height>25</height>
 		<width>25</width>
+		<range>8</range>
+		<minSmallHealth>2</minSmallHealth>
+		<maxSmallHealth>5</maxSmallHealth>
+		<minMedHealth>0</minMedHealth>
+		<maxMedHealth>0</maxMedHealth>
+		<minLargeHealth>0</minLargeHealth>
+		<maxLargeHealth>0</maxLargeHealth>
 	</enemyIndirectSuicider>
+	<enemy_turret>
+		<life>3</life>
+		<damage>10</damage>
+		<fireSpeed>3</fireSpeed>
+		<height>80</height>
+		<width>80</width>
+		<minSmallHealth>2</minSmallHealth>
+		<maxSmallHealth>5</maxSmallHealth>
+		<minMedHealth>2</minMedHealth>
+		<maxMedHealth>5</maxMedHealth>
+		<minLargeHealth>0</minLargeHealth>
+		<maxLargeHealth>1</maxLargeHealth>
+	</enemy_turret>
 	<enemyShooter>
 		<life>2</life>
 		<damage>10</damage>
 		<speed>800</speed>
 		<fireSpeed>.8</fireSpeed>
 		<innerRadius>250</innerRadius>
-		<outerRadius>300</outerRadius>
+		<outerRadius>300</outerRadius>shrink
 		<height>80</height>
 		<width>80</width>
+		<minSmallHealth>2</minSmallHealth>
+		<maxSmallHealth>10</maxSmallHealth>
+		<minMedHealth>2</minMedHealth>
+		<maxMedHealth>7</maxMedHealth>
+		<minLargeHealth>1</minLargeHealth>
+		<maxLargeHealth>2</maxLargeHealth>
 	</enemyShooter>
 	<enemyTank>
 		<life>7</life>
 		<damage>40</damage>
-		<speed1>80</speed1>
+		<speed1>100</speed1>
 		<speed2>120</speed2>
 		<speed3>140</speed3>
 		<speed4>160</speed4>
-		<height>160</height>
-		<width>160</width>
+		<height>180</height>
+		<width>180</width>
 		<shrink2>130</shrink2>
-		<shrink3>100</shrink3>
-		<shrink4>70</shrink4>
+		<shrink3>90</shrink3>
+		<shrink4>50</shrink4>
+		<minSmallHealth>5</minSmallHealth>
+		<maxSmallHealth>10</maxSmallHealth>
+		<minMedHealth>1</minMedHealth>
+		<maxMedHealth>5</maxMedHealth>
+		<minLargeHealth>0</minLargeHealth>
+		<maxLargeHealth>0</maxLargeHealth>
+		<scope>1560></scope>
 	</enemyTank>
 </root>
