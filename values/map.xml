@@ -1,0 +1,208 @@
+<root>
+	<keyframes>
+		triangle;rocket;circle;square
+	</keyframes>
+	<weapons>
+		BeamWeapon;RocketWeapon;WaveWeapon;MineWeapon
+	</weapons>
+	<levels>
+		<level1>
+			<configs>
+				<config>
+					<rooms>
+						<min>9</min>
+						<max>12</max>
+						<density>0.25</density>
+						<width>
+							<min>1024</min>
+							<max>2048</max>
+						</width>
+						<height>
+							<min>1024</min>
+							<max>2048</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_meandering_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+					</entities>
+				</config>
+			</configs>
+		</level1>
+		<level2>
+			<configs>
+				<config>
+					<rooms>
+						<min>12</min>
+						<max>16</max>
+						<density>0.75</density>
+						<width>
+							<min>1024</min>
+							<max>2048</max>
+						</width>
+						<height>
+							<min>1024</min>
+							<max>2048</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>10</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_meandering_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_breaker_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+					</entities>
+				</config>
+			</configs>
+		</level2>
+		<level3>
+			<configs>
+				<config>
+					<rooms>
+						<min>14</min>
+						<max>18</max>
+						<density>0.75</density>
+						<width>
+							<min>1024</min>
+							<max>2048</max>
+						</width>
+						<height>
+							<min>1024</min>
+							<max>2048</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_meandering_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_breaker_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_shooter' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+					</entities>
+				</config>
+			</configs>
+		</level3>
+		<level4>
+			<configs>
+				<config>
+					<rooms>
+						<min>14</min>
+						<max>18</max>
+						<density>0.75</density>
+						<width>
+							<min>1024</min>
+							<max>2048</max>
+						</width>
+						<height>
+							<min>1024</min>
+							<max>2048</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>15</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_breaker_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_shooter' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_tank' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+					</entities>
+				</config>
+			</configs>
+		</level4>
+	</levels>
+	<!--these are the configs to pick from after the levels are complete-->
+	<configs>
+		<config>
+			<rooms>
+				<min>9</min>
+				<max>12</max>
+				<density>0.25</density>
+				<width>
+					<min>1024</min>
+					<max>2048</max>
+				</width>
+				<height>
+					<min>1024</min>
+					<max>2048</max>
+				</height>
+				<size>2560</size>
+				<connectorSize>128</connectorSize>
+			</rooms>
+			<entities>
+				<entity name='enemy_direct_suicider' margin='32'>
+					<min>0</min>
+					<max>5</max>
+				</entity>
+				<entity name='enemy_direct_move_suicider' margin='32'>
+					<min>0</min>
+					<max>5</max>
+				</entity>
+				<entity name='enemy_meandering_suicider' margin='32'>
+					<min>0</min>
+					<max>10</max>
+				</entity>
+				<entity name='enemy_breaker_suicider' margin='32'>
+					<min>0</min>
+					<max>10</max>
+				</entity>
+			</entities>
+		</config>
+	</configs>
+</root>

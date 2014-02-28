@@ -85,68 +85,6 @@ Entities.add('runner',Entities.create(
 	})())	
 );
 
-Entities.add('shooter_tank',Entities.create(
-	(function(){
-		var mvec = new Array();
-		
-		return {
-			create: function(state,x,y){
-			state.isEnemy = true;
-				if(!state.first){
-					fillProperties(state,Entities.createStandardState(
-						{
-							draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-								var p = Entities.player.getInstance(0);
-								mvec[0] = p.x - this.x;
-								mvec[1] = p.y - this.y;
-								manager.fillRect(this.x + this.width/2,this.y +this.height/2,0,this.width,this.height,Vector.getDir(mvec) - Math.PI / 4,0,1,0,1);
-							},
-							width: 80,
-							height: 80
-						},x,y));
-					state.accel[0]=0;
-					state.maxSpeed = 80;
-					state.tick = function(delta){
-						var s = Entities.player.getInstance(0);
-						// test collision code
-						// var r = Entities.rocket;
-// 						for(var i = 0; i<r.position; i++){
-// 							if(this.collision(r.instanceArray[i])){
-// 								r.instanceArray[i].alive = false;
-// 								if (--state.life <= 0)
-// 								{
-// 									this.alive = false;
-// 								}
-// 								this.x += r.instanceArray[i].vel[0] * .064;
-// 								this.y += r.instanceArray[i].vel[1] * .064;
-// 								this.vel[0] += r.instanceArray[i].vel[0];
-// 								this.vel[1] += r.instanceArray[i].vel[1];
-// 							}
-// 						}
-// 						// ---- 
-					}
-					state.first = true;
-				}else{
-					state.x = x;
-					state.y = y;
-					state.vel[0]=50;
-					state.vel[1]=50;
-					state.accel[0]=0;
-				}
-				state.life = 3;
-				graphics.addToDisplay(state,'gl_main');
-				ticker.add(state);
-				physics.add(state);
-			},
-			destroy: function(state){
-				graphics.removeFromDisplay(state,'gl_main');
-				ticker.remove(state);
-				physics.remove(state);
-			}
-		};
-	})())	
-);
-
 Entities.add('enemy_indirect_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
 	create: function(state){
@@ -287,6 +225,7 @@ Entities.add('enemy_turret',Entities.create({
 			state.delay = 0;
 			state.shotsound = Sound.createSound('rocket_fire');
 			state.shotsound.gain = 0.1;
+			state.rate = 5;
 		}
 		state.life = 5;			
 	},
@@ -296,7 +235,7 @@ Entities.add('enemy_turret',Entities.create({
 			var p = Entities.player.getInstance(0);
 			state.theta = Vector.getDir(vec2.set(state.v, state.x - p.cx, state.y - p.cy));
 			var dist = pythag(p.cx-state.x+state.width/2,p.cy-state.y+state.height/2);
-			if(state.delay >= .5) {
+			if(state.delay >= state.rate) {
 			Entities.enemyFollowBullet.newInstance(state.x + state.width/2, state.y + state.height/2);
 			state.shotsound.play(0)
 			state.delay = 0;
@@ -332,14 +271,18 @@ Entities.add('enemy_shooter',Entities.create({
 			state.maxSpeed= 800;
 			state.accelMul = 75;
 			state.impact = 0.2;
-			state.moveSpeed = 400;
+			state.moveSpeed = 800;
 			state.directSuiciderFirst = true;
 			state.delay = 0;
-			state.shotsound = Sound.createSound('rocket_fire',false);
+			state.shotsound = Sound.createSound('pew',false);
 			state.shotsound.gain = 0.1;
-			state.radius = 300;
+			state.innerRadius = 250;
+			state.outerRadius = 300;
+			state.up = 1;
+			state.right = 1;
+			state.rate = .8;
 		}
-		state.life = 3;			
+		state.life = 2;			
 	},
 	update: function(state,delta){
 		if(state.inActiveScope){
@@ -349,20 +292,128 @@ Entities.add('enemy_shooter',Entities.create({
 			state.theta = Vector.getDir(vec2.set(state.v, state.x - p.cx, state.y - p.cy));
 			var dist = pythag(p.cx-state.x+state.width/2,p.cy-state.y+state.height/2);
 			//movement
+			//top
+			if(state.y > p.cy){
+			state.up = 1;
+			}else{
+			state.up = 0;
+			}
+			if(state.y < p.cy + state.innerRadius && state.up == 1){
+				state.accelerateToward(state.x, state.y+100, state.moveSpeed);
+			}else if(state.y > p.cy + state.outerRadius && state.up == 1){
+				state.accelerateToward(state.x, state.y-100, state.moveSpeed);
+			//down
+			}else if(state.y > p.cy - state.innerRadius && state.up == 0){
+				state.accelerateToward(state.x, state.y-100, state.moveSpeed);
+			}else if(state.y < p.cy - state.outerRadius && state.up == 0){
+				state.accelerateToward(state.x, state.y+100, state.moveSpeed);
+			}
 			
+			if(state.x > p.cx){
+			state.right = 1;
+			}else{
+			state.right = 0;
+			}
+			
+			//right
+			if(state.x < p.cx + state.innerRadius && state.right == 1){
+				state.accelerateToward(state.x+100, state.y, state.moveSpeed);
+			}else if(state.x > p.cx + state.outerRadius && state.right == 1){
+				state.accelerateToward(state.x-100, state.y, state.moveSpeed);
+			//left
+			}else if(state.x > p.cx - state.innerRadius && state.right == 0){
+				state.accelerateToward(state.x-100, state.y, state.moveSpeed);
+			}else if(state.x < p.cx - state.outerRadius && state.right == 0){
+				state.accelerateToward(state.x+100, state.y, state.moveSpeed);
+			}
 			
 			//shooting
-			if(state.delay >= .8) {
-			Entities.enemyFollowBullet.newInstance(state.x + state.width/2, state.y + state.height/2);
-			state.shotsound.play(0)
-			state.delay = 0;
+			if(state.delay >= state.rate) {
+				Entities.enemy_bullet.newInstance(state.x + state.width/2, state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2) ,p.cy-(state.y + state.height/2)));
+				state.shotsound.play(0)
+				state.delay = 0;
 			}
 		}
 	},
 	destroy: function(state,reset){
 		if(!reset){
 			state.deathSound.play(0)
-			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,0,0,0.1,state.vel[0],state.vel[1]);
+			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,1,0,0.1,state.vel[0],state.vel[1]);
+		}
+	}
+}));
+
+
+Entities.add('enemy_tank',Entities.create({
+	parent: Entities.enemy_suicider,
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,state.r,state.g,state.b,1);
+		}
+		state.width = 160;
+		state.height = 160;
+		state.damage = 40;
+		state.minMedHealth = 3;
+		state.maxMedHealth = 7;
+		state.healthSpeed = 100;
+		state.deathSound = Sound.createSound('direct_suicider_death',false);
+		state.deathSound.gain = 0.1;
+		state.moveSpeed= 50;
+		state.maxSpeed= 80;
+		state.accelMul = 50	;
+		state.impact = 0.2;
+		state.stunConst = 1;
+		state.stun = 0;
+		state.r = 0;
+		state.g = 1;
+		state.b = 0;
+		state.scope = 1560;
+		state.decrease = 40;
+		state.onDamage = function(damage){
+			this.stun += damage*this.stunConst;
+		}
+	},
+	create: function(state){
+		state.life = 7;
+		state.stun = 1;
+	},
+	update: function(state,delta){		
+		if(state.life > 2 && state.life < 5){
+			state.height -= state.decrease;
+			state.width -= state.decrease;
+			state.damage -= 10;
+			state.maxSpeed += state.maxSpeed/2;
+			state.r = .3;
+			state.g = .9;
+			state.b = .4;
+		}else if(state.life > 1 && state.life < 2){
+			state.height -= state.decrease;
+			state.width -= state.decrease;
+			state.damage -= 10;
+			state.maxSpeed += state.maxSpeed/2;
+			state.r = .7;
+			state.g = .5;
+			state.b = .3;
+		}else if(state.life > 0 && state.life < 1){
+			state.height -= state.decrease;
+			state.width -= state.decrease;
+			state.damage -= 10;
+			state.maxSpeed += state.maxSpeed/2;
+			state.r = 1;
+			state.g = 0;
+			state.b = .1;
+		}
+		if(state.stun>0){
+			state.stun = Math.max(state.stun-delta,0);
+		}else if(state.inActiveScope){
+			var p = Entities.player.getInstance(0);
+			state.moveToward(p.cx-state.width/2,p.cy-state.height/2,Vector.getMag(state.vel)*2+state.moveSpeed);
+		}
+	},
+	destroy: function(state,reset){
+		if(!reset){
+			state.deathSound.play(0)
+			Entities.shrink_burst.burst(8,state.x+state.width/2,state.y+state.height/2,24,24,4,200,0.81,0.09,0.56,0.1,state.vel[0],state.vel[1]);
 		}
 	}
 }));

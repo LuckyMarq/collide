@@ -11,6 +11,7 @@ function loadSource(){
 	//list script files in order here
 	var scriptSource = [
 		'misc.js',
+		'utils/Interpolator.js',
 		'config.js',
 		'utils/input.js',
 		'utils/collisions.js',
@@ -94,8 +95,8 @@ function initInput(){
 	
 	keyboard.addKeyListener(9,'tab',(function(){
 		var pressed = false;
-		var mapView = false;
-		var scaleFactor = 10;
+		map_view = false;
+		map_scale_factor = 10;
 		return {
 			onPress:function(){
 				if(!pressed){
@@ -103,12 +104,12 @@ function initInput(){
 					if(graphics){
 						var screen = graphics.getScreen('gl_main');
 						if(screen){
-							if(mapView){
-								screen.scale(1/scaleFactor);
-								mapView = false;
+							if(map_view){
+								screen.scale(1/map_scale_factor);
+								map_view = false;
 								Loop.paused = false; 
 							}else{
-								ticker.addTimer(function(){screen.scale(scaleFactor);mapView = true;Loop.paused = true;},0,0,false);
+								ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
 							}
 						}
 					}
@@ -139,6 +140,8 @@ function initInput(){
 		})()
 	)
 	mouse = new input.Mouse(window,document.getElementById("Display"));
+	
+	gamepad = new input.Gamepad();
 }
 
 function loadResources(callback){ 
@@ -162,7 +165,7 @@ function loadResources(callback){
 			callback();
 		}
 	}
-	
+	configs = resourceConfig.configs;
 	loadNextSound();
 }
 
@@ -199,6 +202,43 @@ function initScene(){
 	
 	ticker.add(fpsCounter);
 	
+	ticker.add({
+		sePressed: false,
+		stPressed: false,
+		tick: function(){
+			for(var o in gamepad.pads){
+				var p = gamepad.pads[o];
+				if(p.start){
+					if(!this.sePressed){
+						Loop.paused = !Loop.paused;
+						this.sePressed = true;
+					}
+				}else{
+					this.sePressed = false;
+				}
+				if(p.select){
+					if(!this.stPressed){
+						Loop.paused = !Loop.paused;
+						this.stPressed = true;
+						if(graphics){
+							var screen = graphics.getScreen('gl_main');
+							if(screen){
+								if(map_view){
+									screen.scale(1/map_scale_factor);
+									map_view = false;
+									Loop.paused = false; 
+								}else{
+									ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
+								}
+							}
+						}
+					}
+				}else{
+					this.stPressed = false;
+				}
+			}
+		}
+	})
 	var cursor = fillProperties(new GLDrawable(),(function(){
 		var first = true;
 		var x=0, y=0;
@@ -211,7 +251,7 @@ function initScene(){
 				if(mouse.right){
 					b=0;
 				}
-				manager.point(mouse.x,mouse.yInv,0,12,r,g,b,1);
+				manager.point(mouse.x,mouse.yInv,-99.99,12,r,g,b,1);
 			},
 			tick: function(){
 				x = mouse.x;
@@ -226,95 +266,31 @@ function initScene(){
 	graphics.addToDisplay(cursor,"gl_main")
 	ticker.add(cursor);
 	
-	// var testLines= [
-		// 0.0, 0.0,	512, 0.0,
-		// 512, 0.0,   512, 128,
-		// 512, 128,   640, 128,
-		// 640, 128,   640, 0,
-		// 640, 0,     1152, 0,
-		// 1152, 0,    1152, 512,
-		// 1152,512,   640, 512,
-		// 640, 512,   640, 394,
-		// 640, 394,   512, 394,
-		// 512, 394,   512, 512,
-		// 512, 512,   0.0, 512,
-		// 0.0, 512,	0.0, 0.0
-	// ]
-	
-	// physics.setGeometry(testLines);
-	
-	// var testMap = fillProperties(new GLDrawable(),{
-		// draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-			// manager.stroke(1,1,0,1);
-			// for(var i = 2; i<testLines.length; i+=2){
-				// manager.line(testLines[i-2],testLines[i-1],testLines[i],testLines[i+1],98);
-			// }
-		// },
-		// x: 0,
-		// y: 0,
-		// width: 512,
-		// height: 512
-	// });
-	
-	// var testSprite = fillProperties(new GLDrawable(),{
-		// glInit: function(manager){
-			// this.sprite = manager.createSprite('resources/img/emberButton.png')
-			// this.sprite.x = 128;
-			// this.sprite.y = 128;
-			// this.sprite.width = 128;
-			// this.sprite.height = 128;
-		// },
-		// draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-			// this.sprite.draw();
-		// },
-		// x: 128,
-		// y: 128,
-		// width: 128,
-		// height: 128
-	// });
-	// graphics.addToDisplay(testSprite,'gl_main');
-	
-	// Entities.follower.newInstance(400,400);
-	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	// Entities.runner.newInstance(Math.random()*500, Math.random()*500);
-	
-	
+	current_level = 1;
 	
 	// graphics.addToDisplay(testMap,"gl_main")
 	player_weapons = [BeamWeapon,RocketWeapon,WaveWeapon,MineWeapon];
-	player_keyframes = ['triangle','square','circle','square'];
+	player_keyframes = ['triangle','rocket','circle','square'];
 	instance_keyframes = player_keyframes.slice(0,player_keyframes.length);
 	instance_weapons = player_weapons.slice(0,player_keyframes.length);
 	
-	currentMap = new Map(9,0.5,256*4,512*4,256*4,512*4,640*4,128);
-	Entities.runner.def.max = 10;
-	Entities.enemy_direct_suicider.def.max = 5;
-	Entities.enemy_direct_move_suicider.def.max = 5;
-	Entities.enemy_breaker_suicider.def.max = 5;
-	Entities.enemy_meandering_suicider.def.max = 10;
-	currentMap.init([Entities.enemy_direct_suicider,Entities.enemy_direct_move_suicider,Entities.enemy_meandering_suicider,Entities.enemy_breaker_suicider],32,instance_keyframes,instance_weapons);
+	currentMap = new Map(configs.map);
+	currentMap.init();
 	physics.setGeometry(currentMap.lines);
 	graphics.addToDisplay(currentMap,'gl_main');
+	graphics.setDisplayDimensions(configs.misc.displayDimensions.attributes.width,configs.misc.displayDimensions.attributes.height)
 }
 
 function reinitScene(){
+	current_level = 1;
 	Entities.reset();
 	Entities.reset();
-	graphics.removeFromDisplay(currentMap,'gl_main');
 	
-	player_weapons = [BeamWeapon,RocketWeapon,WaveWeapon,MineWeapon];
-	player_keyframes = ['triangle','square','circle','square'];
-	instance_keyframes = player_keyframes.slice(0,player_keyframes.length);
-	instance_weapons = player_weapons.slice(0,player_keyframes.length);
+	currentMap.rebuild(true);
 	
-	currentMap = new Map(9,0.5,256*4,512*4,256*4,512*4,640*4,128);
-	
-	currentMap.init([Entities.enemy_direct_suicider,Entities.enemy_direct_move_suicider,Entities.enemy_meandering_suicider,Entities.enemy_breaker_suicider],32,instance_keyframes,instance_weapons);
+	currentMap.init();
 	
 	physics.setGeometry(currentMap.lines);
-	graphics.addToDisplay(currentMap,'gl_main');
 }
 //initializes game
 loadSource();

@@ -1,20 +1,39 @@
 <root>
-	<damage>
-		<rocket name='rocket'>1</rocket>
-		<mine name='mine'>5</mine>
-		<beam name='beam'>0.7</mine>
-		<wave name='wave'>0.5</wave>
-	</damage>
-	<cost>
-		<rocket name='rocket'>10</rocket>
-		<mine name='mine'>30</mine>
-		<beam name='beam'>0.8</mine>
-		<wave name='wave'>15</wave>
-	</cost>
-	<rate>
-		<rocket name='rocket'>1</rocket>
-		<mine name='mine'>1</mine>
-		<beam name='beam'>1</mine>
-		<wave name='wave'>1</wave>
-	</rate>
+	<beam>
+		<cost>0.8</cost>
+		<damage>5</damage>
+		<force>-80</force>
+		<length>512</length>
+		<rechargeRate>1</rechargeRate>
+	</beam>
+	<mine>
+		<blastRadius>256</blastRadius>
+		<cost>30</cost>
+		<damage>10</damage>
+		<force>800</force>
+		<fuse>1.5</fuse>
+		<height>16</height>
+		<rechargeRate>1</rechargeRate>
+		<rof>1</rof> <!-- Rate of Fire -->
+		<width>16</width>
+	</mine>
+	<rocket>
+		<blastRadius>128</blastRadius>
+		<cost>10</cost>
+		<damage>5</damage>
+		<force>800</force>
+		<fuse>5</fuse> <!-- Time before detonation -->
+		<height>16</height>
+		<rechargeRate>1</rechargeRate>
+		<rof>0.5</rof>
+		<speed>1000</speed>
+		<width>16</width>
+	</rocket>
+	<wave>
+		<cost>15</cost>
+		<damage>0.5</damage>
+		<force>800</force>
+		<radius>250</radius>
+		<rechargeRate>1</rechargeRate>
+	</wave>
 </root>

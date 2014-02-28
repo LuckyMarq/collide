@@ -13,6 +13,7 @@
 		<file name='explosion_fire'>resources/audio/weapon_sounds/explosion1.wav</file>
 		<file name='player_hit'>resources/audio/player_hit.wav</file>
 		<file name='direct_suicider_death'>resources/audio/direct_suicider_death.wav</file>
+		<file name='victory_fanfare'>resources/audio/collide_victory_1.wav</file>
 	</audio>
 	<textures>
 	</textures>
@@ -75,9 +76,12 @@
 		<program name='texture' vertex='texture_vs' fragment='texture_fs'></program> 
 	</shaders>
 	<configs>
+		<file name='misc'>values/misc.xml</file>
+		<file name='map'>values/map.xml</file>
+		<file name='weaponValues'>values/weaponValues.xml</file>
+		<file name='enemyValues'>values/enemyValues.xml</file>
 	</configs>
 	<resourceConfigs>
-		<!--<file>values/weaponValues.xml</file>-->
 		<file>values/enemyResources.xml</file>
 	</resourceConfigs>
 </root>

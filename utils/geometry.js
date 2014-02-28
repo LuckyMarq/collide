@@ -326,6 +326,13 @@ Vector = {
 		}
 		return Math.sqrt(m);
 	},
+	dot: function(a,b){
+		res = 0;
+		for(var i = 0; i<a.length; i++){
+			res+= a[i]*b[i];
+		}
+		return res;
+	},
 	normalize: function(out,a){
 		var m= 1/this.getMag(a);
 		for(var i = 0; i<a.length; i++){
