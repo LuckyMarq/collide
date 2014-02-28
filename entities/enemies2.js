@@ -179,7 +179,7 @@ Entities.add('enemy_direct_move_suicider',Entities.create({
 		state.stunConst = 1;
 		state.stun = 0;
 		state.onDamage = function(damage){
-			this.stun += damage*this.stunConst;
+			// this.stun += damage*this.stunConst;
 		}
 	},
 	create: function(state){
@@ -191,7 +191,8 @@ Entities.add('enemy_direct_move_suicider',Entities.create({
 			state.stun = Math.max(state.stun-delta,0);
 		}else if(state.inActiveScope){
 			var p = Entities.player.getInstance(0);
-			state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
+			// state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
+			state.accelerateToSpeed(Vector.getDir(p.cx-(state.x+state.width/2),p.cy-(state.y+state.height/2)),3000,3000,state.moveSpeed)
 		}
 	},
 	destroy: function(state,reset){
@@ -264,28 +265,24 @@ Entities.add('enemy_breaker_suicider',Entities.create({
 		state.impact = 0.2;
 		state.stunConst = 0.5;
 		state.stun = 0;
-		state.onDamage = function(damage){
-			this.stun += damage*this.stunConst;
-		}
 	},
 	create: function(state){
 		state.life = 5;
 		state.stun = 0;
 	},
 	update: function(state,delta){
-		if(state.stun>0){
-			state.stun = Math.max(state.stun-delta,0);
-		}else if(state.inActiveScope){
+		if(state.inActiveScope){
 			var p = Entities.player.getInstance(0);
-			state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed*(1-pythag(state.x + (state.width/2)-p.cx,state.y + (state.height/2) -p.cy)/state.scope));
+			// state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed*(1-pythag(state.x + (state.width/2)-p.cx,state.y + (state.height/2) -p.cy)/state.scope));
+			state.accelerateToSpeed(Vector.getDir(p.cx-(state.x+state.width/2),p.cy-(state.y+state.height/2)),1500,1500,state.moveSpeed)
 		}
 	},
 	destroy: function(state,reset){
 		if(!reset){
-			Entities.enemy_breaker_suicider_part.newInstance(state.x,state.y, -50 , -50 );
-			Entities.enemy_breaker_suicider_part.newInstance(state.x+state.width/2,state.y, 50, -50)
-			Entities.enemy_breaker_suicider_part.newInstance(state.x+state.width/2,state.y+state.height/2,50, 50)
-			Entities.enemy_breaker_suicider_part.newInstance(state.x,state.y+state.height/2, -50, 50)
+			Entities.enemy_breaker_suicider_part.newInstance(state.x,state.y, -200 , -200 );
+			Entities.enemy_breaker_suicider_part.newInstance(state.x+state.width/2,state.y, 200, -200)
+			Entities.enemy_breaker_suicider_part.newInstance(state.x+state.width/2,state.y+state.height/2,200, 200)
+			Entities.enemy_breaker_suicider_part.newInstance(state.x,state.y+state.height/2, -200, 200)
 		}
 	}
 }));
@@ -307,9 +304,6 @@ Entities.add('enemy_breaker_suicider_part',Entities.create({
 		state.accelMul = 50	;
 		state.impact = 0.2;
 		state.stunConst = 0.5;
-		state.onDamage = function(damage){
-			this.stun += damage*this.stunConst;
-		}
 		state.breakerSuiciderFirst = true;
 	},
 	create: function(state,x,y,vx,vy){
@@ -319,11 +313,10 @@ Entities.add('enemy_breaker_suicider_part',Entities.create({
 		state.vel[1]=vy||0;
 	},
 	update: function(state,delta){
-		if(state.stun>0){
-			state.stun = Math.max(state.stun-delta,0);
-		}else if(state.inActiveScope){
+		if(state.inActiveScope){
 			var p = Entities.player.getInstance(0);
-			state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
+			// state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
+			state.accelerateToSpeed(Vector.getDir(p.cx-(state.x+state.width/2),p.cy-(state.y+state.height/2)),3000,3000,state.moveSpeed)
 		}
 	},
 	destroy: function(state,reset){
