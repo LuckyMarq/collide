@@ -409,6 +409,8 @@ function initPhysics(){
 				var c = false;
 				if(isMover(obj)){
 					movers.push(obj);
+					obj.px = obj.x;
+					obj.py = obj.y;
 					c = true;
 				}
 				if(isCollider(obj)){
@@ -830,9 +832,17 @@ MovementState.prototype = Object.defineProperties(
 			return this;
 		},
 		deccelerate: function(mag){
-			dir = Vector(this.vel);
-			this.accel[0] = math.cos(dir)*mag;
-			this.accel[1] = math.sin(dir)*mag;
+			var speed = Vector.getMag(this.vel);
+			if(speed>mag){
+				var dir = Vector.getDir(this.vel);
+				this.accel[0] = math.cos(dir+Math.PI)*mag;
+				this.accel[1] = math.sin(dir+Math.PI)*mag;
+			}else{
+				this.vel[0] = 0;
+				this.vel[1] = 0;
+				this.accel[0] = 0;
+				this.accel[1] = 0; 
+			}
 			return this;
 		},
 		set:function(x,y,vx,vy,ax,ay){

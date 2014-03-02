@@ -211,13 +211,13 @@ function Map(config){
 		this.room.checkConnections(getNodeValue(config.rooms.connectivity));
 		this.room.initLines();
 	}
-	this.init = function(player){
+	this.init = function(player,weaponId){
 		if(player){
 			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,player);
 		}else{
 			//create player
-			var index = Math.round(Math.random()*(this.keyframes.length -1))
-			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,Entities.player.newInstance(this.room.x+size/2,this.room.y + size/2,this.keyframes[index],window[this.weapons[index]]));
+			var index = (configs.map.startWeapon) ? configs.map.startWeapon.value : weaponId || Math.round(Math.random()*(this.keyframes.length -1))
+			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,Entities.player.newInstance(this.room.x+size/2,this.room.y + size/2,this.keyframes[index],this.weapons[index]));
 			this.weapons.splice(index,1);
 			this.keyframes.splice(index,1);
 		}
@@ -226,7 +226,7 @@ function Map(config){
 			weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
 		}
 		var index = Math.round(Math.random()*(this.keyframes.length - 1));
-		Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,this.keyframes[index],window[this.weapons[index]]);
+		Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,this.keyframes[index],this.weapons[index]);
 		console.log(this.keyframes[index])
 		weaponRoom.weaponRoom = true;
 		this.weapons.splice(index,1);

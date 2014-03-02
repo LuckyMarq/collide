@@ -28,7 +28,7 @@ function RocketWeapon(){
 			this.energy -= COST;
 			vis = true;
 			time = rocketConfig.rof.value;
-			Entities.rocket.newInstance(rocketConfig,p.cx,p.cy, dir);
+			Entities.rocket.newInstance(p.cx,p.cy, dir);
 			sound.play(0);
 		}
 	};
