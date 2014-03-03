@@ -480,7 +480,6 @@ function initPhysics(){
 			*/
 			setGeometry: function(newLines){
 				if(newLines.length%4 == 0){
-					console.log(newLines.length)
 					lines = newLines;
 					lineTree = new QuadTree(VecArray.getCorner(newLines,2,0)-8,VecArray.getCorner(newLines,2,1)-8,VecArray.getMaxDif(newLines,2,0)+16,VecArray.getMaxDif(newLines,2,1)+16);
 					colliderTree = new QuadTree(VecArray.getCorner(newLines,2,0)-8,VecArray.getCorner(newLines,2,1)-8,VecArray.getMaxDif(newLines,2,0)+16,VecArray.getMaxDif(newLines,2,1)+16);
