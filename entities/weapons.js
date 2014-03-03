@@ -3,14 +3,12 @@
 function RocketWeapon(){
 	var rocketConfig = configs.weaponValues.rocket;
 	this.boundless = true;
-	this.barVisible = false;
 	var time = 0;
 	this.energy = 100;
 	this.overheated = false;
 	var COST = rocketConfig.cost.value;
 	var RECHARGE_RATE = rocketConfig.rechargeRate.value;
 	var p = Entities.player.getInstance(0);
-	var dir = {0:0, 1:0, length:2};	
 	var sound = Sound.createSound('rocket_fire');
 	sound.gain = 0.1;
 	var firing = false;
@@ -376,3 +374,47 @@ function BeamWeapon(){
 	graphics.addToDisplay(this, 'gl_main');
 }
 BeamWeapon.prototype = new GLDrawable();
+
+// Black Hole Emitter
+function BlackHoleWeapon() {
+	var bhConfig = configs.weaponValues.blackHole;
+	this.boundless = true;
+	var time = 0;
+	this.energy = 100;
+	this.overheated = false;
+	var COST = bhConfig.cost.value;
+	var RECHARGE_RATE = bhConfig.rechargeRate.value;
+	var p = Entities.player.getInstance(0);	
+	var sound = Sound.createSound('rocket_fire');
+	sound.gain = 0.1;
+	var firing = false;
+	
+	this.tick =function (delta) {
+		if (time > 0)
+			time-=delta;
+		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
+			this.energy+=RECHARGE_RATE;
+		if (this.energy < 0) {
+			this.overheated = true;
+			this.energy = 0;
+		}
+		if (this.energy >= 100) {
+			this.overheated = false;
+		}
+	}
+	
+	this.fire = function(dir) {
+		firing = true;
+		if (time <= 0 && !this.overheated) {
+			this.energy -= COST;
+			time = bhConfig.rof.value;
+			Entities.blackhole.newInstance(p.cx,p.cy,dir);
+			sound.play(0);
+		}
+	};
+	
+	this.holdFire = function() {
+		firing = false;
+	};
+}
+BlackHoleWeapon.prototype = new GLDrawable(); 
