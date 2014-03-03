@@ -53,7 +53,6 @@ var XMLConfig = (function(){
 				parts[i] = parseValue(parts[i]);
 			}
 			if(typeof parts[0] == 'function'){
-				console.log(parts.length)
 				try{
 					//can be used to with constructors
 					return parts[0].apply(new Object(),parts.slice(1));
