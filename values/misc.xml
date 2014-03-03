@@ -1,5 +1,5 @@
 <root>
-	<displayDimensions width='680' height='480'></displayDimensions>
+	<displayDimensions width='640' height='480'></displayDimensions>
 	<fogOfWar>true</fogOfWar>
 	<godMode>false</godMode>
 </root>

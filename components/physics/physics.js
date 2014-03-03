@@ -409,6 +409,8 @@ function initPhysics(){
 				var c = false;
 				if(isMover(obj)){
 					movers.push(obj);
+					obj.px = obj.x;
+					obj.py = obj.y;
 					c = true;
 				}
 				if(isCollider(obj)){
@@ -478,7 +480,6 @@ function initPhysics(){
 			*/
 			setGeometry: function(newLines){
 				if(newLines.length%4 == 0){
-					console.log(newLines.length)
 					lines = newLines;
 					lineTree = new QuadTree(VecArray.getCorner(newLines,2,0)-8,VecArray.getCorner(newLines,2,1)-8,VecArray.getMaxDif(newLines,2,0)+16,VecArray.getMaxDif(newLines,2,1)+16);
 					colliderTree = new QuadTree(VecArray.getCorner(newLines,2,0)-8,VecArray.getCorner(newLines,2,1)-8,VecArray.getMaxDif(newLines,2,0)+16,VecArray.getMaxDif(newLines,2,1)+16);
@@ -830,9 +831,17 @@ MovementState.prototype = Object.defineProperties(
 			return this;
 		},
 		deccelerate: function(mag){
-			dir = Vector(this.vel);
-			this.accel[0] = math.cos(dir)*mag;
-			this.accel[1] = math.sin(dir)*mag;
+			var speed = Vector.getMag(this.vel);
+			if(speed>mag){
+				var dir = Vector.getDir(this.vel);
+				this.accel[0] = math.cos(dir+Math.PI)*mag;
+				this.accel[1] = math.sin(dir+Math.PI)*mag;
+			}else{
+				this.vel[0] = 0;
+				this.vel[1] = 0;
+				this.accel[0] = 0;
+				this.accel[1] = 0; 
+			}
 			return this;
 		},
 		set:function(x,y,vx,vy,ax,ay){

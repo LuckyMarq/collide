@@ -34,7 +34,7 @@ function RocketWeapon(){
 		if (time <= 0 && !this.overheated) {
 			this.energy -= COST;
 			time = rocketConfig.rof.value;
-			Entities.rocket.newInstance(rocketConfig,p.cx,p.cy, dir);
+			Entities.rocket.newInstance(p.cx,p.cy, dir);
 			sound.play(0);
 		}
 	};

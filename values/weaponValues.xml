@@ -25,9 +25,15 @@
 		<fuse>5</fuse> <!-- Time before detonation -->
 		<height>16</height>
 		<rechargeRate>1</rechargeRate>
-		<rof>0.5</rof>
+		<rof>0.2</rof>
 		<speed>1000</speed>
 		<width>16</width>
+		<explosion>
+			<radius>128</radius>
+			<damage>5</damage>
+			<force>800</force>
+			<interp>getInverseExponentInterpolator;0.5</interp>
+		</explosion>
 	</rocket>
 	<wave>
 		<cost>15</cost>
