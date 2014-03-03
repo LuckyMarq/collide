@@ -534,6 +534,9 @@ Entities.add('player', Entities.create((function(){
 			playerExplosion.play(0);
 			Entities.explosion_player.newInstance(state.cx, state.cy,2);
 			ticker.addTimer(function(){reinitScene()},2,0);
+			if(current_music){
+				current_music.stop(0);
+			}
 		}
 	};
 })()))
@@ -678,6 +681,10 @@ Entities.add('player_init_particles',Entities.create({
 }));
 
 Entities.add('player_initializer',Entities.create({
+	construct:function(state){
+		state.sound = Sound.createSound('player_create',false);
+		state.sound.gain = 0.8;
+	},
 	create: function(state,x,y,player){
 		for(var i =0; i<50; i++){
 			var theta = Math.random()*(Math.PI*2)
@@ -692,6 +699,7 @@ Entities.add('player_initializer',Entities.create({
 		}
 		state.x=x;
 		state.y=y;
+		state.sound.play(0)
 		state.life = 3;
 	},
 	update: function(state,delta){
@@ -704,6 +712,9 @@ Entities.add('player_initializer',Entities.create({
 			state.player.visible = true;
 			state.player.active = true;
 			state.player.set(state.x+state.player.x-state.player.cx,state.y+state.player.y-state.player.cy,0,0,0,0);
+			current_music = Sound.createSound('groove',true);
+			current_music.gain = 0.5;
+			current_music.play(Date.now()+1000)
 		}
 	}
 }))

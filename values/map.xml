@@ -5,7 +5,6 @@
 	<weapons>
 		BeamWeapon;RocketWeapon;WaveWeapon;MineWeapon
 	</weapons>
-	<startWeapon>1</startWeapon>
 	<levels>
 		<level1>
 			<configs>
