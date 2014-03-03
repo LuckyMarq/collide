@@ -38,3 +38,17 @@ var uid = (function(){
 function sqr(x){
 	return x * x;
 }
+
+function shuffle(array){
+	var current = array.length;
+	
+	while(current !== 0){
+		var rand = Math.floor(Math.random() * current);
+		current--;
+		var temp = array[current];
+		array[current] = array[rand];
+		array[rand] = temp;
+	}
+	
+	return array;
+}

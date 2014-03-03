@@ -32,6 +32,7 @@ function Map(config){
 			return node.min.value + Math.random()*(node.max.value-node.min.value);
 		}
 	}
+	this.getNodeValue = getNodeValue;
 	var check = function(x,y){
 		for(var i in rooms) {
 			if( rooms[i].x == x && rooms[i].y == y){
@@ -185,7 +186,8 @@ function Map(config){
 	this.setColor(2);
 	config = getConfiguration(config);
 	size = getNodeValue(config.rooms.size);
-	console.log( config.rooms.width.min)
+	this.size = size;
+	
 	this.room = new Room(null,null,null,null,0,0,Math.round(getNodeValue(config.rooms)), getNodeValue(config.rooms.density), 
 		config.rooms.width.min.value, config.rooms.width.max.value, config.rooms.height.min.value,
 		config.rooms.width.max.value, size, getNodeValue(config.rooms.connectorSize));
@@ -195,12 +197,21 @@ function Map(config){
 	this.keyframes = this.config.keyframes.value.slice(0,this.config.keyframes.value.length);
 	this.weapons = this.config.weapons.value.slice(0,this.config.weapons.value.length);
 	
+	this.populators = [];
+	for(var i = 0; i<config.populators.children.length; i++){
+		this.populators.push(RoomPopulators[config.populators.children[i].name].apply(this,
+			(config.populators.children[i].value instanceof Array) ? config.populators.children[i].value : []));
+	}
+	this.populators.sort(function(a,b){return a.priority-b.priority})
+	
 	this.rebuild = function(reset){
 		config = getConfiguration(this.config);
 		if(reset){
 			this.keyframes = this.config.keyframes.value.slice(0,this.config.keyframes.value.length);
 			this.weapons = this.config.weapons.value.slice(0,this.config.weapons.value.length);
 		}
+		size = getNodeValue(config.rooms.size);
+		this.size = size;
 		num = 0;
 		lines.length = 0;
 		rooms.length = 0;
@@ -210,6 +221,12 @@ function Map(config){
 				config.rooms.width.max.value, size, getNodeValue(config.rooms.connectorSize));
 		this.room.checkConnections(getNodeValue(config.rooms.connectivity));
 		this.room.initLines();
+		
+		this.populators.length = 0;
+		for(var i = 0; i<config.populators.children.length; i++){
+			this.populators.push(RoomPopulators[config.populators.children[i].name](config.populators.children[i].value));
+		}
+		this.populators.sort(function(a,b){return a.priority-b.priority})
 	}
 	this.init = function(player,weaponId){
 		if(player){
@@ -221,51 +238,66 @@ function Map(config){
 			this.weapons.splice(index,1);
 			this.keyframes.splice(index,1);
 		}
-		var weaponRoom = this.room;
-		while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
-			weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
-		}
-		var index = Math.round(Math.random()*(this.keyframes.length - 1));
-		Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,this.keyframes[index],this.weapons[index]);
-		console.log(this.keyframes[index])
-		weaponRoom.weaponRoom = true;
-		this.weapons.splice(index,1);
-		this.keyframes.splice(index,1);
+		this.room.full = true;
 		
-		var endRoom = this.room;
-		while(endRoom == this.room || endRoom == weaponRoom || endRoom.adjacentTo(this.room)){
-			endRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
-		}
-		Entities.level_end.newInstance(endRoom.x + size/2 - 128,endRoom.y + size/2 - 128)
-		endRoom.endRoom = true;
-		
-		//add entities
-		if(config.entities){
-			var populate = function(room){
-				if(!room.weaponRoom && !room.endRoom){
-					for(var i = 0; i<config.entities.children.length; i++){
-						var entity = config.entities.children[i];
-						var num = getNodeValue(entity);
-						var margin = entity.attributes.margin;
-						for(var j = 0; j< num; j++){
-							var x = room.x+ (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2)));
-							var y = room.y+ (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2)));
-							Entities[entity.attributes.name].newInstance(x,y);
-						}
-					}
-				}
-				room.populated = true
-				if(room.north!=null && !room.north.populated)populate(room.north);
-				if(room.south!=null && !room.south.populated)populate(room.south);
-				if(room.east!=null && !room.east.populated)populate(room.east);
-				if(room.west!=null && !room.west.populated)populate(room.west);
+		for(var i = 0; i<this.populators.length; i++){
+			shuffle(rooms);
+			var pop = this.populators[i];
+			var num = rooms.length;
+			var c = 0;
+			if(pop.max){
+				var min = ((pop.min)?pop.min:0);
+				num = min +(pop.max-pop.min)*Math.random();
 			}
-			this.room.populated = true;
-			if(this.room.north!=null)populate(this.room.north);
-			if(this.room.south!=null)populate(this.room.south);
-			if(this.room.east!=null)populate(this.room.east);
-			if(this.room.west!=null)populate(this.room.west);
+			for(var j = 0; j<rooms.length && c<num; j++){
+				if(!rooms[j].full && pop.populate(config,rooms[j],this))c++;
+			}
 		}
+		
+		// var weaponRoom = this.room;
+		// while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
+			// weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
+		// }
+		// var index = Math.round(Math.random()*(this.keyframes.length - 1));
+		// Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,this.keyframes[index],this.weapons[index]);
+		// console.log(this.keyframes[index])
+		// weaponRoom.full = true;
+		// this.weapons.splice(index,1);
+		// this.keyframes.splice(index,1);
+		
+		// var endRoom = this.room;
+		// while(endRoom == this.room || endRoom == weaponRoom || endRoom.adjacentTo(this.room)){
+			// endRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
+		// }
+		// Entities.level_end.newInstance(endRoom.x + size/2 - 128,endRoom.y + size/2 - 128)
+		// endRoom.full = true;
+		
+		// if(config.entities){
+			// var populate = function(room){
+				// if(!room.full){
+					// for(var i = 0; i<config.entities.children.length; i++){
+						// var entity = config.entities.children[i];
+						// var num = getNodeValue(entity);
+						// var margin = entity.attributes.margin;
+						// for(var j = 0; j< num; j++){
+							// var x = room.x+ (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2)));
+							// var y = room.y+ (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2)));
+							// Entities[entity.attributes.name].newInstance(x,y);
+						// }
+					// }
+				// }
+				// room.populated = true
+				// if(room.north!=null && !room.north.populated)populate(room.north);
+				// if(room.south!=null && !room.south.populated)populate(room.south);
+				// if(room.east!=null && !room.east.populated)populate(room.east);
+				// if(room.west!=null && !room.west.populated)populate(room.west);
+			// }
+			// this.room.populated = true;
+			// if(this.room.north!=null)populate(this.room.north);
+			// if(this.room.south!=null)populate(this.room.south);
+			// if(this.room.east!=null)populate(this.room.east);
+			// if(this.room.west!=null)populate(this.room.west);
+		// }
 	}
 	this.visit= function(x,y,width,height){
 		for(var i = 0; i<rooms.length; i++){
@@ -305,3 +337,82 @@ Map.prototype=fillProperties(new GLDrawable(),{
 	z:98,
 	boundless:true
 });
+
+RoomPopulators = {
+	RandomEnemies: function(){
+		return{
+			populate: function(config,room,map){
+				var size = map.size;
+				for(var i = 0; i<config.entities.children.length; i++){
+					var entity = config.entities.children[i];
+					var num = map.getNodeValue(entity);
+					var margin = entity.attributes.margin;
+					for(var j = 0; j< num; j++){
+						var x = room.x+ (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2)));
+						var y = room.y+ (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2)));
+						Entities[entity.attributes.name].newInstance(x,y);
+					}
+				}
+				room.full = true;
+			},
+			priority: 100
+		}
+	},
+	WeaponRoom: function(){
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				if(room.adjacentTo(map.room)){
+					return false;
+				}else if(map.weapons.length>0){
+					var index = Math.round(Math.random()*(map.keyframes.length - 1));
+					Entities.weapon_pickup.newInstance(room.x + size/2 - 256,room.y + size/2 - 256,map.keyframes[index],map.weapons[index]);
+					room.full = true;
+					map.weapons.splice(index,1);
+					map.keyframes.splice(index,1);
+				}
+				return true;
+			},
+			min: 1,
+			max: 1,
+			priority: 0
+		}
+	},
+	// itemRoom: {
+		// populate: function(x,y,width,height,config,room){
+			
+		// },
+		// min: 0,
+		// max: 1
+	// },
+	EndRoom: function(){
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				if(room.adjacentTo(map.room)){
+					return false;
+				}
+				Entities.level_end.newInstance(room.x + size/2 - 128,room.y + size/2 - 128)
+				room.full = true;
+				return true;
+			},
+			min: 1,
+			max: 1,
+			priority: 0
+		}
+	},
+	RoomCenter: function(min,max,priority,fill,entity,xOffset,yOffset){
+		xOffset = xOffset || constructor.xOffset || constructor.width/2 || 0
+		yOffset = yOffset || constructor.yOffset || constructor.height/2 || 0
+		return {
+			populate: function(config,room,map){
+				Entities[entity].newInstance(room.x + map.size/2 - xOffset,room.y + map.size/2 - yOffset)
+				if(fill)room.full = true,console.log('filled');
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	}
+}
