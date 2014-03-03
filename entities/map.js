@@ -407,7 +407,7 @@ RoomPopulators = {
 		return {
 			populate: function(config,room,map){
 				Entities[entity].newInstance(room.x + map.size/2 - xOffset,room.y + map.size/2 - yOffset)
-				if(fill)room.full = true,console.log('filled');
+				if(fill)room.full = true;
 				return true;
 			},
 			min: min,
