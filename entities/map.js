@@ -233,7 +233,7 @@ function Map(config){
 			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,player);
 		}else{
 			//create player
-			var index = (configs.map.startWeapon) ? configs.map.startWeapon.value : weaponId || Math.round(Math.random()*(this.keyframes.length -1))
+			var index = (configs.map.startWeapon) ? configs.map.startWeapon.value : weaponId || Math.floor(Math.random()*this.keyframes.length)
 			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,Entities.player.newInstance(this.room.x+size/2,this.room.y + size/2,this.keyframes[index],this.weapons[index]));
 			this.weapons.splice(index,1);
 			this.keyframes.splice(index,1);
@@ -365,7 +365,7 @@ RoomPopulators = {
 				if(room.adjacentTo(map.room)){
 					return false;
 				}else if(map.weapons.length>0){
-					var index = Math.round(Math.random()*(map.keyframes.length - 1));
+					var index = Math.floor(Math.random()*(map.keyframes.length));
 					Entities.weapon_pickup.newInstance(room.x + size/2 - 256,room.y + size/2 - 256,map.keyframes[index],map.weapons[index]);
 					room.full = true;
 					map.weapons.splice(index,1);
