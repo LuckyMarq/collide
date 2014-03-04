@@ -48,6 +48,7 @@ Entities.add('projectile', Entities.create(
 					state.accel[1] = Math.sin(dir)*state.acceleration.speed.value;
 				}
 				state.fuse = state.fuseStart;
+				state.explode = false;
 				
 				physics.add(state);
 				graphics.addToDisplay(state,'gl_main');
@@ -96,7 +97,7 @@ Entities.add('projectile', Entities.create(
 			destroy: function(state){
 				graphics.removeFromDisplay(state,'gl_main');
 				physics.remove(state);
-				if(state.explosion){
+				if(state.explosion && state.explode){
 					state.explosion.sound.play(0);
 					Entities.explosion_basic.newInstance(
 						state.x + state.width/2 - state.explosion.radius/2, state.y + state.height/2 - state.explosion.radius/2,
@@ -119,13 +120,11 @@ Entities.add('rocket', Entities.create(
 				var sizew = configs.weaponValues.rocket.width.value;
 				var sizeh = configs.weaponValues.rocket.height.value;
 				
-				state.glInit = function(manager)
-						{
-							if (!buffered)
-							{
-								this.animator.glInit(manager);
-								buffered = true;
-							}
+				state.glInit = function(manager){
+					if (!buffered) {
+						this.animator.glInit(manager);
+						buffered = true;
+					}
 				}
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 					mvMatrix.translate(this.x+this.width/2, this.y+this.height/2, 0);
@@ -239,7 +238,7 @@ Entities.add('rocket', Entities.create(
 			create: function(state,x,y,dir){
 				state.alive = true;
 				state.theta = dir-(Math.PI/2);
-				
+				state.explode = true;
 				state.animator.setCurrentKeyframe("fat",0);
 				state.animator.setCurrentKeyframe("slim", state.delay);
 			}
@@ -317,6 +316,9 @@ Entities.add('mine', Entities.create(
 );
 
 // Black Hole -- 
+// TODO: shape not drawing
+// - be affected by other black holes
+// - exploed on contact
 Entities.add('blackhole', Entities.create(
 	(function(){
 		var buffered = false;
@@ -330,22 +332,21 @@ Entities.add('blackhole', Entities.create(
 				var sizew = configs.weaponValues.blackHole.width.value;
 				var sizeh = configs.weaponValues.blackHole.height.value;
 				
-				for (var i = 0; i < 6; i++) {
-					verts.push(sizew*Math.sin(i*Math.PI/6),sizeh*Math.cos(i*Math.PI/6),0.0);
-				}
-				
 				state.glInit = function(manager)
 				{
 					if (!buffered){
-						manager.addArrayBuffer("hexagon",false,verts,6,3);
+						for (var i = 0; i < 6; i++) {
+							verts.push(sizew*Math.sin(i*Math.PI/6),sizeh*Math.cos(i*Math.PI/6),0.0);
+						}
+						manager.addArrayBuffer("hexagon_pos",false,verts,6,3);
 						buffered = true;
 					}
 				}
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-					manager.setArrayBuffer("hexagon",false,verts,verts.length/3,3);
+					manager.setArrayBuffer("hexagon_pos",false,verts,verts.length/3,3);
 					manager.bindProgram("noise");
 					manager.setUniform1f("noise","time",t);
-					manager.setArrayBufferAsProgramAttribute("hexagon","noise","vertexPosition");
+					manager.setArrayBufferAsProgramAttribute("hexagon_pos","noise","vertexPosition");
 					manager.setMatrixUniforms('noise',pMatrix,mvMatrix.current);
 					gl.drawArrays(gl.TRIANGLE_FAN,0,verts.length/3);
 					t%=10;
@@ -358,18 +359,28 @@ Entities.add('blackhole', Entities.create(
 				
 			},
 			create: function(state,x,y,dir){
-				state.isBlackhole=true;
+				this.isBlackhole=true;
 				state.alive = true;
 				state.forcesEnabled = false;
 				state.radius = configs.weaponValues.blackHole.blastRadius.value;
 				state.force = -1*configs.weaponValues.blackHole.force.value
 				state.theta = dir-(Math.PI/2);
 				state.activate = false;
+				state.explode = true;
 			},
 			update: function(state,delta) {
 				// apply forces
 				if (state.activate) {
 					physics.getColliders(state.a,state.x-state.radius,state.y-state.radius,state.radius*2,state.radius*2);
+					for (var i = 0; i < state.a.length; i++) {
+						var b = state.a[i];
+						//if (b.uid != state.uid) { //euid or uid
+							if (b.isBlackhole && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
+								state.explode = true;
+								state.alive = false;
+							}
+						//}
+					}
 					//var xsum = state.x;
 					//var ysum = state.y;
 					//var c = 1;
@@ -391,6 +402,58 @@ Entities.add('blackhole', Entities.create(
 				}
 				if (state.vel[0] == 0 && state.vel[1] ==0) {
 					state.activate = true;
+				}
+			}
+		};
+	})())
+);
+
+// Boomerang -- 
+// TODO: should cuse a knockback
+Entities.add('boomerang', Entities.create(
+	(function(){
+		var buffered = false;
+		var verts = [];
+		var color = []; // TODO
+		return {
+			parent: Entities.projectile,
+			construct: function(state,x,y,dir,amt){
+				state.configure(configs.weaponValues.blackHole);
+				state.destroyOnContact = false;
+				var sizew = configs.weaponValues.rocket.width.value;
+				var sizeh = configs.weaponValues.rocket.height.value;
+				
+				state.glInit = function(manager) {
+					if (!buffered) {
+						var alt = false;
+						for (var i = 0; i < 10; i++) {
+							alt = !alt;
+							if (alt)
+								verts.push(sizew*Math.sin(i*Math.PI/10),sizeh*Math.cos(i*Math.PI/10),0.0);
+							else
+								verts.push(sizew*Math.sin(i*Math.PI/10),sizeh/3*Math.cos(i*Math.PI/10),0.0);
+						}
+						manager.addArrayBuffer('boomerang_pos', true, verts, 10, 3);
+						buffered = true;
+					}
+				}
+				
+				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+					
+				}
+									
+				state.onCollision = function() {
+					this.alive = false;
+				}
+			},
+			create: function(state,x,y,dir,amt){
+				state.alive = true;
+				state.theta = dir-(Math.PI/2);
+				state.amt = amt;
+			},
+			update: function(state,delta) {
+				if (state.amt == 0) {
+					state.alive = false;
 				}
 			}
 		};

@@ -13,6 +13,12 @@
 		<decceleration>
 			<speed>300</speed>
 		</decceleration>
+		<explosion>
+			<radius>512</radius>
+			<damage>10</damage>
+			<force>800</force>
+			<interp>getInverseExponentInterpolator;0.5</interp>
+		</explosion>
 		<force>800</force>
 		<fuse>8</fuse>
 		<height>16</height>
@@ -21,6 +27,16 @@
 		<speed>600</speed>
 		<width>16</width>
 	</blackHole>
+	<boomerang>
+		<cost>15</cost>
+		<damage>8</damage>
+		<force>100</force>
+		<fuse>1</fuse>
+		<height>16</height>
+		<maxTargets>5</maxTargets>
+		<rechargeRate>1</rechargeRate>
+		<width>16</width>
+	</boomerang>
 	<mine>
 		<blastRadius>256</blastRadius>
 		<cost>20</cost>
