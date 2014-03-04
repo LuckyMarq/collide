@@ -426,12 +426,13 @@ function BoomerangWeapon() {
 	this.energy = 100;
 	this.overheated = false;
 	var RECHARGE_RATE = boomConfig.rechargeRate.value;
+	var COST = boomConfig.cost.value;
 	var p = Entities.player.getInstance(0);	
 	var sound = Sound.createSound('rocket_fire'); // TODO: change sound
 	sound.gain = 0.1;
 	var firing = false;
 	var direction;
-	var amt = 1; // how many targets to bounce off of
+	var amt = 0; // how many targets to bounce off of
 	var maxTargets = boomConfig.maxTargets.value;
 	
 	this.glInit = function(manager){
@@ -443,17 +444,20 @@ function BoomerangWeapon() {
 		if (firing) {
 			var m = Math.round(amt);
 			if (m > maxTargets) m = maxTargets;
-			var theta = 0;
-			//for (var i = 0; i < m; i++) {
-				manager.fillRect(p.cx,p.cy,0,32,16,theta,1,0,0,1);
-			//}
+			if (m != 0) {
+				var theta = 2*Math.PI/m;
+				for (var i = 0; i < m; i++) {
+					manager.fillRect(p.cx + Math.cos(i*theta)*32,p.cy + Math.sin(i*theta)*16,0,32,8,i*theta,1,0,0,1);
+				}
+			}
 		}
 	};
 	
 	this.tick =function (delta) {
 		if (firing) {
 			amt += delta*2;
-			this.energy -= delta * 20;
+			if (amt < maxTargets)
+				this.energy -= delta * COST;
 		}
 		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
 			this.energy+=RECHARGE_RATE;
@@ -480,11 +484,11 @@ function BoomerangWeapon() {
 				amt = maxTargets;
 			else
 				amt = Math.round(amt);
-			//Entities.boomerang.newIntance(p.cx,p.cy,direction,amt);
-			Entities.rocket.newInstance(p.cx,p.cy, direction);
+			if (amt >= 1) 
+				Entities.boomerang.newInstance(p.cx,p.cy,direction,amt,false);
 		}
 		firing = false;
-		amt = 1;
+		amt = 0;
 	};
 	graphics.addToDisplay(this, 'gl_main');
 }

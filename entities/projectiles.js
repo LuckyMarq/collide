@@ -91,6 +91,8 @@ Entities.add('projectile', Entities.create(
 						state.y = state.py || 0;
 						i = enemies.length;
 						e.life -= state.damage;
+						state.hasCollided = true;
+						// TODO: add force in the coreec direction if forces exist
 					}
 				}
 			},
@@ -417,11 +419,11 @@ Entities.add('boomerang', Entities.create(
 		var color = []; // TODO
 		return {
 			parent: Entities.projectile,
-			construct: function(state,x,y,dir,amt){
-				state.configure(configs.weaponValues.blackHole);
-				state.destroyOnContact = false;
-				var sizew = configs.weaponValues.rocket.width.value;
-				var sizeh = configs.weaponValues.rocket.height.value;
+			construct: function(state,x,y,dir,amt,follow){
+				state.configure(configs.weaponValues.boomerang);
+				var sizew = configs.weaponValues.boomerang.width.value;
+				var sizeh = configs.weaponValues.boomerang.height.value;
+				state.range = configs.weaponValues.boomerang.range.value;
 				
 				state.glInit = function(manager) {
 					if (!buffered) {
@@ -439,21 +441,55 @@ Entities.add('boomerang', Entities.create(
 				}
 				
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-					
+					manager.fillRect(state.x+state.width/2,state.y+state.height/2,0,state.width,state.height,0,.5,1,.5,1);
 				}
 									
 				state.onCollision = function() {
-					this.alive = false;
+					state.amt--;
 				}
 			},
-			create: function(state,x,y,dir,amt){
+			create: function(state,x,y,dir,amt,follow){
 				state.alive = true;
 				state.theta = dir-(Math.PI/2);
 				state.amt = amt;
+				state.follow = (true);
+				state.e = false;
+				state.hasCollided = false;
 			},
 			update: function(state,delta) {
+				if (state.follow) {
+					if (state.e) {
+						state.moveToward(state.e.x,state.e.y,state.speed);
+						//console.log('moving');
+					}
+				}
+				
+				var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
+				for (var i = 0; i < enemies.length; i++) {
+					var e = enemies[i];
+					if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
+						state.alive = false;
+						state.hasCollided = true;
+					}
+					if (state.follow && !state.e) {
+						if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.range,state.range,e.x,e.y,e.width,e.height)) {
+							state.e = e;
+							console.log('set state');
+						}
+					}
+				}
+				
 				if (state.amt == 0) {
 					state.alive = false;
+				}
+			},
+			destroy: function(state){
+				if (state.hasCollided) {
+					state.amt--;
+					console.log(state.amt);
+					for (var i = 0; i < state.amt; i++) {
+						Entities.boomerang.newInstance(state.x,state.y,state.theta,state.amt,true);
+					}
 				}
 			}
 		};

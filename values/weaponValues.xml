@@ -28,13 +28,15 @@
 		<width>16</width>
 	</blackHole>
 	<boomerang>
-		<cost>15</cost>
+		<cost>20</cost>
 		<damage>8</damage>
 		<force>100</force>
 		<fuse>1</fuse>
 		<height>16</height>
 		<maxTargets>5</maxTargets>
+		<range>256</range> <!-- ricochet travel distance -->
 		<rechargeRate>1</rechargeRate>
+		<speed>1000</speed>
 		<width>16</width>
 	</boomerang>
 	<mine>
