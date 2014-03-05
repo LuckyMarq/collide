@@ -363,7 +363,7 @@ function initPhysics(){
 							}
 						}
 					}
-					console.log(radialForces[i+4], delta);
+					//console.log(radialForces[i+4], delta);
 					radialForces[i+4]-=delta;
 				}
 				for(var i = 0; i<radialForces.length; i+=5){
@@ -743,7 +743,7 @@ function initPhysics(){
 			*/
 			radialForce: function(x,y,radius,mag,t){
 				radialForces.push(x,y,radius,mag,0);
-				console.log(radialForces[radialForces.length - 1]);
+				//console.log(radialForces[radialForces.length - 1]);
 			},
 			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
 				if(lineTree) lineTree.draw(gl,delta,screen,manager,pMatrix,mvMatrix)
