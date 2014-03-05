@@ -45,6 +45,7 @@ function RocketWeapon(){
 RocketWeapon.prototype = {};
 
 // MineWeapon -- 
+// TODO: mines acn also be activated and longer fuse
 function MineWeapon(){
 	var mineConfig = configs.weaponValues.mine;
 	this.boundless = true;

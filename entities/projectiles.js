@@ -318,9 +318,7 @@ Entities.add('mine', Entities.create(
 );
 
 // Black Hole -- 
-// TODO: shape not drawing
-// - be affected by other black holes
-// - exploed on contact
+// TODO: sound
 Entities.add('blackhole', Entities.create(
 	(function(){
 		var buffered = false;
@@ -331,26 +329,30 @@ Entities.add('blackhole', Entities.create(
 			construct: function(state,x,y,dir){
 				state.configure(configs.weaponValues.blackHole);
 				state.destroyOnContact = false;
+				state.attraction = configs.weaponValues.blackHole.attraction.value
 				var sizew = configs.weaponValues.blackHole.width.value;
 				var sizeh = configs.weaponValues.blackHole.height.value;
-				
 				state.glInit = function(manager)
 				{
 					if (!buffered){
+						verts.push(0,0,0);
 						for (var i = 0; i < 6; i++) {
-							verts.push(sizew*Math.sin(i*Math.PI/6),sizeh*Math.cos(i*Math.PI/6),0.0);
+							verts.push(sizew*Math.cos(i*2*Math.PI/6),sizeh*Math.sin(i*2*Math.PI/6),0.0);
 						}
-						manager.addArrayBuffer("hexagon_pos",false,verts,6,3);
+						verts.push(sizew,0,0.0);
+						manager.addArrayBuffer("hexagon_pos",true,verts,8,3);
+						
 						buffered = true;
 					}
 				}
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-					manager.setArrayBuffer("hexagon_pos",false,verts,verts.length/3,3);
 					manager.bindProgram("noise");
+					mvMatrix.translate(state.x+state.width/2,state.y+state.height/2,0);
 					manager.setUniform1f("noise","time",t);
 					manager.setArrayBufferAsProgramAttribute("hexagon_pos","noise","vertexPosition");
 					manager.setMatrixUniforms('noise',pMatrix,mvMatrix.current);
-					gl.drawArrays(gl.TRIANGLE_FAN,0,verts.length/3);
+					
+					gl.drawArrays(gl.TRIANGLE_FAN,0,8);
 					t%=10;
 					t++;
 				}
@@ -361,14 +363,15 @@ Entities.add('blackhole', Entities.create(
 				
 			},
 			create: function(state,x,y,dir){
-				this.isBlackhole=true;
+				state.isBlackhole=true;
 				state.alive = true;
 				state.forcesEnabled = false;
 				state.radius = configs.weaponValues.blackHole.blastRadius.value;
 				state.force = -1*configs.weaponValues.blackHole.force.value
 				state.theta = dir-(Math.PI/2);
 				state.activate = false;
-				state.explode = true;
+				state.explode = false;
+				state.delay = configs.weaponValues.blackHole.delay.value;
 			},
 			update: function(state,delta) {
 				// apply forces
@@ -376,34 +379,37 @@ Entities.add('blackhole', Entities.create(
 					physics.getColliders(state.a,state.x-state.radius,state.y-state.radius,state.radius*2,state.radius*2);
 					for (var i = 0; i < state.a.length; i++) {
 						var b = state.a[i];
-						//if (b.uid != state.uid) { //euid or uid
-							if (b.isBlackhole && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
+						if (b != state) {
+							if (b.isBlackhole && b.activate && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
 								state.explode = true;
 								state.alive = false;
 							}
-						//}
+						}
 					}
-					//var xsum = state.x;
-					//var ysum = state.y;
-					//var c = 1;
-					//for (var i = 0; i < state.a.length; i++) {
-					//	var b = state.a[i];
-					//	if (b.isBlackhole && b.id != state.id) {
-					//		xsum += b.x;
-					//		ysum += b.y;
-					//		c++;
-					//	}
-					//}
-					//xsum /= c;
-					//ysum /= c;
-					//state.accelerateToward(xsum,ysum,500);
+					var xsum = state.x;
+					var ysum = state.y;
+					var c = 1;
+					for (var i = 0; i < state.a.length; i++) {
+						var b = state.a[i];
+						if (b.isBlackhole && b.activate && b != state) {
+							xsum += b.x;
+							ysum += b.y;
+							c++;
+						}
+					}
+					
+					if (c!=1) {
+						xsum /= c;
+						ysum /= c;
+						state.accelerateToward(xsum,ysum,state.attraction);
+					}
 					
 					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,delta);
-					
-					// test to see if collide with another black hole
 				}
-				if (state.vel[0] == 0 && state.vel[1] ==0) {
+				if (state.delay <= 0) {
 					state.activate = true;
+				} else {
+					state.delay -= delta;
 				}
 			}
 		};
@@ -428,20 +434,34 @@ Entities.add('boomerang', Entities.create(
 				state.glInit = function(manager) {
 					if (!buffered) {
 						var alt = false;
-						for (var i = 0; i < 10; i++) {
+						verts.push(0,0,0);
+						color.push(1,0.5,0,1);
+						for (var i = 0; i < 8; i++) {
+							color.push(1,0.5,0,1);
 							alt = !alt;
-							if (alt)
-								verts.push(sizew*Math.sin(i*Math.PI/10),sizeh*Math.cos(i*Math.PI/10),0.0);
-							else
-								verts.push(sizew*Math.sin(i*Math.PI/10),sizeh/3*Math.cos(i*Math.PI/10),0.0);
+							if (alt) {
+								verts.push(sizew*Math.cos(i*2*Math.PI/8),sizeh*Math.sin(i*2*Math.PI/8),0.0);
+							}
+							else {
+								verts.push(sizew/3*Math.cos(i*2*Math.PI/8),sizeh/3*Math.sin(i*2*Math.PI/8),0.0);
+							}
 						}
+						verts.push(sizew,0,0);
+						color.push(1,0.5,0,1);
 						manager.addArrayBuffer('boomerang_pos', true, verts, 10, 3);
+						manager.addArrayBuffer('boomerang_color',true, color, 10, 4);
 						buffered = true;
 					}
 				}
 				
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-					manager.fillRect(state.x+state.width/2,state.y+state.height/2,0,state.width,state.height,0,.5,1,.5,1);
+					manager.bindProgram('basic');
+					mvMatrix.rotateZ(state.theta);
+					mvMatrix.translate(state.x+state.width/2,state.y+state.height/2,0);
+					manager.setArrayBufferAsProgramAttribute('boomerang_pos','basic','vertexPosition');
+					manager.setArrayBufferAsProgramAttribute('boomerang_color','basic','vertexColor');
+					manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current);
+					gl.drawArrays(gl.TRIANGLE_FAN,0,10);
 				}
 									
 				state.onCollision = function() {
@@ -453,14 +473,16 @@ Entities.add('boomerang', Entities.create(
 				state.theta = dir-(Math.PI/2);
 				state.amt = amt;
 				state.follow = (true);
-				state.e = false;
+				state.e = undefined;
 				state.hasCollided = false;
+				state.theta = 0;
 			},
 			update: function(state,delta) {
+				state.theta = (state.theta + 4*delta) % (2*Math.PI);
+				
 				if (state.follow) {
 					if (state.e) {
 						state.moveToward(state.e.x,state.e.y,state.speed);
-						//console.log('moving');
 					}
 				}
 				
@@ -471,26 +493,18 @@ Entities.add('boomerang', Entities.create(
 						state.alive = false;
 						state.hasCollided = true;
 					}
-					if (state.follow && !state.e) {
+					if (state.e == undefined && state.follow) {
 						if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.range,state.range,e.x,e.y,e.width,e.height)) {
 							state.e = e;
-							console.log('set state');
 						}
 					}
 				}
-				
 				if (state.amt == 0) {
 					state.alive = false;
 				}
 			},
 			destroy: function(state){
-				if (state.hasCollided) {
-					state.amt--;
-					console.log(state.amt);
-					for (var i = 0; i < state.amt; i++) {
-						Entities.boomerang.newInstance(state.x,state.y,state.theta,state.amt,true);
-					}
-				}
+				console.log(state.amt);
 			}
 		};
 	})())
