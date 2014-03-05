@@ -254,6 +254,9 @@ function Map(config){
 			}
 		}
 		
+		for(var i = 0; i<rooms.length; i++){
+			rooms[i].visited = false;
+		}
 		// var weaponRoom = this.room;
 		// while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
 			// weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
@@ -301,14 +304,19 @@ function Map(config){
 	}
 	this.visit= function(x,y,width,height){
 		for(var i = 0; i<rooms.length; i++){
-			var rx = rooms[i].x;
-			var ry = rooms[i].y;
-			if(Collisions.boxBox(x,y,width,height,rx,ry,size,size)){
+			var rx = rooms[i].x+(size/2)-(rooms[i].width/2);
+			var ry = rooms[i].y+(size/2)-(rooms[i].height/2);
+			if(Collisions.boxBox(x,y,width,height,rx,ry,rooms[i].width,rooms[i].height)){
 				rooms[i].visited = true;
 				break;
 			}
 		}
-	}
+	},
+	this.fogOver = function(){
+		for(var i = 0; i<rooms.length; i++){
+			rooms[i].visited = false;
+		}
+	},
 	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 		for(var i = 0; i<this.lines.length; i+=4){
 			var x = Math.min(this.lines[i],this.lines[i+2]);
@@ -321,12 +329,11 @@ function Map(config){
 				manager.fillRect(x+width/2,y+height/2,this.z,width,height,0,this.r,this.g,this.b,1);
 			}
 		}
-		if(configs.misc.fogOfWar.value){
+		if(configs.misc.fogOfWar.value && map_view){
 			for(var i = 0; i<rooms.length; i++){
 				var r = rooms[i];
-				if(!map_view && screen.collision(r.x,r.y,size,size))r.visited = true
 				if(!r.visited && screen.collision(r.x,r.y,size,size)){
-					manager.fillRect(r.x+size/2,r.y+size/2,-99.99999,size,size,0,0,0,0,1);
+					manager.fillRect(r.x+(size/2),r.y+(size/2),-99.99999,size,size,0,0,0,0,1);
 				}
 			}
 		}

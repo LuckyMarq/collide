@@ -265,6 +265,7 @@ function initGraphics(){
 	
 	//this manages the buffers, shaders, and programs for a gl context
 	var GLManager = function(gl,pMatrix,mvMatrix){
+		this.gl = gl;
 		var shaders = {};
 		var programs = {};
 		var buffers = {};
@@ -902,6 +903,21 @@ function initGraphics(){
 					time:"time"
 				});
 			this.addProgram('noise','noise_vs','noise_fs');
+			this.bindProgram('noise');
+			
+			this.addShader('noise_alpha_fs','resources/shaders/noise_alpha.fs',{},{time:"time"});
+			this.addShader('noise_alpha_vs','resources/shaders/noise_alpha.vs',
+				{
+					vertexPosition:"aVertexPosition",
+					alpha:"aAlpha"
+				},
+				{
+					pMatrix:"uPMatrix",
+					mvMatrix:"uMVMatrix",
+					time:"time"
+				});
+			this.addProgram('noise_alpha','noise_alpha_vs','noise_alpha_fs');
+			
 			this.bindProgram('noise');
 			
 			this.addShader('texture_fs','resources/shaders/texture.fs',
