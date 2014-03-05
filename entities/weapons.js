@@ -3,42 +3,73 @@
 function RocketWeapon(){
 	var rocketConfig = configs.weaponValues.rocket;
 	this.boundless = true;
-	this.barVisible = false;
 	var time = 0;
 	this.energy = 100;
+<<<<<<< HEAD
 	var COST = rocketConfig.cost.value;
 	var RECHARGE_RATE = rocketConfig.rechargeRate.value;
 	var vis = false;
+=======
+	this.overheated = false;
+	var COST = rocketConfig.cost.value;
+	var RECHARGE_RATE = rocketConfig.rechargeRate.value;
+>>>>>>> origin/master
 	var p = Entities.player.getInstance(0);
-	var dir = {0:0, 1:0, length:2};	
 	var sound = Sound.createSound('rocket_fire');
 	sound.gain = 0.1;
+<<<<<<< HEAD
+=======
+	var firing = false;
+>>>>>>> origin/master
 	
 	this.tick =function (delta) {
 		if (time > 0)
 			time-=delta;
+<<<<<<< HEAD
 		if (!vis) {
 			if (this.energy < 100 && !Loop.paused)
 				this.energy+=RECHARGE_RATE;
+=======
+		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
+			this.energy+=RECHARGE_RATE;
+		if (this.energy < 0) {
+			this.overheated = true;
+			this.energy = 0;
+		}
+		if (this.energy >= 100) {
+			this.overheated = false;
+>>>>>>> origin/master
 		}
 	}
 	
 	this.fire = function(dir) {
+<<<<<<< HEAD
 		if (time <= 0 && this.energy >= COST) {
 			this.energy -= COST;
 			vis = true;
 			time = rocketConfig.rof.value;
 			Entities.rocket.newInstance(rocketConfig,p.cx,p.cy, dir);
+=======
+		firing = true;
+		if (time <= 0 && !this.overheated) {
+			this.energy -= COST;
+			time = rocketConfig.rof.value;
+			Entities.rocket.newInstance(p.cx,p.cy, dir);
+>>>>>>> origin/master
 			sound.play(0);
 		}
 	};
 	
 	this.holdFire = function() {
-		vis = false;
+		firing = false;
 	};
 
 }
+<<<<<<< HEAD
 RocketWeapon.prototype = new GLDrawable();
+=======
+RocketWeapon.prototype = {};
+>>>>>>> origin/master
 
 // MineWeapon -- 
 function MineWeapon(){
@@ -49,15 +80,23 @@ function MineWeapon(){
 	this.energy = 100;
 	var COST = mineConfig.cost.value;
 	var RECHARGE_RATE = mineConfig.rechargeRate.value;
+<<<<<<< HEAD
 	var vis = false;
+=======
+>>>>>>> origin/master
 	var time = 0;
 	var p = Entities.player.getInstance(0);
 	var sound = Sound.createSound('mine_fire');
 	sound.gain = 0.1;
+<<<<<<< HEAD
+=======
+	var firing = false;
+>>>>>>> origin/master
 	
 	this.tick=function (delta) {
 		if (time > 0)
 			time-=delta;
+<<<<<<< HEAD
 		if (!vis) {
 			if (this.energy < 100 && !Loop.paused)
 				this.energy+=RECHARGE_RATE;
@@ -67,6 +106,22 @@ function MineWeapon(){
 	this.fire = function(dir) {
 		if (time <= 0 && this.energy >= COST) {
 			vis = true;
+=======
+		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
+			this.energy+=RECHARGE_RATE;
+		if (this.energy < 0) {
+			this.overheated = true;
+			this.energy = 0;
+		}
+		if (this.energy >= 100) {
+			this.overheated = false;
+		}
+	}
+	
+	this.fire = function(dir) {
+		firing = true;
+		if (time <= 0 && !this.overheated) {
+>>>>>>> origin/master
 			this.energy -= COST;
 			sound.play(0);
 			Entities.mine.newInstance(mineConfig,p.cx,p.cy);
@@ -75,9 +130,10 @@ function MineWeapon(){
 	};
 	
 	this.holdFire = function() {
-		vis = false;
+		firing = false;
 	};
 }
+<<<<<<< HEAD
 MineWeapon.prototype = new GLDrawable();
 
 // Mine -- 
@@ -148,12 +204,19 @@ Entities.add('mine', Entities.create(
 		};
 	})())
 );
+=======
+MineWeapon.prototype = {};
+>>>>>>> origin/master
 
 // WaveWeapon -- 
 function WaveWeapon(){
 	var waveConfig = configs.weaponValues.wave;
 	this.boundless = true;
 	this.energy = 100;
+<<<<<<< HEAD
+=======
+	this.overheated = false;
+>>>>>>> origin/master
 	var COST = waveConfig.cost.value;
 	var RECHARGE_RATE = waveConfig.rechargeRate.value;
 	var vis = false;
@@ -177,7 +240,11 @@ function WaveWeapon(){
 	var a = [];
 	
 	this.fire = function(dir) {
+<<<<<<< HEAD
 		if (!hasPressed && this.energy>=COST) {
+=======
+		if (!hasPressed && !this.overheated) {
+>>>>>>> origin/master
 			hasPressed = true;
 			sound.play(0);
 			theta = dir;
@@ -202,7 +269,11 @@ function WaveWeapon(){
 							inRange = true;
 						}
 					}
+<<<<<<< HEAD
 					if (!inRange && Collisions.boxBox(p.cx-radius,p.cy-radius,radius*2,radius*2,enemy.x,enemy,y,enemy.width,enemy.height)) {
+=======
+					if (!inRange && Collisions.boxBox(p.cx-radius,p.cy-radius,radius*2,radius*2,enemy.x,enemy.y,enemy.width,enemy.height)) {
+>>>>>>> origin/master
 						
 						var x = Math.cos(theta - wAngle/2) * radius;
 						var y = Math.sin(theta - wAngle/2) * radius;
@@ -236,6 +307,10 @@ function WaveWeapon(){
 			}
 		} else {
 			vis = false;
+			if (this.energy < 0) {
+				this.overheated = true;
+				this.energy = 0;
+			}
 		}
 	};
 	this.holdFire = function() {
@@ -245,9 +320,19 @@ function WaveWeapon(){
 	this.boundless = true;
 	
 	this.tick = function(delta) {
+<<<<<<< HEAD
 		if (!vis) {
 			if (this.energy < 100 && !Loop.paused)
 				this.energy+=RECHARGE_RATE;
+=======
+		if (!vis || this.overheated) {
+			if (this.energy < 100 && !Loop.paused)
+				this.energy+=RECHARGE_RATE;
+			if (this.energy >= 100) {
+				this.overheated = false;
+				this.energy = 100;
+			}
+>>>>>>> origin/master
 		}
 		
 		damagePer = delta;
@@ -261,7 +346,74 @@ function WaveWeapon(){
 		}
 	}
 }
-WaveWeapon.prototype = new GLDrawable();
+WaveWeapon.prototype = {};
+
+// Wave -- 
+Entities.add('wave',Entities.create({
+	construct: function(state,x,y,dir){
+		var angle = 50 * Math.PI/180;
+		fillProperties(state,fillProperties(new GLDrawable(),
+		{
+			glInit: function(manager){
+				if(!Entities.wave.initialized){
+					var color = new Array();
+					var verts = new Array();
+					verts.push(0,0,0);
+					var dt = angle/15;
+					var theta = -(angle/2);
+					verts.push()
+					for(var i = 0; i<15; i++){
+						verts.push(0.5*Math.cos(theta +  dt*i),0.5*Math.sin(theta +  dt*i),0)
+					}
+					color.push(0,0,0,0);
+					for(var i = 0; i<15; i++){
+						color.push(0,0,1,1);
+					}
+					manager.addArrayBuffer("wave_pos",true,verts,16,3)
+					manager.addArrayBuffer("wave_col",true,color,16,4)
+					Entities.wave.initialized = true
+				}
+			},
+			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				var p = Entities.player.getInstance(0);
+				this.t += delta;
+				manager.bindProgram('basic');
+				manager.setArrayBufferAsProgramAttribute('wave_pos','basic','vertexPosition');
+				manager.setArrayBufferAsProgramAttribute('wave_col','basic','vertexColor');
+				manager.setUniform1f('basic','alpha',1)
+				mvMatrix.translate(p.cx,p.cy,this.z);
+				var s = this.width + (this.length-this.width)*Math.min(1,(this.t/this.time));
+				mvMatrix.scale(s,s,1);
+				mvMatrix.rotateZ(this.dir);
+				manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current);
+				
+				gl.enable(gl.BLEND)
+				gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+				gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+				
+				if(this.t>(this.time+0.05)){
+					this.alive = false;
+				}
+			},
+			time: 0.1,
+			z:0,
+			boundless: true,
+		}))
+	},
+	create: function(state,x,y,size,dir,length){
+		state.t = 0;
+		state.x = x;
+		state.y = y;
+		state.size = size;
+		state.length = length*2;
+		state.dir = dir;
+		graphics.addToDisplay(state,'gl_main');
+	},
+	destroy: function(state,reset){
+		if(reset)this.initialized = false
+		graphics.removeFromDisplay(state,'gl_main');
+	}
+}))
 
 
 Entities.add('wave',Entities.create({
@@ -426,3 +578,124 @@ function BeamWeapon(){
 }
 BeamWeapon.prototype = new GLDrawable();
 
+<<<<<<< HEAD
+=======
+// Black Hole Emitter
+function BlackHoleWeapon() {
+	var bhConfig = configs.weaponValues.blackHole;
+	this.boundless = true;
+	var time = 0;
+	this.energy = 100;
+	this.overheated = false;
+	var COST = bhConfig.cost.value;
+	var RECHARGE_RATE = bhConfig.rechargeRate.value;
+	var p = Entities.player.getInstance(0);	
+	var sound = Sound.createSound('rocket_fire'); // TODO: change sound
+	sound.gain = 0.1;
+	var firing = false;
+	
+	this.tick =function (delta) {
+		if (time > 0)
+			time-=delta;
+		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
+			this.energy+=RECHARGE_RATE;
+		if (this.energy < 0) {
+			this.overheated = true;
+			this.energy = 0;
+		}
+		if (this.energy >= 100) {
+			this.overheated = false;
+		}
+	}
+	
+	this.fire = function(dir) {
+		firing = true;
+		if (time <= 0 && !this.overheated) {
+			this.energy -= COST;
+			time = bhConfig.rof.value;
+			Entities.blackhole.newInstance(p.cx,p.cy,dir);
+			sound.play(0);
+		}
+	};
+	
+	this.holdFire = function() {
+		firing = false;
+	};
+}
+BlackHoleWeapon.prototype = {}; 
+
+// Boomerang Weapon
+function BoomerangWeapon() {
+	var boomConfig = configs.weaponValues.boomerang;
+	this.boundless = true;
+	this.energy = 100;
+	this.overheated = false;
+	var RECHARGE_RATE = boomConfig.rechargeRate.value;
+	var COST = boomConfig.cost.value;
+	var p = Entities.player.getInstance(0);	
+	var sound = Sound.createSound('rocket_fire'); // TODO: change sound
+	sound.gain = 0.1;
+	var firing = false;
+	var direction;
+	var amt = 0; // how many targets to bounce off of
+	var maxTargets = boomConfig.maxTargets.value;
+	
+	this.glInit = function(manager){
+		
+	};
+	
+	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
+		// some cool effect
+		if (firing) {
+			var m = Math.round(amt);
+			if (m > maxTargets) m = maxTargets;
+			if (m != 0) {
+				var theta = 2*Math.PI/m;
+				for (var i = 0; i < m; i++) {
+					manager.fillRect(p.cx + Math.cos(i*theta)*32,p.cy + Math.sin(i*theta)*16,0,32,8,i*theta,1,0,0,1);
+				}
+			}
+		}
+	};
+	
+	this.tick =function (delta) {
+		if (firing) {
+			amt += delta*2;
+			if (amt < maxTargets)
+				this.energy -= delta * COST;
+		}
+		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
+			this.energy+=RECHARGE_RATE;
+		if (this.energy < 0) {
+			this.overheated = true;
+			this.energy = 0;
+		}
+		if (this.energy >= 100) {
+			this.overheated = false;
+		}
+	}
+	
+	this.fire = function(dir) {
+		if (!firing && !this.overheated) {
+			firing = true;
+			//sound.play(0);
+		}
+	};
+	
+	this.holdFire = function() {
+		if (firing) {
+			direction = (Math.PI*2)-Vector.getDir(mouse.x-p.cx,mouse.y-p.cy);
+			if (amt > maxTargets)
+				amt = maxTargets;
+			else
+				amt = Math.round(amt);
+			if (amt >= 1) 
+				Entities.boomerang.newInstance(p.cx,p.cy,direction,amt,false);
+		}
+		firing = false;
+		amt = 0;
+	};
+	graphics.addToDisplay(this, 'gl_main');
+}
+BoomerangWeapon.prototype = new GLDrawable();
+>>>>>>> origin/master

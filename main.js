@@ -23,16 +23,35 @@ function loadSource(){
 		'components/graphics/graphics.js',
 		'components/sound/sound.js',
 		'entities/entities.js',
-		'entities/map.js'
+		'entities/map.js',
+		'entities/menus.js'
 	]
 	
 	for(var i in scriptSource){
 		document.write('<script type="text/javascript" src='+scriptSource[i]+'><\/script>')
 	}
 	
-	
+}
+frozen  = true;
+
+function pauseGame(){
+	if(!frozen)Loop.paused = !Loop.paused;
 }
 
+function goToMap(){
+	if(!frozen && graphics){
+		var screen = graphics.getScreen('gl_main');
+		if(screen){
+			if(map_view){
+				screen.scale(1/map_scale_factor);
+				map_view = false;
+				Loop.paused = false; 
+			}else{
+				ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
+			}
+		}
+	}
+}
 //initializes the keyboard and mouse objects
 function initInput(){
 	keyboard = new input.Keyboard(window);
@@ -67,7 +86,7 @@ function initInput(){
 			onPress:function(){
 				if(!pressed){
 					pressed = true;
-					Loop.paused = !Loop.paused;
+					pauseGame();
 				}
 			},
 			onRelease:function(){
@@ -101,6 +120,7 @@ function initInput(){
 			onPress:function(){
 				if(!pressed){
 					pressed = true;
+<<<<<<< HEAD
 					if(graphics){
 						var screen = graphics.getScreen('gl_main');
 						if(screen){
@@ -113,6 +133,9 @@ function initInput(){
 							}
 						}
 					}
+=======
+					goToMap();
+>>>>>>> origin/master
 				}
 			},
 			onRelease:function(){
@@ -244,6 +267,7 @@ function initScene(){
 		var x=0, y=0;
 		return{
 			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+<<<<<<< HEAD
 				var r = 1,g = 1,b=1;
 				if(mouse.left){
 					g = 0;
@@ -252,6 +276,9 @@ function initScene(){
 					b=0;
 				}
 				manager.point(mouse.x,mouse.yInv,-99.99,12,r,g,b,1);
+=======
+				manager.point(mouse.x,mouse.yInv,-99.99,12,1,1,1,1);
+>>>>>>> origin/master
 			},
 			tick: function(){
 				x = mouse.x;
@@ -266,6 +293,11 @@ function initScene(){
 	graphics.addToDisplay(cursor,"gl_main")
 	ticker.add(cursor);
 	
+<<<<<<< HEAD
+=======
+	god_mode = configs.misc.godMode.value;
+	
+>>>>>>> origin/master
 	current_level = 1;
 	
 	// graphics.addToDisplay(testMap,"gl_main")
@@ -276,6 +308,10 @@ function initScene(){
 	
 	currentMap = new Map(configs.map);
 	currentMap.init();
+<<<<<<< HEAD
+=======
+	
+>>>>>>> origin/master
 	physics.setGeometry(currentMap.lines);
 	graphics.addToDisplay(currentMap,'gl_main');
 	graphics.setDisplayDimensions(configs.misc.displayDimensions.attributes.width,configs.misc.displayDimensions.attributes.height)
@@ -285,9 +321,15 @@ function reinitScene(){
 	current_level = 1;
 	Entities.reset();
 	Entities.reset();
+<<<<<<< HEAD
 	
 	currentMap.rebuild(true);
 	
+=======
+	
+	currentMap.rebuild(true);
+	
+>>>>>>> origin/master
 	currentMap.init();
 	
 	physics.setGeometry(currentMap.lines);

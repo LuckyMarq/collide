@@ -320,7 +320,11 @@ Entities.add('shockwave',Entities.create(
 				mvMatrix.scale(ra,ra,1);
 				manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
 				gl.enable(gl.BLEND);
+<<<<<<< HEAD
 				gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+=======
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+>>>>>>> origin/master
 				gl.drawArrays(gl.TRIANGLE_FAN,0,64);
 				manager.setUniform1f('basic','alpha',1);
 				manager.setUniform1f('basic','tintWeight',0);
@@ -341,10 +345,17 @@ Entities.add('shockwave',Entities.create(
 			state.gi = gi;
 			state.bi = bi; 
 			state.ai = ai;
+<<<<<<< HEAD
 			state.rf = rf || ri;
 			state.gf = gf || gi;
 			state.bf = bf || bi; 
 			state.af = af || ai;
+=======
+			state.rf = (typeof rf=='number') ? rf : ri;
+			state.gf = (typeof gf=='number') ? gf : gi;
+			state.bf = (typeof bf=='number') ? bf : bi; 
+			state.af = (typeof af=='number') ? af : ai;
+>>>>>>> origin/master
 			graphics.addToDisplay(state,'gl_main')
 		},
 		update: function(state,delta){
