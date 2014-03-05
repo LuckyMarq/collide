@@ -172,6 +172,10 @@ function WaveWeapon(){
 							enemy.vel[0] = evec[0] * mag;
 							enemy.vel[1] = evec[1] * mag;
 							enemy.life -= damage;
+							if (enemy.life <= 0) {
+								//addToPoints(enemy.points);
+								addToPoints(50);
+							}
 						}
 					}
 				}
@@ -338,6 +342,10 @@ function BeamWeapon(){
 				for (var i = 1; i < traceResult.length -2; i++) {
 					traceResult[i].accelerateToward(p.cx, p.cy, force * 3/i);
 					traceResult[i].life -= dt * damage * 1/i;
+					if (traceResult[i].life <= 0) {
+						//addToPoints(traceResult[i].points);
+						addToPoints(50);
+					}
 				}
 			}
 			verts.length = 0

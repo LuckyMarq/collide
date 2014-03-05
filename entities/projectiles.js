@@ -91,6 +91,9 @@ Entities.add('projectile', Entities.create(
 						state.y = state.py || 0;
 						i = enemies.length;
 						e.life -= state.damage;
+						if (e.life <= 0) {
+							addToPoints(50);
+						}	
 						state.hasCollided = true;
 						// TODO: add force in the coreec direction if forces exist
 					}
@@ -291,6 +294,9 @@ Entities.add('mine', Entities.create(
 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
 						state.alive = false;
 						enemies[i].life -= damage;
+						if (enemies[i].life < 0) {
+							addToPoints(50);
+						}
 					}
 				}
 			},
@@ -323,6 +329,7 @@ Entities.add('blackhole', Entities.create(
 	(function(){
 		var buffered = false;
 		var verts = [];
+		var alpha = [];
 		var t = 10;
 		return {
 			parent: Entities.projectile,
@@ -336,10 +343,13 @@ Entities.add('blackhole', Entities.create(
 				{
 					if (!buffered){
 						verts.push(0,0,0);
+						alpha.push(1);
 						for (var i = 0; i < 6; i++) {
 							verts.push(sizew*Math.cos(i*2*Math.PI/6),sizeh*Math.sin(i*2*Math.PI/6),0.0);
+							alpha.push(0);
 						}
 						verts.push(sizew,0,0.0);
+						alpha.push(0);
 						manager.addArrayBuffer("hexagon_pos",true,verts,8,3);
 						
 						buffered = true;

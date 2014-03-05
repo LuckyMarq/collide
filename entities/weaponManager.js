@@ -7,6 +7,8 @@ function WeaponManager()
  	this.currentWeapon = undefined;
  	this.overheatSound = Sound.createSound('overheat_fire');
  	this.overheatSound.gain = 0.6;
+ 	this.overheatEffect = Sound.createSound('overheated');
+ 	this.overheatEffect.gain = 0.6;
  	this.hasPressed = false;
 }
 
@@ -15,17 +17,21 @@ WeaponManager.prototype = Object.defineProperties(
 		// Fires the weapon: starting collision checks and drawing
 		// Mouse pases false, Game Pad passes true
  		fire: function(dir) {
- 			if (!Loop.paused)
+ 			if (!Loop.paused) {
  				this.currentWeapon.fire(dir);
- 			if (this.currentWeapon.overheated && !this.hasPressed) {
- 				this.overheatSound.play(0);
- 				this.hasPressed = true;
+ 				if (this.currentWeapon.overheated && !this.hasPressed) {
+ 					this.overheatSound.play(0);
+ 					this.hasPressed = true;
+ 				}
  			}
  			return;
  		},
  	
  		// Stops the weapon from performing checks and drawing
  		holdFire: function() {
+ 			if (this.currentWeapon.overheated) {
+ 				//this.overheatEffect.play(0);
+ 			}
  			this.hasPressed = false;
  			this.currentWeapon.holdFire();
  			return;
