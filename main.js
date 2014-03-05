@@ -287,6 +287,7 @@ function initScene(){
 
 function reinitScene(){
 	current_level = 1;
+	current_points = 0;
 	Entities.reset();
 	Entities.reset();
 	

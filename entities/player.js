@@ -1,5 +1,9 @@
 current_points = 0;
 
+function addToPoints(x){
+	current_points+=x;
+}
+
 Entities.add('player', Entities.create((function(){
 
 	var transitionSound=Sound.createSound('transition',false);
@@ -366,22 +370,24 @@ Entities.add('player', Entities.create((function(){
 				var p = gamepad.padA[0]; 
 				if (mouse.left)
 				{
-					state.weaponManager.fire((Math.PI*2)-Vector.getDir(mouse.x-state.cx,mouse.y-state.cy));
+					state.weaponManager.fire((Math.PI*2)-Vector.getDir(mouse.x-state.cx,mouse.y-state.cy),false);
 				}
 				else if(p&&p.rightStick.mag>0.5){
-					state.weaponManager.fire((Math.PI*2)-p.rightStick.dir)
+					state.weaponManager.fire((Math.PI*2)-p.rightStick.dir,true)
 				}else{
 					state.weaponManager.holdFire();
 				}
 			}
 			
 			var life = 100;
-			var canPress = true;
+			var pressInterval = 0.2;
+			var canPress = 0;
 			state.maxLife = 100;
 			var numDisplay = document.createElement('canvas');
-			numDisplay.height=128;
+			numDisplay.height=64;
 			numDisplay.width=512;
 			var gfx = numDisplay.getContext('2d')
+			
 			state.hud = fillProperties(new GLDrawable(),{
 				glInit: function(manager){
 					var gl = manager.gl;
@@ -390,8 +396,7 @@ Entities.add('player', Entities.create((function(){
 					gl.bindTexture(gl.TEXTURE_2D, this.texture);
 					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, numDisplay);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-					gl.generateMipmap(gl.TEXTURE_2D);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 					gl.bindTexture(gl.TEXTURE_2D, null);
 				},
@@ -400,11 +405,15 @@ Entities.add('player', Entities.create((function(){
 					gfx.fillStyle = 'rgba(255,255,255,255)';
 					gfx.textAlign = 'left';
 					gfx.textBaseline = 'middle';
-					gfx.font = "64px Lucida Console";
+					gfx.font = "48px Lucida Console";
 					gfx.fillText(''+current_points,10,numDisplay.height/2)
-					gfx.fillRect(0,0,numDisplay.width,numDisplay.height)
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 					gl.bindTexture(gl.TEXTURE_2D, this.texture);
 					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, numDisplay);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+					gl.bindTexture(gl.TEXTURE_2D, null);
 					
 					gl.enable(gl.BLEND);
 					gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)
@@ -433,7 +442,7 @@ Entities.add('player', Entities.create((function(){
 					manager.setArrayBufferAsProgramAttribute('primitive_rect','basic_texture','vertexPosition');
 					manager.setArrayBufferAsProgramAttribute('sprite_texture_coords','basic_texture','textureCoord');
 					
-					mvMatrix.translate(screen.x+numDisplay.width,screen.y+numDisplay.height,this.z);
+					mvMatrix.translate(screen.x+numDisplay.width/2,screen.y+numDisplay.height/2,this.z);
 					mvMatrix.scale(numDisplay.width,numDisplay.height,1);
 					manager.setMatrixUniforms('basic_texture',pMatrix,mvMatrix.current);
 					
@@ -463,19 +472,19 @@ Entities.add('player', Entities.create((function(){
 								if(!this.active)return;
 								movementCheck();
 								weaponsCheck();
+								var p = gamepad.padA[0]; 
 								var change = (!animator.animating);
 								var pos;
-								if(keyboard.e && canPress<=0){
+								if((keyboard.e || (p && (p.rightBumper || p.rightTrigger>0.5))) && canPress<=0){
 									pos = (k+1)%this.keyframes.length
 									transitionSound.stop(0);
 									transitionSound.play(0);
 									animator.setCurrentKeyframe(this.keyframes[pos],(pk==pos) ? 1-animator.getTimeTillNextKeyframe() : 1);
 									if(!animator.animating)pk = pos
 									k = pos;
-									console.log(pos)
 									this.weaponManager.swap(pos)
-									canPress = 0.1;
-								}else if(keyboard.q && canPress<=0){
+									canPress = pressInterval;
+								}else if((keyboard.q || (p && (p.leftBumper || p.leftTrigger>0.5)))&& canPress<=0){
 									pos = (k-1);
 									if(pos<0)pos = this.keyframes.length+pos;
 									transitionSound.stop(0);
@@ -484,7 +493,7 @@ Entities.add('player', Entities.create((function(){
 									if(!animator.animating)pk = pos
 									k = pos;
 									this.weaponManager.swap(pos)
-									canPress = 0.1;
+									canPress = pressInterval;
 								}else{
 									canPress -= delta;
 									for(var i = 0; i<this.keyframes.length; i++){
@@ -602,6 +611,7 @@ Entities.add('player', Entities.create((function(){
 		update: function(state,delta){
 			// var s = graphics.getScreen('gl_main')
 			// currentMap.visit(state.cx-s.width/2,state.cy-s.height/2,s.width,s.height)
+			if(state.active)currentMap.visit(state.x,state.y,state.width,state.height)
 		},
 		destroy: function(state){
 			graphics.removeFromDisplay(state,'gl_main');
