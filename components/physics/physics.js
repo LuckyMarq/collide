@@ -1036,7 +1036,10 @@ PolygonCollider.prototype = fillProperties(new BasicCollider(),
 			width = obj.width;
 			height = obj.height;
 		}
-		if(Collisions.boxBox(x,y,width,height,this.x,this.y,this.width,this.height)){
+		var mul = this.collisionScale || 1;
+		var cx = this.x+this.width/2;
+		var cy = this.y+this.height/2;
+		if(Collisions.boxBox(x,y,width,height,cx+(this.x-cx)*mul,cy+(this.y-cy)*mul,this.width*mul,this.height*mul)){
 			if(obj && obj.isCircle){
 					return Collisions.circlePolygon(x+width/2,y+height/2,width/2,this.verts,this.itemSize);
 			}else if(obj && obj.verts && obj.itemSize){

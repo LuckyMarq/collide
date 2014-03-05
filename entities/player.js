@@ -1,4 +1,4 @@
-
+current_points = 0;
 
 Entities.add('player', Entities.create((function(){
 
@@ -274,10 +274,13 @@ Entities.add('player', Entities.create((function(){
 			var elasticity = 0.5;
 			var drag = 0.01;
 			var theta = 0;
+			var boundingBoxScale = 0.5;
 			var r = Vector.getDir([triangle[3],triangle[4],triangle[5]]);
 			var mvec = [0,0];
 			var k = 0;
 			var pk = 0;
+			
+			state.collisionScale = 1/boundingBoxScale
 			
 			var movementCheck = function(){//eightway directional movement
 				var count=0,angle=0;
@@ -301,13 +304,41 @@ Entities.add('player', Entities.create((function(){
 				}
 				angle /= count;
 				if(count>0){
-					state.accel[0] = Math.cos(angle)*acceleration;
-					state.accel[1] = Math.sin(angle)*acceleration;
+					var x = acceleration * Math.cos(angle);
+					var y = acceleration * Math.sin(angle);
+					var u = (x*state.vel[0] + y*state.vel[1])/((state.vel[0] * state.vel[0]) + (state.vel[1] * state.vel[1]));
+					if(isNaN(u)){
+						state.accel[0] = x;
+						state.accel[1] = y;
+					}else{
+						var uv = (state.vel[0]*u);
+						var vv = (state.vel[1]*u);
+						if(!(Math.abs(Vector.getDir(uv,vv)-Vector.getDir(state.vel))<(Math.PI/2))){
+							uv*=2;
+							vv*=2;
+						}
+						state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*2
+						state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*2
+					}
 				}else{
 					var p = gamepad.padA[0];
 					if(p && p.leftStick.mag>0.1){
-						state.accel[0] = acceleration * p.leftStick.xAxis;
-						state.accel[1] = -acceleration * p.leftStick.yAxis;
+						var x = acceleration * p.leftStick.xAxis;
+						var y = -acceleration * p.leftStick.yAxis;
+						var u = (x*state.vel[0] + y*state.vel[1])/((state.vel[0] * state.vel[0]) + (state.vel[1] * state.vel[1]));
+						if(isNaN(u)){
+							state.accel[0] = x;
+							state.accel[1] = y;
+						}else{
+							var uv = (state.vel[0]*u);
+							var vv = (state.vel[1]*u);
+							if(!(Math.abs(Vector.getDir(uv,vv)-Vector.getDir(state.vel))<(Math.PI/2))){
+								uv*=2;
+								vv*=2;
+							}
+							state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*2
+							state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*2
+						}
 						return;
 					}
 					state.accel[0]=0;
@@ -347,14 +378,39 @@ Entities.add('player', Entities.create((function(){
 			var life = 100;
 			var canPress = true;
 			state.maxLife = 100;
-			
+			var numDisplay = document.createElement('canvas');
+			numDisplay.height=128;
+			numDisplay.width=512;
+			var gfx = numDisplay.getContext('2d')
 			state.hud = fillProperties(new GLDrawable(),{
+				glInit: function(manager){
+					var gl = manager.gl;
+					this.texture = gl.createTexture();
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+					gl.bindTexture(gl.TEXTURE_2D, this.texture);
+					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, numDisplay);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+					gl.generateMipmap(gl.TEXTURE_2D);
+
+					gl.bindTexture(gl.TEXTURE_2D, null);
+				},
 				draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+					gfx.clearRect(0,0,numDisplay.width,numDisplay.height);
+					gfx.fillStyle = 'rgba(255,255,255,255)';
+					gfx.textAlign = 'left';
+					gfx.textBaseline = 'middle';
+					gfx.font = "64px Lucida Console";
+					gfx.fillText(''+current_points,10,numDisplay.height/2)
+					gfx.fillRect(0,0,numDisplay.width,numDisplay.height)
+					gl.bindTexture(gl.TEXTURE_2D, this.texture);
+					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, numDisplay);
+					
 					gl.enable(gl.BLEND);
 					gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)
-					manager.fillRect(32+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(life/100),0,1-(1*(life/100)),1*(life/100),0,this.alpha);
-					manager.fillRect(16+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(state.weaponManager.energy/100),0,1,(state.weaponManager.overheated)?0:1,0,this.alpha);
-					mvMatrix.translate(screen.x+screen.width - 48, screen.y+ 48,this.z);
+					manager.fillRect(screen.x+screen.width/2,screen.y+screen.height-16,this.z,(screen.width-32)*(life/100),16,0,1-(1*(life/100)),1*(life/100),0,this.alpha);
+					manager.fillRect(screen.x+screen.width/2,screen.y+screen.height-32,this.z,(screen.width-32)*(state.weaponManager.energy/100),16,0,1,(state.weaponManager.overheated)?0:1,0,this.alpha);
+					mvMatrix.translate(screen.x+screen.width - 48, screen.y+48, this.z);
 					
 					this.animator.alpha = this.alpha;
 					for(var i = this.keyframes.length-1; i>=0; i--){
@@ -368,6 +424,28 @@ Entities.add('player', Entities.create((function(){
 						mvMatrix.translate(-64,0,0);
 					}
 					this.animator.alpha = 1;
+					
+					
+					mvMatrix.identity();
+					gl.enable(gl.BLEND);
+					gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+					manager.bindProgram('basic_texture');
+					manager.setArrayBufferAsProgramAttribute('primitive_rect','basic_texture','vertexPosition');
+					manager.setArrayBufferAsProgramAttribute('sprite_texture_coords','basic_texture','textureCoord');
+					
+					mvMatrix.translate(screen.x+numDisplay.width,screen.y+numDisplay.height,this.z);
+					mvMatrix.scale(numDisplay.width,numDisplay.height,1);
+					manager.setMatrixUniforms('basic_texture',pMatrix,mvMatrix.current);
+					
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, this.texture);
+					var prog = manager.getProgram('basic_texture');
+					gl.uniform1i(prog.samplerUniform, 0);
+					gl.uniform1f(prog.alpha,1)
+					gl.uniform1f(prog.tintWeight,0);
+					gl.uniform3f(prog.tint,0,0,0);
+					
+					gl.drawArrays(gl.TRIANGLE_FAN,0,4);
 				},
 				animator: animator,
 				keyframes: state.keyframes,
@@ -375,6 +453,7 @@ Entities.add('player', Entities.create((function(){
 				boundless: true,
 				alpha: 0.5
 			})
+			
 			Object.defineProperties(
 					fillProperties(fillProperties(state,fillProperties(new GLDrawable(),new PolygonCollider(x+animator.x,y+animator.y,animator.width,animator.height,elasticity,null,3))),
 						{
@@ -450,8 +529,8 @@ Entities.add('player', Entities.create((function(){
 				(function(){
 					var stateX = x+animator.x, stateY= y+animator.y;
 					updateCoords = function(){
-						stateX = state.cx+animator.x;
-						stateY = state.cy+animator.y;
+						stateX = state.cx+(animator.x*boundingBoxScale);
+						stateY = state.cy+(animator.y*boundingBoxScale);
 					}
 					var verts = new Array();
 					return {
@@ -485,13 +564,13 @@ Entities.add('player', Entities.create((function(){
 						},
 						width:{
 							get:function(){
-								return animator.width;
+								return animator.width*boundingBoxScale;
 							},
 							set:function(){}
 						},
 						height:{
 							get:function(){
-								return animator.height;
+								return animator.height*boundingBoxScale;
 							},
 							set:function(){}
 						},
@@ -513,6 +592,7 @@ Entities.add('player', Entities.create((function(){
 			ticker.add(state.weaponManager);
 			state.life = 100;
 			state.set(x,y,0,0,0,0);
+			state.active = false;
 			graphics.addToDisplay(state,'gl_main');
 			graphics.addToDisplay(state.hud,'gl_main');
 			physics.add(state);
@@ -520,8 +600,8 @@ Entities.add('player', Entities.create((function(){
 			graphics.getScreen('gl_main').follower = state;
 		},
 		update: function(state,delta){
-			var s = graphics.getScreen('gl_main')
-			currentMap.visit(s.x,s.y,s.width,s.height)
+			// var s = graphics.getScreen('gl_main')
+			// currentMap.visit(state.cx-s.width/2,state.cy-s.height/2,s.width,s.height)
 		},
 		destroy: function(state){
 			graphics.removeFromDisplay(state,'gl_main');
@@ -716,5 +796,6 @@ Entities.add('player_initializer',Entities.create({
 			current_music.gain = 0.5;
 			current_music.play(Date.now()+1000)
 		}
+		frozen = false;
 	}
 }))

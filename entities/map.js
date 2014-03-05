@@ -254,6 +254,9 @@ function Map(config){
 			}
 		}
 		
+		for(var i = 0; i<rooms.length; i++){
+			rooms[i].visited = false;
+		}
 		// var weaponRoom = this.room;
 		// while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
 			// weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
@@ -305,10 +308,16 @@ function Map(config){
 			var ry = rooms[i].y;
 			if(Collisions.boxBox(x,y,width,height,rx,ry,size,size)){
 				rooms[i].visited = true;
+				console.log(x,y,width,height)
 				break;
 			}
 		}
-	}
+	},
+	this.fogOver = function(){
+		for(var i = 0; i<rooms.length; i++){
+			rooms[i].visited = false;
+		}
+	},
 	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 		for(var i = 0; i<this.lines.length; i+=4){
 			var x = Math.min(this.lines[i],this.lines[i+2]);
@@ -326,7 +335,7 @@ function Map(config){
 				var r = rooms[i];
 				if(!map_view && screen.collision(r.x,r.y,size,size))r.visited = true
 				if(!r.visited && screen.collision(r.x,r.y,size,size)){
-					manager.fillRect(r.x+size/2,r.y+size/2,-99.99999,size,size,0,0,0,0,1);
+					manager.fillRect(r.x+(size/2),r.y+(size/2),-99.99999,size,size,0,0,0,0,1);
 				}
 			}
 		}

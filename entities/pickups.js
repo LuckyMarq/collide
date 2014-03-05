@@ -285,6 +285,7 @@ Entities.add('level_end',Entities.create(
 					}
 					state.sound.play(0);
 					Loop.paused = true;
+					frozen = true;
 				}
 			}
 		},
