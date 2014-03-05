@@ -13,13 +13,9 @@
 		<file name='explosion_fire'>resources/audio/weapon_sounds/explosion1.wav</file>
 		<file name='player_hit'>resources/audio/player_hit.wav</file>
 		<file name='direct_suicider_death'>resources/audio/direct_suicider_death.wav</file>
-<<<<<<< HEAD
-		<file name='victory_fanfare'>resources/audio/collide_victory_1.wav</file>
-=======
 		<file name='player_create'>resources/audio/player_create0.wav</file>
 		<file name='victory_fanfare'>resources/audio/collide_victory_1.wav</file>
 		<file name='groove'>resources/audio/groove0.wav</file>
->>>>>>> origin/master
 	</audio>
 	<textures>
 	</textures>

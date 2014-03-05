@@ -323,10 +323,6 @@ Entities.add('player', Entities.create((function(){
 				}else{
 					var p = gamepad.padA[0];
 					if(p && p.leftStick.mag>0.1){
-<<<<<<< HEAD
-						state.accel[0] = acceleration * p.leftStick.xAxis;
-						state.accel[1] = -acceleration * p.leftStick.yAxis;
-=======
 						var x = acceleration * p.leftStick.xAxis;
 						var y = -acceleration * p.leftStick.yAxis;
 						var u = (x*state.vel[0] + y*state.vel[1])/((state.vel[0] * state.vel[0]) + (state.vel[1] * state.vel[1]));
@@ -343,7 +339,6 @@ Entities.add('player', Entities.create((function(){
 							state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*2
 							state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*2
 						}
->>>>>>> origin/master
 						return;
 					}
 					state.accel[0]=0;
@@ -413,15 +408,9 @@ Entities.add('player', Entities.create((function(){
 					
 					gl.enable(gl.BLEND);
 					gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)
-<<<<<<< HEAD
-					manager.fillRect(32+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(life/100),0,1-(1*(life/100)),1*(life/100),0,this.alpha);
-					manager.fillRect(16+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(state.weaponManager.energy/100),0,1,(state.weaponManager.overheated)?0:1,0,this.alpha);
-					mvMatrix.translate(screen.x+screen.width - 48, screen.y+ 48,this.z);
-=======
 					manager.fillRect(screen.x+screen.width/2,screen.y+screen.height-16,this.z,(screen.width-32)*(life/100),16,0,1-(1*(life/100)),1*(life/100),0,this.alpha);
 					manager.fillRect(screen.x+screen.width/2,screen.y+screen.height-32,this.z,(screen.width-32)*(state.weaponManager.energy/100),16,0,1,(state.weaponManager.overheated)?0:1,0,this.alpha);
 					mvMatrix.translate(screen.x+screen.width - 48, screen.y+48, this.z);
->>>>>>> origin/master
 					
 					this.animator.alpha = this.alpha;
 					for(var i = this.keyframes.length-1; i>=0; i--){
@@ -676,12 +665,6 @@ Entities.add('player_trail_particles',Entities.create(
 							gl.enable(gl.BLEND);
 							gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
 							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
-<<<<<<< HEAD
-							mvMatrix.scale(0.5,0.5,1);
-							manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
-							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
-=======
->>>>>>> origin/master
 							manager.setUniform1f('basic','alpha',1);
 							manager.setUniform1f('basic','tintWeight',0);
 						}
@@ -713,9 +696,6 @@ Entities.player_trail_particles.burst = function(x,y,size,num,life,r,g,b){
 		var rad = Math.pow(Math.random(),2)* size;
 		this.newInstance(x+Math.cos(t)*rad,y+Math.sin(t)*rad,life,r,g,b);
 	}
-<<<<<<< HEAD
-}
-=======
 }
 
 Entities.add('player_init_particles',Entities.create({
@@ -819,4 +799,3 @@ Entities.add('player_initializer',Entities.create({
 		frozen = false;
 	}
 }))
->>>>>>> origin/master

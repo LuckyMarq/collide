@@ -217,12 +217,7 @@ Entities.add('enemy_direct_move_suicider',Entities.create({
 		state.configure(configs.enemyValues.enemy_direct_move_suicider)
 	},
 	create: function(state){
-<<<<<<< HEAD
-		state.life = 1;
-		state.stun = 0;
-=======
 		state.life = configs.enemyValues.enemy_direct_move_suicider.life.value;
->>>>>>> origin/master
 	},
 	update: function(state,delta){
 		if(state.inActiveScope){
@@ -265,12 +260,7 @@ Entities.add('enemy_breaker_suicider',Entities.create({
 		state.breakSpeed = configs.enemyValues.enemy_breaker_suicider.breakSpeed.value;
 	},
 	create: function(state){
-<<<<<<< HEAD
-		state.life = 5;
-		state.stun = 0;
-=======
 		state.life = configs.enemyValues.enemy_breaker_suicider.life.value;
->>>>>>> origin/master
 	},
 	update: function(state,delta){
 		if(state.inActiveScope){

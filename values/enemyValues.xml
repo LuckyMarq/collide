@@ -24,8 +24,6 @@
 		<width>160</width>
 		<decreaseRate>40</decreaseRate>
 	</enemyTank>
-<<<<<<< HEAD
-=======
 	<enemy_direct_suicider>
 		<life>1</life>
 		<damage>10</damage>
@@ -115,5 +113,4 @@
 			<gain>0.1</gain>
 		</deathSound>
 	</enemy_breaker_suicider>
->>>>>>> origin/master
 </root>

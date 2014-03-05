@@ -6,11 +6,6 @@
 		<length>512</length>
 		<rechargeRate>1</rechargeRate>
 	</beam>
-<<<<<<< HEAD
-	<mine>
-		<blastRadius>256</blastRadius>
-		<cost>30</cost>
-=======
 	<blackHole>
 		<blastRadius>256</blastRadius>
 		<cost>30</cost>
@@ -47,17 +42,12 @@
 	<mine>
 		<blastRadius>256</blastRadius>
 		<cost>20</cost>
->>>>>>> origin/master
 		<damage>10</damage>
 		<force>800</force>
 		<fuse>1.5</fuse>
 		<height>16</height>
 		<rechargeRate>1</rechargeRate>
-<<<<<<< HEAD
-		<rof>1</rof> <!-- Rate of Fire -->
-=======
 		<rof>0.1</rof>
->>>>>>> origin/master
 		<width>16</width>
 	</mine>
 	<rocket>
@@ -68,11 +58,6 @@
 		<fuse>5</fuse> <!-- Time before detonation -->
 		<height>16</height>
 		<rechargeRate>1</rechargeRate>
-<<<<<<< HEAD
-		<rof>0.5</rof>
-		<speed>1000</speed>
-		<width>16</width>
-=======
 		<rof>0.2</rof> <!-- 0 is kinda fun :D -->
 		<speed>1000</speed>
 		<width>16</width>
@@ -82,7 +67,6 @@
 			<force>800</force>
 			<interp>getInverseExponentInterpolator;0.5</interp>
 		</explosion>
->>>>>>> origin/master
 	</rocket>
 	<wave>
 		<cost>15</cost>

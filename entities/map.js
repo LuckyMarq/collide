@@ -32,10 +32,7 @@ function Map(config){
 			return node.min.value + Math.random()*(node.max.value-node.min.value);
 		}
 	}
-<<<<<<< HEAD
-=======
 	this.getNodeValue = getNodeValue;
->>>>>>> origin/master
 	var check = function(x,y){
 		for(var i in rooms) {
 			if( rooms[i].x == x && rooms[i].y == y){
@@ -184,21 +181,6 @@ function Map(config){
 			this.b = Math.min(1,this.b+Math.max(0,Math.min(gr,Math.random())));
 			gr -= (this.b-p);
 		}
-<<<<<<< HEAD
-	}
-	
-	this.setColor(2);
-	config = getConfiguration(config);
-	size = getNodeValue(config.rooms.size);
-	console.log( config.rooms.width.min)
-	this.room = new Room(null,null,null,null,0,0,Math.round(getNodeValue(config.rooms)), getNodeValue(config.rooms.density), 
-		config.rooms.width.min.value, config.rooms.width.max.value, config.rooms.height.min.value,
-		config.rooms.width.max.value, size, getNodeValue(config.rooms.connectorSize));
-		
-	this.keyframes = this.config.keyframes.value.slice(0,this.config.keyframes.value.length);
-	this.weapons = this.config.weapons.value.slice(0,this.config.weapons.value.length);
-	
-=======
 	}
 	
 	this.setColor(2);
@@ -222,18 +204,14 @@ function Map(config){
 	}
 	this.populators.sort(function(a,b){return a.priority-b.priority})
 	
->>>>>>> origin/master
 	this.rebuild = function(reset){
 		config = getConfiguration(this.config);
 		if(reset){
 			this.keyframes = this.config.keyframes.value.slice(0,this.config.keyframes.value.length);
 			this.weapons = this.config.weapons.value.slice(0,this.config.weapons.value.length);
 		}
-<<<<<<< HEAD
-=======
 		size = getNodeValue(config.rooms.size);
 		this.size = size;
->>>>>>> origin/master
 		num = 0;
 		lines.length = 0;
 		rooms.length = 0;
@@ -241,57 +219,6 @@ function Map(config){
 		this.room = new Room(null,null,null,null,0,0,Math.round(getNodeValue(config.rooms)), getNodeValue(config.rooms.density), 
 				config.rooms.width.min.value, config.rooms.width.max.value, config.rooms.height.min.value,
 				config.rooms.width.max.value, size, getNodeValue(config.rooms.connectorSize));
-<<<<<<< HEAD
-	}
-	this.init = function(player){
-		if(player){
-			player.set(this.room.x+size/2,this.room.y + size/2,0,0,0,0);
-		}else{
-			//create player
-			var index = Math.round(Math.random()*(this.keyframes.length -1))
-			Entities.player.newInstance(this.room.x+size/2,this.room.y + size/2,this.keyframes[index],window[this.weapons[index]]);
-			this.weapons.splice(index,1);
-			this.keyframes.splice(index,1);
-		}
-		var weaponRoom = this.room;
-		while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
-			weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
-		}
-		var index = Math.round(Math.random()*(this.keyframes.length - 1));
-		Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,this.keyframes[index],window[this.weapons[index]]);
-		console.log(this.keyframes[index])
-		weaponRoom.weaponRoom = true;
-		this.weapons.splice(index,1);
-		this.keyframes.splice(index,1);
-		
-		var endRoom = this.room;
-		while(endRoom == this.room || endRoom == weaponRoom || endRoom.adjacentTo(this.room)){
-			endRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
-		}
-		Entities.level_end.newInstance(endRoom.x + size/2 - 128,endRoom.y + size/2 - 128)
-		endRoom.endRoom = true;
-		
-		//add entities
-		if(config.entities){
-			var populate = function(room,d){
-				if(!room.weaponRoom && !room.endRoom){
-					for(var i = 0; i<config.entities.children.length; i++){
-						var entity = config.entities.children[i];
-						var num = getNodeValue(entity);
-						var margin = entity.attributes.margin;
-						for(var j = 0; j< num; j++){
-							var x = room.x+ (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2)));
-							var y = room.y+ (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2)));
-							Entities[entity.attributes.name].newInstance(x,y);
-						}
-					}
-				}
-				
-				if(room.north!=null && d!=1)populate(room.north,0);
-				if(room.south!=null && d!=0)populate(room.south,1);
-				if(room.east!=null && d!=3)populate(room.east,2);
-				if(room.west!=null && d!=2)populate(room.west,3);
-=======
 		this.room.checkConnections(getNodeValue(config.rooms.connectivity));
 		this.room.initLines();
 		
@@ -321,7 +248,6 @@ function Map(config){
 			if(pop.max){
 				var min = ((pop.min)?pop.min:0);
 				num = min +(pop.max-pop.min)*Math.random();
->>>>>>> origin/master
 			}
 			for(var j = 0; j<rooms.length && c<num; j++){
 				if(!rooms[j].full && pop.populate(config,rooms[j],this))c++;
@@ -331,12 +257,6 @@ function Map(config){
 		for(var i = 0; i<rooms.length; i++){
 			rooms[i].visited = false;
 		}
-<<<<<<< HEAD
-	}
-}
-Map.prototype=fillProperties(new GLDrawable(),{
-	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
-=======
 		// var weaponRoom = this.room;
 		// while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
 			// weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
@@ -399,7 +319,6 @@ Map.prototype=fillProperties(new GLDrawable(),{
 		}
 	},
 	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
->>>>>>> origin/master
 		for(var i = 0; i<this.lines.length; i+=4){
 			var x = Math.min(this.lines[i],this.lines[i+2]);
 			var y = Math.min(this.lines[i+1],this.lines[i+3]);

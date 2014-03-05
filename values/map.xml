@@ -13,10 +13,7 @@
 						<min>9</min>
 						<max>12</max>
 						<density>0.25</density>
-<<<<<<< HEAD
-=======
 						<connectivity>0.75</connectivity>
->>>>>>> origin/master
 						<width>
 							<min>1024</min>
 							<max>2048</max>
@@ -41,13 +38,6 @@
 							<min>0</min>
 							<max>5</max>
 						</entity>
-<<<<<<< HEAD
-						<entity name='enemy_dragon' margin='32'>
-							<min>1</min>
-							<max>5</max>
-						</entity>
-					</entities>
-=======
 					</entities>
 					<!--the first three populators are mandatory for every map-->
 					<populators>
@@ -55,7 +45,6 @@
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
 					</populators>
->>>>>>> origin/master
 				</config>
 			</configs>
 		</level1>
@@ -66,10 +55,7 @@
 						<min>12</min>
 						<max>16</max>
 						<density>0.75</density>
-<<<<<<< HEAD
-=======
 						<connectivity>0.75</connectivity>
->>>>>>> origin/master
 						<width>
 							<min>1024</min>
 							<max>2048</max>
@@ -99,8 +85,6 @@
 							<max>5</max>
 						</entity>
 					</entities>
-<<<<<<< HEAD
-=======
 					<!--the first three populators are mandatory for every map-->
 					<populators>
 						<EndRoom></EndRoom>
@@ -108,7 +92,6 @@
 						<RandomEnemies></RandomEnemies>
 						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
 					</populators>
->>>>>>> origin/master
 				</config>
 			</configs>
 		</level2>
@@ -119,10 +102,7 @@
 						<min>14</min>
 						<max>18</max>
 						<density>0.75</density>
-<<<<<<< HEAD
-=======
 						<connectivity>0.5</connectivity>
->>>>>>> origin/master
 						<width>
 							<min>1024</min>
 							<max>2048</max>
@@ -156,8 +136,6 @@
 							<max>5</max>
 						</entity>
 					</entities>
-<<<<<<< HEAD
-=======
 					<!--the first three populators are mandatory for every map-->
 					<populators>
 						<EndRoom></EndRoom>
@@ -165,7 +143,6 @@
 						<RandomEnemies></RandomEnemies>
 						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
 					</populators>
->>>>>>> origin/master
 				</config>
 			</configs>
 		</level3>
@@ -176,10 +153,7 @@
 						<min>14</min>
 						<max>18</max>
 						<density>0.75</density>
-<<<<<<< HEAD
-=======
 						<connectivity>0.75</connectivity>
->>>>>>> origin/master
 						<width>
 							<min>1024</min>
 							<max>2048</max>
@@ -213,15 +187,12 @@
 							<max>5</max>
 						</entity>
 					</entities>
-<<<<<<< HEAD
-=======
 					<!--the first three populators are mandatory for every map-->
 					<populators>
 						<EndRoom></EndRoom>
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
 					</populators>
->>>>>>> origin/master
 				</config>
 			</configs>
 		</level4>
@@ -262,8 +233,6 @@
 					<max>10</max>
 				</entity>
 			</entities>
-<<<<<<< HEAD
-=======
 			<!--the first three populators are mandatory for every map-->
 			<populators>
 				<EndRoom></EndRoom>
@@ -271,7 +240,6 @@
 				<RandomEnemies></RandomEnemies>
 				<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
 			</populators>
->>>>>>> origin/master
 		</config>
 	</configs>
 </root>

@@ -5,31 +5,17 @@ function RocketWeapon(){
 	this.boundless = true;
 	var time = 0;
 	this.energy = 100;
-<<<<<<< HEAD
-	var COST = rocketConfig.cost.value;
-	var RECHARGE_RATE = rocketConfig.rechargeRate.value;
-	var vis = false;
-=======
 	this.overheated = false;
 	var COST = rocketConfig.cost.value;
 	var RECHARGE_RATE = rocketConfig.rechargeRate.value;
->>>>>>> origin/master
 	var p = Entities.player.getInstance(0);
 	var sound = Sound.createSound('rocket_fire');
 	sound.gain = 0.1;
-<<<<<<< HEAD
-=======
 	var firing = false;
->>>>>>> origin/master
 	
 	this.tick =function (delta) {
 		if (time > 0)
 			time-=delta;
-<<<<<<< HEAD
-		if (!vis) {
-			if (this.energy < 100 && !Loop.paused)
-				this.energy+=RECHARGE_RATE;
-=======
 		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
 			this.energy+=RECHARGE_RATE;
 		if (this.energy < 0) {
@@ -38,24 +24,15 @@ function RocketWeapon(){
 		}
 		if (this.energy >= 100) {
 			this.overheated = false;
->>>>>>> origin/master
 		}
 	}
 	
 	this.fire = function(dir) {
-<<<<<<< HEAD
-		if (time <= 0 && this.energy >= COST) {
-			this.energy -= COST;
-			vis = true;
-			time = rocketConfig.rof.value;
-			Entities.rocket.newInstance(rocketConfig,p.cx,p.cy, dir);
-=======
 		firing = true;
 		if (time <= 0 && !this.overheated) {
 			this.energy -= COST;
 			time = rocketConfig.rof.value;
 			Entities.rocket.newInstance(p.cx,p.cy, dir);
->>>>>>> origin/master
 			sound.play(0);
 		}
 	};
@@ -65,11 +42,7 @@ function RocketWeapon(){
 	};
 
 }
-<<<<<<< HEAD
-RocketWeapon.prototype = new GLDrawable();
-=======
 RocketWeapon.prototype = {};
->>>>>>> origin/master
 
 // MineWeapon -- 
 function MineWeapon(){
@@ -80,33 +53,15 @@ function MineWeapon(){
 	this.energy = 100;
 	var COST = mineConfig.cost.value;
 	var RECHARGE_RATE = mineConfig.rechargeRate.value;
-<<<<<<< HEAD
-	var vis = false;
-=======
->>>>>>> origin/master
 	var time = 0;
 	var p = Entities.player.getInstance(0);
 	var sound = Sound.createSound('mine_fire');
 	sound.gain = 0.1;
-<<<<<<< HEAD
-=======
 	var firing = false;
->>>>>>> origin/master
 	
 	this.tick=function (delta) {
 		if (time > 0)
 			time-=delta;
-<<<<<<< HEAD
-		if (!vis) {
-			if (this.energy < 100 && !Loop.paused)
-				this.energy+=RECHARGE_RATE;
-		}
-	}
-	
-	this.fire = function(dir) {
-		if (time <= 0 && this.energy >= COST) {
-			vis = true;
-=======
 		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
 			this.energy+=RECHARGE_RATE;
 		if (this.energy < 0) {
@@ -121,7 +76,6 @@ function MineWeapon(){
 	this.fire = function(dir) {
 		firing = true;
 		if (time <= 0 && !this.overheated) {
->>>>>>> origin/master
 			this.energy -= COST;
 			sound.play(0);
 			Entities.mine.newInstance(mineConfig,p.cx,p.cy);
@@ -133,90 +87,14 @@ function MineWeapon(){
 		firing = false;
 	};
 }
-<<<<<<< HEAD
-MineWeapon.prototype = new GLDrawable();
-
-// Mine -- 
-Entities.add('mine', Entities.create(
-	(function(){
-		var damage = 0;
-		var blastForce = 800;
-		var interp = getInverseExponentInterpolator(0.5);
-		var vec = vec2.create();		
-		var sound = Sound.createSound('explosion_fire');
-		sound.gain = 0.2;
-		return {
-			construct: function(state,x,y) {
-				damage = configs.weaponValues.mine.damage.value;
-				blastForce = configs.weaponValues.mine.force.value;
-				
-				fillProperties(state, Entities.createStandardState(
-					{
-					draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-						manager.fillRect(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,.5,1,.5,1);
-					}
-				},x,y,configs.weaponValues.mine.width,configs.weaponValues.mine.height,1.1));
-				
-			},
-			create: function(state,mineConfig,x,y){
-				state.width = mineConfig.width.value;
-				state.height = mineConfig.height.value;
-				state.blastRadius = mineConfig.blastRadius.value;
-				state.alive = true;
-				state.time = mineConfig.fuse.value;
-				state.a = []; // array for collision check
-				state.blastbox = new Box(x - state.width/2, y - state.width/2, state.width, state.width);
-				state.x = x - state.width/2;
-				state.y = y - state.height/2;
-				graphics.addToDisplay(state,'gl_main');
-				physics.add(state);
-			},
-			update:function(state,delta){
-				state.time-=delta;
-				state.alive = state.time>0;
-				var enemies = physics.getColliders(state.a, state.x, state.y, state.width, state.height);
-				for(var i = 0; i<enemies.length; i++){
-					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
-						state.alive = false;
-						enemies[i].life -= damage;
-					}
-				}
-			},
-			destroy: function(state){
-				sound.play(0);
-				var enemies = physics.getColliders(state.a, state.blastbox.x, state.blastbox.y, state.blastbox.width, state.blastbox.height);
-				for (var e in enemies) {
-					e = enemies[e];
-					vec2.set(vec, e.x - state.x, e.y - state.y);
-					Vector.setMag(vec, vec, 1);
-					if (e.life && state.blastbox.collision(e)) { // add player damage
-						e.life -= damage;
-						if (e.life > 0) {
-							e.vel[0] += vec[0] * blastForce;
-							e.vel[1] += vec[1] * blastForce;
-						}
-					}
-				}
-				Entities.explosion_basic.newInstance(state.x + state.width/2 - state.blastRadius/2,state.y + state.height/2 - state.blastRadius/2,state.blastRadius,0,damage,0,blastForce, interp);
-				graphics.removeFromDisplay(state,'gl_main');
-				physics.remove(state);
-			}
-		};
-	})())
-);
-=======
 MineWeapon.prototype = {};
->>>>>>> origin/master
 
 // WaveWeapon -- 
 function WaveWeapon(){
 	var waveConfig = configs.weaponValues.wave;
 	this.boundless = true;
 	this.energy = 100;
-<<<<<<< HEAD
-=======
 	this.overheated = false;
->>>>>>> origin/master
 	var COST = waveConfig.cost.value;
 	var RECHARGE_RATE = waveConfig.rechargeRate.value;
 	var vis = false;
@@ -240,11 +118,7 @@ function WaveWeapon(){
 	var a = [];
 	
 	this.fire = function(dir) {
-<<<<<<< HEAD
-		if (!hasPressed && this.energy>=COST) {
-=======
 		if (!hasPressed && !this.overheated) {
->>>>>>> origin/master
 			hasPressed = true;
 			sound.play(0);
 			theta = dir;
@@ -269,11 +143,7 @@ function WaveWeapon(){
 							inRange = true;
 						}
 					}
-<<<<<<< HEAD
-					if (!inRange && Collisions.boxBox(p.cx-radius,p.cy-radius,radius*2,radius*2,enemy.x,enemy,y,enemy.width,enemy.height)) {
-=======
 					if (!inRange && Collisions.boxBox(p.cx-radius,p.cy-radius,radius*2,radius*2,enemy.x,enemy.y,enemy.width,enemy.height)) {
->>>>>>> origin/master
 						
 						var x = Math.cos(theta - wAngle/2) * radius;
 						var y = Math.sin(theta - wAngle/2) * radius;
@@ -320,11 +190,6 @@ function WaveWeapon(){
 	this.boundless = true;
 	
 	this.tick = function(delta) {
-<<<<<<< HEAD
-		if (!vis) {
-			if (this.energy < 100 && !Loop.paused)
-				this.energy+=RECHARGE_RATE;
-=======
 		if (!vis || this.overheated) {
 			if (this.energy < 100 && !Loop.paused)
 				this.energy+=RECHARGE_RATE;
@@ -332,7 +197,6 @@ function WaveWeapon(){
 				this.overheated = false;
 				this.energy = 100;
 			}
->>>>>>> origin/master
 		}
 		
 		damagePer = delta;
@@ -349,73 +213,6 @@ function WaveWeapon(){
 WaveWeapon.prototype = {};
 
 // Wave -- 
-Entities.add('wave',Entities.create({
-	construct: function(state,x,y,dir){
-		var angle = 50 * Math.PI/180;
-		fillProperties(state,fillProperties(new GLDrawable(),
-		{
-			glInit: function(manager){
-				if(!Entities.wave.initialized){
-					var color = new Array();
-					var verts = new Array();
-					verts.push(0,0,0);
-					var dt = angle/15;
-					var theta = -(angle/2);
-					verts.push()
-					for(var i = 0; i<15; i++){
-						verts.push(0.5*Math.cos(theta +  dt*i),0.5*Math.sin(theta +  dt*i),0)
-					}
-					color.push(0,0,0,0);
-					for(var i = 0; i<15; i++){
-						color.push(0,0,1,1);
-					}
-					manager.addArrayBuffer("wave_pos",true,verts,16,3)
-					manager.addArrayBuffer("wave_col",true,color,16,4)
-					Entities.wave.initialized = true
-				}
-			},
-			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				var p = Entities.player.getInstance(0);
-				this.t += delta;
-				manager.bindProgram('basic');
-				manager.setArrayBufferAsProgramAttribute('wave_pos','basic','vertexPosition');
-				manager.setArrayBufferAsProgramAttribute('wave_col','basic','vertexColor');
-				manager.setUniform1f('basic','alpha',1)
-				mvMatrix.translate(p.cx,p.cy,this.z);
-				var s = this.width + (this.length-this.width)*Math.min(1,(this.t/this.time));
-				mvMatrix.scale(s,s,1);
-				mvMatrix.rotateZ(this.dir);
-				manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current);
-				
-				gl.enable(gl.BLEND)
-				gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-				gl.drawArrays(gl.TRIANGLE_FAN,0,16);
-				
-				if(this.t>(this.time+0.05)){
-					this.alive = false;
-				}
-			},
-			time: 0.1,
-			z:0,
-			boundless: true,
-		}))
-	},
-	create: function(state,x,y,size,dir,length){
-		state.t = 0;
-		state.x = x;
-		state.y = y;
-		state.size = size;
-		state.length = length*2;
-		state.dir = dir;
-		graphics.addToDisplay(state,'gl_main');
-	},
-	destroy: function(state,reset){
-		if(reset)this.initialized = false
-		graphics.removeFromDisplay(state,'gl_main');
-	}
-}))
-
-
 Entities.add('wave',Entities.create({
 	construct: function(state,x,y,dir){
 		var angle = 50 * Math.PI/180;
@@ -578,8 +375,6 @@ function BeamWeapon(){
 }
 BeamWeapon.prototype = new GLDrawable();
 
-<<<<<<< HEAD
-=======
 // Black Hole Emitter
 function BlackHoleWeapon() {
 	var bhConfig = configs.weaponValues.blackHole;
@@ -698,4 +493,3 @@ function BoomerangWeapon() {
 	graphics.addToDisplay(this, 'gl_main');
 }
 BoomerangWeapon.prototype = new GLDrawable();
->>>>>>> origin/master

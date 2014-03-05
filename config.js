@@ -52,8 +52,6 @@ var XMLConfig = (function(){
 			for(var i = 0; i<parts.length; i++){
 				parts[i] = parseValue(parts[i]);
 			}
-<<<<<<< HEAD
-=======
 			if(typeof parts[0] == 'function'){
 				try{
 					//can be used to with constructors
@@ -69,7 +67,6 @@ var XMLConfig = (function(){
 				}
 				return curr;
 			}
->>>>>>> origin/master
 			return parts;
 		}else if(str=='true'){
 			return true;
@@ -78,15 +75,11 @@ var XMLConfig = (function(){
 		}else{
 			var f = parseFloat(str);
 			if(isNaN(f)){
-<<<<<<< HEAD
-				return str;
-=======
 				if(str != '' && typeof window[str] != 'undefined'){
 					return window[str];
 				}else{
 					return str;
 				}
->>>>>>> origin/master
 			}else{
 				return f;
 			}
