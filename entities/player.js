@@ -284,7 +284,7 @@ Entities.add('player', Entities.create((function(){
 			var k = 0;
 			var pk = 0;
 			
-			state.collisionScale = 1/boundingBoxScale
+			state.collisionScale = 1/boundingBoxScale;
 			
 			var movementCheck = function(){//eightway directional movement
 				var count=0,angle=0;
@@ -327,8 +327,9 @@ Entities.add('player', Entities.create((function(){
 				}else{
 					var p = gamepad.padA[0];
 					if(p && p.leftStick.mag>0.1){
-						var x = acceleration * p.leftStick.xAxis;
-						var y = -acceleration * p.leftStick.yAxis;
+						var a = p.leftStick.mag * acceleration
+						var x = a * p.leftStick.xAxis;
+						var y = -a * p.leftStick.yAxis;
 						var u = (x*state.vel[0] + y*state.vel[1])/((state.vel[0] * state.vel[0]) + (state.vel[1] * state.vel[1]));
 						if(isNaN(u)){
 							state.accel[0] = x;
