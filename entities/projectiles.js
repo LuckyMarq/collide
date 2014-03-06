@@ -325,6 +325,8 @@ Entities.add('mine', Entities.create(
 
 // Black Hole -- 
 // TODO: sound
+// take line between center, midpoint
+// make particles at midpoint and explode
 Entities.add('blackhole', Entities.create(
 	(function(){
 		var buffered = false;
@@ -334,6 +336,7 @@ Entities.add('blackhole', Entities.create(
 		return {
 			parent: Entities.projectile,
 			construct: function(state,x,y,dir){
+				state.z = 0;
 				state.configure(configs.weaponValues.blackHole);
 				state.destroyOnContact = false;
 				state.attraction = configs.weaponValues.blackHole.attraction.value
@@ -351,16 +354,19 @@ Entities.add('blackhole', Entities.create(
 						verts.push(sizew,0,0.0);
 						alpha.push(0);
 						manager.addArrayBuffer("hexagon_pos",true,verts,8,3);
-						
+						manager.addArrayBuffer('hexagon_alpha',true,alpha,8,1);
 						buffered = true;
 					}
 				}
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-					manager.bindProgram("noise");
-					mvMatrix.translate(state.x+state.width/2,state.y+state.height/2,0);
-					manager.setUniform1f("noise","time",t);
-					manager.setArrayBufferAsProgramAttribute("hexagon_pos","noise","vertexPosition");
-					manager.setMatrixUniforms('noise',pMatrix,mvMatrix.current);
+					gl.enable(gl.BLEND);
+					gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+					manager.bindProgram("noise_alpha");
+					mvMatrix.translate(state.x+state.width/2,state.y+state.height/2,this.z);
+					manager.setUniform1f("noise_alpha","time",t);
+					manager.setArrayBufferAsProgramAttribute("hexagon_pos","noise_alpha","vertexPosition");
+					manager.setArrayBufferAsProgramAttribute("hexagon_alpha","noise_alpha","alpha");
+					manager.setMatrixUniforms('noise_alpha',pMatrix,mvMatrix.current);
 					
 					gl.drawArrays(gl.TRIANGLE_FAN,0,8);
 					t%=10;

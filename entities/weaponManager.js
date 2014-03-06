@@ -30,7 +30,7 @@ WeaponManager.prototype = Object.defineProperties(
  		// Stops the weapon from performing checks and drawing
  		holdFire: function() {
  			if (this.currentWeapon.overheated) {
- 				//this.overheatEffect.play(0);
+ 				this.overheatEffect.play(0);
  			}
  			this.hasPressed = false;
  			this.currentWeapon.holdFire();
