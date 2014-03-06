@@ -274,17 +274,18 @@ Entities.add('player', Entities.create((function(){
 			}
 			
 			var updateCoords;
-			var acceleration = 800;
-			var elasticity = 0.5;
-			var drag = 0.01;
+			var acceleration = configs.player.acceleration.value;
+			var turnScale = configs.player.turnScale.value;
+			var elasticity = configs.player.elasticity.value;
+			var drag =	configs.player.drag.value;
 			var theta = 0;
-			var boundingBoxScale = 0.5;
+			var boundingBoxScale = configs.player.boundingBoxScale.value;
 			var r = Vector.getDir([triangle[3],triangle[4],triangle[5]]);
 			var mvec = [0,0];
 			var k = 0;
 			var pk = 0;
 			
-			state.collisionScale = 1/boundingBoxScale
+			state.collisionScale = 1/boundingBoxScale;
 			
 			var movementCheck = function(){//eightway directional movement
 				var count=0,angle=0;
@@ -318,17 +319,18 @@ Entities.add('player', Entities.create((function(){
 						var uv = (state.vel[0]*u);
 						var vv = (state.vel[1]*u);
 						if(!(Math.abs(Vector.getDir(uv,vv)-Vector.getDir(state.vel))<(Math.PI/2))){
-							uv*=2;
-							vv*=2;
+							uv*=turnScale;
+							vv*=turnScale;
 						}
-						state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*2
-						state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*2
+						state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*turnScale
+						state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*turnScale
 					}
 				}else{
 					var p = gamepad.padA[0];
 					if(p && p.leftStick.mag>0.1){
-						var x = acceleration * p.leftStick.xAxis;
-						var y = -acceleration * p.leftStick.yAxis;
+						var a = p.leftStick.mag * acceleration
+						var x = a * p.leftStick.xAxis;
+						var y = -a * p.leftStick.yAxis;
 						var u = (x*state.vel[0] + y*state.vel[1])/((state.vel[0] * state.vel[0]) + (state.vel[1] * state.vel[1]));
 						if(isNaN(u)){
 							state.accel[0] = x;
@@ -337,11 +339,11 @@ Entities.add('player', Entities.create((function(){
 							var uv = (state.vel[0]*u);
 							var vv = (state.vel[1]*u);
 							if(!(Math.abs(Vector.getDir(uv,vv)-Vector.getDir(state.vel))<(Math.PI/2))){
-								uv*=2;
-								vv*=2;
+								uv*=turnScale;
+								vv*=turnScale;
 							}
-							state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*2
-							state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*2
+							state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*turnScale;
+							state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*turnScale;
 						}
 						return;
 					}
@@ -380,7 +382,8 @@ Entities.add('player', Entities.create((function(){
 			}
 			
 			var life = 100;
-			var pressInterval = 0.2;
+			var pressInterval = configs.player.switchInterval.value;
+			var animationTime = configs.player.switchTime.value;
 			var canPress = 0;
 			state.maxLife = 100;
 			var numDisplay = document.createElement('canvas');
@@ -479,7 +482,7 @@ Entities.add('player', Entities.create((function(){
 									pos = (k+1)%this.keyframes.length
 									transitionSound.stop(0);
 									transitionSound.play(0);
-									animator.setCurrentKeyframe(this.keyframes[pos],(pk==pos) ? 1-animator.getTimeTillNextKeyframe() : 1);
+									animator.setCurrentKeyframe(this.keyframes[pos],(pk==pos) ? animationTime-animator.getTimeTillNextKeyframe() : animationTime);
 									if(!animator.animating)pk = pos
 									k = pos;
 									this.weaponManager.swap(pos)
@@ -489,7 +492,7 @@ Entities.add('player', Entities.create((function(){
 									if(pos<0)pos = this.keyframes.length+pos;
 									transitionSound.stop(0);
 									transitionSound.play(0);
-									animator.setCurrentKeyframe(this.keyframes[pos],(pk==pos) ? 1-animator.getTimeTillNextKeyframe() : 1);
+									animator.setCurrentKeyframe(this.keyframes[pos],(pk==pos) ? animationTime-animator.getTimeTillNextKeyframe() : animationTime);
 									if(!animator.animating)pk = pos
 									k = pos;
 									this.weaponManager.swap(pos)
@@ -500,7 +503,7 @@ Entities.add('player', Entities.create((function(){
 										if(keyboard[weaponKeys[i]] && k!=i){
 											transitionSound.stop(0);
 											transitionSound.play(0);
-											animator.setCurrentKeyframe(this.keyframes[i],(pk==i) ? 1-animator.getTimeTillNextKeyframe() : 1);
+											animator.setCurrentKeyframe(this.keyframes[i],(pk==i) ? animationTime-animator.getTimeTillNextKeyframe() : animationTime);
 											if(!animator.animating)pk = k
 											k = i;
 											this.weaponManager.swap(i)
@@ -682,8 +685,8 @@ Entities.add('player_trail_particles',Entities.create(
 					state.z = 1;
 					state.first = true;
 				}
-				state.width = 16;
-				state.height = 16;
+				state.width = 32;
+				state.height = 32;
 				state.x = x-state.width/2;
 				state.y = y-state.height/2;
 				graphics.addToDisplay(state,'gl_main');
