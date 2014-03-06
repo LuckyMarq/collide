@@ -8,17 +8,19 @@ function WeaponManager()
  	this.overheatSound = Sound.createSound('overheat_fire');
  	this.overheatSound.gain = 0.6;
  	this.overheatEffect = Sound.createSound('overheated');
- 	this.overheatEffect.gain = 0.6;
+ 	this.overheatEffect.gain = 0.3;
  	this.hasPressed = false;
+	this.t = 0;
 }
 
 WeaponManager.prototype = Object.defineProperties(
 	{
 		// Fires the weapon: starting collision checks and drawing
-		// Mouse pases false, Game Pad passes true
- 		fire: function(dir) {
+		// Mouse passes false, Game Pad passes true
+ 		fire: function(dir, isGamePad) {
  			if (!Loop.paused) {
  				this.currentWeapon.fire(dir);
+				this.overheated = this.currentWeapon.overheated;
  				if (this.currentWeapon.overheated && !this.hasPressed) {
  					this.overheatSound.play(0);
  					this.hasPressed = true;
@@ -28,12 +30,18 @@ WeaponManager.prototype = Object.defineProperties(
  		},
  	
  		// Stops the weapon from performing checks and drawing
- 		holdFire: function() {
+ 		holdFire: function(delta) {
  			if (this.currentWeapon.overheated) {
- 				this.overheatEffect.play(0);
+				this.t += delta || 0;
+				if (this.t > 0.1) {
+					this.overheatEffect.stop(0);
+					this.overheatEffect.play(0);
+					this.t = 0;
+				}
  			}
+			this.overheated = this.currentWeapon.overheated;
  			this.hasPressed = false;
- 			this.currentWeapon.holdFire();
+			this.currentWeapon.holdFire();
  			return;
  		},
  
@@ -41,9 +49,7 @@ WeaponManager.prototype = Object.defineProperties(
  		swap: function(index) {
  			if (index < this.position) {
  				this.currentWeapon.holdFire();
- 				this.currentWeapon.barVisible = false;
  				this.currentWeapon = this.weaponList[index];
- 				this.currentWeapon.barVisible = true;
  			} else {
  				console.error("Weapon does not exist in slot: " + index);
  			}
