@@ -75,9 +75,19 @@ Entities.add('enemy',Entities.create({
 			if(config.acceleration)this.acceleration = config.acceleration.value;
 			if(config.maxSpeed)this.maxSpeed = config.maxSpeed.value;
 			if(config.impact)this.impact = config.impact.value;
+			if(config.points)this.points = config.points.value;
+		}
+		
+		state.doDamage = function(damge,src){
+			this.life-=damge;
+			if(this.life<=0 && src == Entities.player.getInstance()){
+				addToPoints(this.points)
+			}
 		}
 		
 		state.onDamage = function(damage){};
+		
+		state.points = 50;
 		
 		state.minSmallHealth = 0;
 		state.maxSmallHealth = 0;

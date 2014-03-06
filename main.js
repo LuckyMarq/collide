@@ -42,16 +42,27 @@ function goToMap(){
 	if(!frozen && graphics){
 		var screen = graphics.getScreen('gl_main');
 		if(screen){
+			var p = Entities.player.getInstance();
 			if(map_view){
+				screen.follower = p;
 				screen.scale(1/map_scale_factor);
 				map_view = false;
 				Loop.paused = false; 
 			}else{
-				ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
+				
+				ticker.addTimer(function(){	
+					mapMover.cx = p.cx;
+					mapMover.cy = p.cy;
+					screen.follower = mapMover;
+					screen.scale(map_scale_factor);
+					map_view = true;
+					Loop.paused = true;
+				},0,0,false);
 			}
 		}
 	}
 }
+
 //initializes the keyboard and mouse objects
 function initInput(){
 	keyboard = new input.Keyboard(window);
@@ -214,11 +225,12 @@ function initScene(){
 		sePressed: false,
 		stPressed: false,
 		tick: function(){
+			gamepad.query();
 			for(var o in gamepad.pads){
 				var p = gamepad.pads[o];
 				if(p.start){
 					if(!this.sePressed){
-						Loop.paused = !Loop.paused;
+						pauseGame();
 						this.sePressed = true;
 					}
 				}else{
@@ -226,20 +238,8 @@ function initScene(){
 				}
 				if(p.select){
 					if(!this.stPressed){
-						Loop.paused = !Loop.paused;
+						goToMap();
 						this.stPressed = true;
-						if(graphics){
-							var screen = graphics.getScreen('gl_main');
-							if(screen){
-								if(map_view){
-									screen.scale(1/map_scale_factor);
-									map_view = false;
-									Loop.paused = false; 
-								}else{
-									ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
-								}
-							}
-						}
 					}
 				}else{
 					this.stPressed = false;
@@ -247,6 +247,56 @@ function initScene(){
 			}
 		}
 	})
+	
+	mapMover = (function(){
+		var controls = {
+			up:'w',
+			down:'s',
+			right:'d',
+			left:'a'
+		}
+		return {
+			cx: 0,
+			cy: 0,
+			speed: configs.misc.mapMoveSpeed.value,
+			tick: function(){
+				var count=0,angle=0;
+				if(keyboard[controls.down]){
+					count++;
+					angle+=Math.PI*(3/2);
+				}
+				if(keyboard[controls.up]){
+					count++;
+					angle+=Math.PI/2;
+				}
+				if(keyboard[controls.left]){
+					count++;
+					angle+=Math.PI;
+				}
+				if(keyboard[controls.right]){
+					count++;
+					if(keyboard[controls.down]){
+						angle+=Math.PI*2;
+					}
+				}
+				angle /= count;
+				if(count>0){
+					this.cx += this.speed * Math.cos(angle);
+					this.cy += this.speed * Math.sin(angle);
+				}else{
+					var p = gamepad.padA[0];
+					if(p && p.leftStick.mag>0.1){
+						var s = this.speed*p.leftStick.mag
+						this.cx +=  s * p.leftStick.xAxis;
+						this.cy += -s * p.leftStick.yAxis;
+					}
+				}
+			}		
+		}
+	})();
+	
+	ticker.add(mapMover)
+	
 	var cursor = fillProperties(new GLDrawable(),(function(){
 		var first = true;
 		var x=0, y=0;

@@ -1,0 +1,10 @@
+<root>
+	<acceleration>800</acceleration>
+	<turnScale>2</turnScale>
+	<elasticity>0.5</elasticity>
+	<drag>0.1</drag>
+	<boundingBoxScale>0.5</boundingBoxScale>
+	<switchInterval>0.2</switchInterval>
+	<switchTime>0.5</switchTime>
+	<hudAlpha>0.5</hudAlpha>
+</root>
