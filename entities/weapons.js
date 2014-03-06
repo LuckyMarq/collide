@@ -45,7 +45,6 @@ function RocketWeapon(){
 RocketWeapon.prototype = {};
 
 // MineWeapon -- 
-// TODO: mines acn also be activated and longer fuse
 function MineWeapon(){
 	var mineConfig = configs.weaponValues.mine;
 	this.boundless = true;
@@ -443,20 +442,20 @@ function BoomerangWeapon() {
 	var direction;
 	var amt = 0; // how many targets to bounce off of
 	var maxTargets = boomConfig.maxTargets.value;
+	var rotation = 0;
 	
 	this.glInit = function(manager){
 		
 	};
 	
 	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-		// some cool effect
 		if (firing) {
 			var m = Math.round(amt);
 			if (m > maxTargets) m = maxTargets;
 			if (m != 0) {
 				var theta = 2*Math.PI/m;
 				for (var i = 0; i < m; i++) {
-					manager.fillRect(p.cx + Math.cos(i*theta)*32,p.cy + Math.sin(i*theta)*16,0,32,8,i*theta,1,0,0,1);
+					manager.fillEllipse(p.cx + Math.cos(i*theta)*32,p.cy + Math.sin(i*theta)*16,0,32,8,i*theta,1,0.5,0,1);
 				}
 			}
 		}
@@ -465,6 +464,7 @@ function BoomerangWeapon() {
 	this.tick =function (delta) {
 		if (firing) {
 			amt += delta*2;
+			rotation = (rotation + 4*delta) % (2*Math.PI);
 			if (amt < maxTargets)
 				this.energy -= delta * COST;
 		}
@@ -482,7 +482,7 @@ function BoomerangWeapon() {
 	this.fire = function(dir) {
 		if (!firing && !this.overheated) {
 			firing = true;
-			//sound.play(0);
+			sound.play(0);
 		}
 	};
 	
@@ -494,7 +494,7 @@ function BoomerangWeapon() {
 			else
 				amt = Math.round(amt);
 			if (amt >= 1) 
-				Entities.boomerang.newInstance(p.cx,p.cy,direction,amt,false);
+				Entities.boomerang.newInstance(p.cx,p.cy,direction,amt);
 		}
 		firing = false;
 		amt = 0;
