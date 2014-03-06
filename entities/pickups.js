@@ -280,8 +280,12 @@ Entities.add('level_end',Entities.create(
 				var p = Entities.player.getInstance(0);
 				if(p.collision(state)){
 					state.triggered = true;
+					if(current_music){
+						current_music.stop(0);
+					}
 					state.sound.play(0);
 					Loop.paused = true;
+					frozen = true;
 				}
 			}
 		},

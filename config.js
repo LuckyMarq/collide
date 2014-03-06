@@ -52,6 +52,21 @@ var XMLConfig = (function(){
 			for(var i = 0; i<parts.length; i++){
 				parts[i] = parseValue(parts[i]);
 			}
+			if(typeof parts[0] == 'function'){
+				try{
+					//can be used to with constructors
+					return parts[0].apply(new Object(),parts.slice(1));
+				}catch(e){}
+			}else{
+				var curr = window;
+				for(var i = 0; i<parts.length; i++){
+					curr = curr[parts[i]];
+					if(typeof curr == 'undefined'){
+						return parts;
+					}
+				}
+				return curr;
+			}
 			return parts;
 		}else if(str=='true'){
 			return true;
@@ -60,7 +75,11 @@ var XMLConfig = (function(){
 		}else{
 			var f = parseFloat(str);
 			if(isNaN(f)){
-				return str;
+				if(str != '' && typeof window[str] != 'undefined'){
+					return window[str];
+				}else{
+					return str;
+				}
 			}else{
 				return f;
 			}

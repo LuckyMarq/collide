@@ -23,14 +23,44 @@ function loadSource(){
 		'components/graphics/graphics.js',
 		'components/sound/sound.js',
 		'entities/entities.js',
-		'entities/map.js'
+		'entities/map.js',
+		'entities/menus.js'
 	]
 	
 	for(var i in scriptSource){
 		document.write('<script type="text/javascript" src='+scriptSource[i]+'><\/script>')
 	}
 	
-	
+}
+frozen  = true;
+
+function pauseGame(){
+	if(!frozen)Loop.paused = !Loop.paused;
+}
+
+function goToMap(){
+	if(!frozen && graphics){
+		var screen = graphics.getScreen('gl_main');
+		if(screen){
+			var p = Entities.player.getInstance();
+			if(map_view){
+				screen.follower = p;
+				screen.scale(1/map_scale_factor);
+				map_view = false;
+				Loop.paused = false; 
+			}else{
+				
+				ticker.addTimer(function(){	
+					mapMover.cx = p.cx;
+					mapMover.cy = p.cy;
+					screen.follower = mapMover;
+					screen.scale(map_scale_factor);
+					map_view = true;
+					Loop.paused = true;
+				},0,0,false);
+			}
+		}
+	}
 }
 
 //initializes the keyboard and mouse objects
@@ -67,7 +97,7 @@ function initInput(){
 			onPress:function(){
 				if(!pressed){
 					pressed = true;
-					Loop.paused = !Loop.paused;
+					pauseGame();
 				}
 			},
 			onRelease:function(){
@@ -101,18 +131,7 @@ function initInput(){
 			onPress:function(){
 				if(!pressed){
 					pressed = true;
-					if(graphics){
-						var screen = graphics.getScreen('gl_main');
-						if(screen){
-							if(map_view){
-								screen.scale(1/map_scale_factor);
-								map_view = false;
-								Loop.paused = false; 
-							}else{
-								ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
-							}
-						}
-					}
+					goToMap();
 				}
 			},
 			onRelease:function(){
@@ -210,7 +229,7 @@ function initScene(){
 				var p = gamepad.pads[o];
 				if(p.start){
 					if(!this.sePressed){
-						Loop.paused = !Loop.paused;
+						pauseGame();
 						this.sePressed = true;
 					}
 				}else{
@@ -218,20 +237,8 @@ function initScene(){
 				}
 				if(p.select){
 					if(!this.stPressed){
-						Loop.paused = !Loop.paused;
+						goToMap();
 						this.stPressed = true;
-						if(graphics){
-							var screen = graphics.getScreen('gl_main');
-							if(screen){
-								if(map_view){
-									screen.scale(1/map_scale_factor);
-									map_view = false;
-									Loop.paused = false; 
-								}else{
-									ticker.addTimer(function(){screen.scale(map_scale_factor);map_view = true;Loop.paused = true;},0,0,false);
-								}
-							}
-						}
 					}
 				}else{
 					this.stPressed = false;
@@ -239,19 +246,62 @@ function initScene(){
 			}
 		}
 	})
+	
+	mapMover = (function(){
+		var controls = {
+			up:'w',
+			down:'s',
+			right:'d',
+			left:'a'
+		}
+		return {
+			cx: 0,
+			cy: 0,
+			speed: configs.misc.mapMoveSpeed.value,
+			tick: function(){
+				var count=0,angle=0;
+				if(keyboard[controls.down]){
+					count++;
+					angle+=Math.PI*(3/2);
+				}
+				if(keyboard[controls.up]){
+					count++;
+					angle+=Math.PI/2;
+				}
+				if(keyboard[controls.left]){
+					count++;
+					angle+=Math.PI;
+				}
+				if(keyboard[controls.right]){
+					count++;
+					if(keyboard[controls.down]){
+						angle+=Math.PI*2;
+					}
+				}
+				angle /= count;
+				if(count>0){
+					this.cx += this.speed * Math.cos(angle);
+					this.cy += this.speed * Math.sin(angle);
+				}else{
+					var p = gamepad.padA[0];
+					if(p && p.leftStick.mag>0.1){
+						var s = this.speed*p.leftStick.mag
+						this.cx +=  s * p.leftStick.xAxis;
+						this.cy += -s * p.leftStick.yAxis;
+					}
+				}
+			}		
+		}
+	})();
+	
+	ticker.add(mapMover)
+	
 	var cursor = fillProperties(new GLDrawable(),(function(){
 		var first = true;
 		var x=0, y=0;
 		return{
 			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				var r = 1,g = 1,b=1;
-				if(mouse.left){
-					g = 0;
-				}
-				if(mouse.right){
-					b=0;
-				}
-				manager.point(mouse.x,mouse.yInv,-99.99,12,r,g,b,1);
+				manager.point(mouse.x,mouse.yInv,-99.99,12,1,1,1,1);
 			},
 			tick: function(){
 				x = mouse.x;
@@ -266,6 +316,8 @@ function initScene(){
 	graphics.addToDisplay(cursor,"gl_main")
 	ticker.add(cursor);
 	
+	god_mode = configs.misc.godMode.value;
+	
 	current_level = 1;
 	
 	// graphics.addToDisplay(testMap,"gl_main")
@@ -276,6 +328,7 @@ function initScene(){
 	
 	currentMap = new Map(configs.map);
 	currentMap.init();
+	
 	physics.setGeometry(currentMap.lines);
 	graphics.addToDisplay(currentMap,'gl_main');
 	graphics.setDisplayDimensions(configs.misc.displayDimensions.attributes.width,configs.misc.displayDimensions.attributes.height)
@@ -283,6 +336,7 @@ function initScene(){
 
 function reinitScene(){
 	current_level = 1;
+	current_points = 0;
 	Entities.reset();
 	Entities.reset();
 	

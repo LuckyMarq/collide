@@ -1,4 +1,8 @@
+current_points = 0;
 
+function addToPoints(x){
+	current_points+=x;
+}
 
 Entities.add('player', Entities.create((function(){
 
@@ -274,10 +278,13 @@ Entities.add('player', Entities.create((function(){
 			var elasticity = 0.5;
 			var drag = 0.01;
 			var theta = 0;
+			var boundingBoxScale = 0.5;
 			var r = Vector.getDir([triangle[3],triangle[4],triangle[5]]);
 			var mvec = [0,0];
 			var k = 0;
 			var pk = 0;
+			
+			state.collisionScale = 1/boundingBoxScale;
 			
 			var movementCheck = function(){//eightway directional movement
 				var count=0,angle=0;
@@ -301,13 +308,42 @@ Entities.add('player', Entities.create((function(){
 				}
 				angle /= count;
 				if(count>0){
-					state.accel[0] = Math.cos(angle)*acceleration;
-					state.accel[1] = Math.sin(angle)*acceleration;
+					var x = acceleration * Math.cos(angle);
+					var y = acceleration * Math.sin(angle);
+					var u = (x*state.vel[0] + y*state.vel[1])/((state.vel[0] * state.vel[0]) + (state.vel[1] * state.vel[1]));
+					if(isNaN(u)){
+						state.accel[0] = x;
+						state.accel[1] = y;
+					}else{
+						var uv = (state.vel[0]*u);
+						var vv = (state.vel[1]*u);
+						if(!(Math.abs(Vector.getDir(uv,vv)-Vector.getDir(state.vel))<(Math.PI/2))){
+							uv*=2;
+							vv*=2;
+						}
+						state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*2
+						state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*2
+					}
 				}else{
 					var p = gamepad.padA[0];
 					if(p && p.leftStick.mag>0.1){
-						state.accel[0] = acceleration * p.leftStick.xAxis;
-						state.accel[1] = -acceleration * p.leftStick.yAxis;
+						var a = p.leftStick.mag * acceleration
+						var x = a * p.leftStick.xAxis;
+						var y = -a * p.leftStick.yAxis;
+						var u = (x*state.vel[0] + y*state.vel[1])/((state.vel[0] * state.vel[0]) + (state.vel[1] * state.vel[1]));
+						if(isNaN(u)){
+							state.accel[0] = x;
+							state.accel[1] = y;
+						}else{
+							var uv = (state.vel[0]*u);
+							var vv = (state.vel[1]*u);
+							if(!(Math.abs(Vector.getDir(uv,vv)-Vector.getDir(state.vel))<(Math.PI/2))){
+								uv*=2;
+								vv*=2;
+							}
+							state.accel[0] = (state.vel[0]*u) + (x - state.vel[0]*u)*2
+							state.accel[1] = (state.vel[1]*u) + (y - state.vel[1]*u)*2
+						}
 						return;
 					}
 					state.accel[0]=0;
@@ -335,26 +371,56 @@ Entities.add('player', Entities.create((function(){
 				var p = gamepad.padA[0]; 
 				if (mouse.left)
 				{
-					state.weaponManager.fire((Math.PI*2)-Vector.getDir(mouse.x-state.cx,mouse.y-state.cy));
+					state.weaponManager.fire((Math.PI*2)-Vector.getDir(mouse.x-state.cx,mouse.y-state.cy),false);
 				}
 				else if(p&&p.rightStick.mag>0.5){
-					state.weaponManager.fire((Math.PI*2)-p.rightStick.dir)
+					state.weaponManager.fire((Math.PI*2)-p.rightStick.dir,true)
 				}else{
 					state.weaponManager.holdFire();
 				}
 			}
 			
 			var life = 100;
-			var canPress = true;
+			var pressInterval = 0.2;
+			var canPress = 0;
 			state.maxLife = 100;
+			var numDisplay = document.createElement('canvas');
+			numDisplay.height=64;
+			numDisplay.width=512;
+			var gfx = numDisplay.getContext('2d')
 			
 			state.hud = fillProperties(new GLDrawable(),{
+				glInit: function(manager){
+					var gl = manager.gl;
+					this.texture = gl.createTexture();
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+					gl.bindTexture(gl.TEXTURE_2D, this.texture);
+					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, numDisplay);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+					gl.bindTexture(gl.TEXTURE_2D, null);
+				},
 				draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+					gfx.clearRect(0,0,numDisplay.width,numDisplay.height);
+					gfx.fillStyle = 'rgba(255,255,255,255)';
+					gfx.textAlign = 'left';
+					gfx.textBaseline = 'middle';
+					gfx.font = "48px Lucida Console";
+					gfx.fillText(''+current_points,10,numDisplay.height/2)
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+					gl.bindTexture(gl.TEXTURE_2D, this.texture);
+					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, numDisplay);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+					gl.bindTexture(gl.TEXTURE_2D, null);
+					
 					gl.enable(gl.BLEND);
 					gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)
-					manager.fillRect(32+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(life/100),0,1-(1*(life/100)),1*(life/100),0,this.alpha);
-					manager.fillRect(16+screen.x,screen.y+screen.height/2,this.z,16,(screen.height-32)*(state.weaponManager.energy/100),0,1,(state.weaponManager.overheated)?0:1,0,this.alpha);
-					mvMatrix.translate(screen.x+screen.width - 48, screen.y+ 48,this.z);
+					manager.fillRect(screen.x+screen.width/2,screen.y+screen.height-16,this.z,(screen.width-32)*(life/100),16,0,1-(1*(life/100)),1*(life/100),0,this.alpha);
+					manager.fillRect(screen.x+screen.width/2,screen.y+screen.height-32,this.z,(screen.width-32)*(state.weaponManager.energy/100),16,0,1,(state.weaponManager.overheated)?0:1,0,this.alpha);
+					mvMatrix.translate(screen.x+screen.width - 48, screen.y+48, this.z);
 					
 					this.animator.alpha = this.alpha;
 					for(var i = this.keyframes.length-1; i>=0; i--){
@@ -368,6 +434,28 @@ Entities.add('player', Entities.create((function(){
 						mvMatrix.translate(-64,0,0);
 					}
 					this.animator.alpha = 1;
+					
+					
+					mvMatrix.identity();
+					gl.enable(gl.BLEND);
+					gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+					manager.bindProgram('basic_texture');
+					manager.setArrayBufferAsProgramAttribute('primitive_rect','basic_texture','vertexPosition');
+					manager.setArrayBufferAsProgramAttribute('sprite_texture_coords','basic_texture','textureCoord');
+					
+					mvMatrix.translate(screen.x+numDisplay.width/2,screen.y+numDisplay.height/2,this.z);
+					mvMatrix.scale(numDisplay.width,numDisplay.height,1);
+					manager.setMatrixUniforms('basic_texture',pMatrix,mvMatrix.current);
+					
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, this.texture);
+					var prog = manager.getProgram('basic_texture');
+					gl.uniform1i(prog.samplerUniform, 0);
+					gl.uniform1f(prog.alpha,1)
+					gl.uniform1f(prog.tintWeight,0);
+					gl.uniform3f(prog.tint,0,0,0);
+					
+					gl.drawArrays(gl.TRIANGLE_FAN,0,4);
 				},
 				animator: animator,
 				keyframes: state.keyframes,
@@ -375,27 +463,29 @@ Entities.add('player', Entities.create((function(){
 				boundless: true,
 				alpha: 0.5
 			})
+			
 			Object.defineProperties(
 					fillProperties(fillProperties(state,fillProperties(new GLDrawable(),new PolygonCollider(x+animator.x,y+animator.y,animator.width,animator.height,elasticity,null,3))),
 						{
 							cx: x,
 							cy: y,
 							tick: function(delta){
+								if(!this.active)return;
 								movementCheck();
 								weaponsCheck();
+								var p = gamepad.padA[0]; 
 								var change = (!animator.animating);
 								var pos;
-								if(keyboard.e && canPress<=0){
+								if((keyboard.e || (p && (p.rightBumper || p.rightTrigger>0.5))) && canPress<=0){
 									pos = (k+1)%this.keyframes.length
 									transitionSound.stop(0);
 									transitionSound.play(0);
 									animator.setCurrentKeyframe(this.keyframes[pos],(pk==pos) ? 1-animator.getTimeTillNextKeyframe() : 1);
 									if(!animator.animating)pk = pos
 									k = pos;
-									console.log(pos)
 									this.weaponManager.swap(pos)
-									canPress = 0.1;
-								}else if(keyboard.q && canPress<=0){
+									canPress = pressInterval;
+								}else if((keyboard.q || (p && (p.leftBumper || p.leftTrigger>0.5)))&& canPress<=0){
 									pos = (k-1);
 									if(pos<0)pos = this.keyframes.length+pos;
 									transitionSound.stop(0);
@@ -404,7 +494,7 @@ Entities.add('player', Entities.create((function(){
 									if(!animator.animating)pk = pos
 									k = pos;
 									this.weaponManager.swap(pos)
-									canPress = 0.1;
+									canPress = pressInterval;
 								}else{
 									canPress -= delta;
 									for(var i = 0; i<this.keyframes.length; i++){
@@ -449,8 +539,8 @@ Entities.add('player', Entities.create((function(){
 				(function(){
 					var stateX = x+animator.x, stateY= y+animator.y;
 					updateCoords = function(){
-						stateX = state.cx+animator.x;
-						stateY = state.cy+animator.y;
+						stateX = state.cx+(animator.x*boundingBoxScale);
+						stateY = state.cy+(animator.y*boundingBoxScale);
 					}
 					var verts = new Array();
 					return {
@@ -459,7 +549,7 @@ Entities.add('player', Entities.create((function(){
 								return life;
 							},
 							set: function(nLife){
-								life = Math.min(nLife,this.maxLife);
+								if(!god_mode)life = Math.min(nLife,this.maxLife);
 							},
 							configurable: true
 						},
@@ -484,13 +574,13 @@ Entities.add('player', Entities.create((function(){
 						},
 						width:{
 							get:function(){
-								return animator.width;
+								return animator.width*boundingBoxScale;
 							},
 							set:function(){}
 						},
 						height:{
 							get:function(){
-								return animator.height;
+								return animator.height*boundingBoxScale;
 							},
 							set:function(){}
 						},
@@ -512,11 +602,17 @@ Entities.add('player', Entities.create((function(){
 			ticker.add(state.weaponManager);
 			state.life = 100;
 			state.set(x,y,0,0,0,0);
+			state.active = false;
 			graphics.addToDisplay(state,'gl_main');
 			graphics.addToDisplay(state.hud,'gl_main');
 			physics.add(state);
 			ticker.add(state);
 			graphics.getScreen('gl_main').follower = state;
+		},
+		update: function(state,delta){
+			// var s = graphics.getScreen('gl_main')
+			// currentMap.visit(state.cx-s.width/2,state.cy-s.height/2,s.width,s.height)
+			if(state.active)currentMap.visit(state.x,state.y,state.width,state.height)
 		},
 		destroy: function(state){
 			graphics.removeFromDisplay(state,'gl_main');
@@ -529,6 +625,9 @@ Entities.add('player', Entities.create((function(){
 			playerExplosion.play(0);
 			Entities.explosion_player.newInstance(state.cx, state.cy,2);
 			ticker.addTimer(function(){reinitScene()},2,0);
+			if(current_music){
+				current_music.stop(0);
+			}
 		}
 	};
 })()))
@@ -577,9 +676,6 @@ Entities.add('player_trail_particles',Entities.create(
 							gl.enable(gl.BLEND);
 							gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
 							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
-							mvMatrix.scale(0.5,0.5,1);
-							manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
-							gl.drawArrays(gl.TRIANGLE_FAN,0,16);
 							manager.setUniform1f('basic','alpha',1);
 							manager.setUniform1f('basic','tintWeight',0);
 						}
@@ -612,3 +708,105 @@ Entities.player_trail_particles.burst = function(x,y,size,num,life,r,g,b){
 		this.newInstance(x+Math.cos(t)*rad,y+Math.sin(t)*rad,life,r,g,b);
 	}
 }
+
+Entities.add('player_init_particles',Entities.create({
+	construct: function(state){
+		fillProperties(state,fillProperties(new GLDrawable(),{
+			glInit: function(manager){
+				if(!Entities.player_init_particles.initialized){
+					var color = [];
+					color.push(1,1,1,1)
+					for(var i = 0; i<15; i++){
+						color.push(1,1,1,0)
+					}
+					manager.addArrayBuffer('player_init_color',true,color,16,4);
+					Entities.player_init_particles.initialized = true;
+				}
+			},
+			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				var u = Math.pow(1-(this.life/this.lifeStart),5);
+				// manager.fillEllipse(this.x,this.y,0,width/2,height/2,0,1,0.5,0,1);
+				manager.bindProgram('basic');
+				manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
+				manager.setArrayBufferAsProgramAttribute('player_init_color','basic','vertexColor');
+				manager.setUniform1f('basic','alpha',u);
+				manager.setUniform1f('basic','tintWeight',1);
+				gl.uniform3f(manager.getProgram('basic').tint,this.r,this.g,this.b)
+				mvMatrix.translate((this.x1+(this.x2-this.x1)*u),(this.y1+(this.y2-this.y1)*u),this.z);
+				mvMatrix.scale(this.size*u,this.size*u,1);
+				manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+				gl.enable(gl.BLEND);
+				gl.blendFuncSeparate(gl.SRC_COLOR,gl.ONE,gl.SRC_ALPHA, gl.DST_ALPHA);
+				gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+				manager.setUniform1f('basic','alpha',1);
+				manager.setUniform1f('basic','tintWeight',0);
+			},
+			z:0,
+			boundless:true
+		}))
+	},
+	create: function(state,x1,y1,x2,y2,r,g,b,size,life){
+		state.r = r;
+		state.g = g;
+		state.b = b;
+		state.x = x1;
+		state.y = y1;
+		state.x1 = x1;
+		state.y1 = y1;
+		state.x2 = x2;
+		state.y2 = y2;
+		state.size = size;
+		state.width = size;
+		state.height = size;
+		state.life = life;
+		state.lifeStart = life;
+		graphics.addToDisplay(state,'gl_main');
+	},
+	update: function(state,delta){
+		state.life -=delta;
+		if(state.life<0)state.alive = false;
+	},
+	destroy: function(state){
+		graphics.removeFromDisplay(state,'gl_main');
+	}
+}));
+
+Entities.add('player_initializer',Entities.create({
+	construct:function(state){
+		state.sound = Sound.createSound('player_create',false);
+		state.sound.gain = 0.8;
+	},
+	create: function(state,x,y,player){
+		for(var i =0; i<50; i++){
+			var theta = Math.random()*(Math.PI*2)
+			var size = 128 * (1-Math.pow(Math.random(),3))
+			Entities.player_init_particles.newInstance(x+Math.cos(theta)*size, y+Math.sin(theta)*size,x,y,0.1,1,0.1,64,3)
+		}
+		if(player){
+			player.visible = false;
+			player.active = false;
+			player.set(x+player.x-player.cx,y+player.y-player.cy,0,0,0,0);
+			state.player = player;
+		}
+		state.x=x;
+		state.y=y;
+		state.sound.play(0)
+		state.life = 3;
+	},
+	update: function(state,delta){
+		state.life -= delta;
+		if(state.life<0)state.alive = false;
+	},
+	destroy: function(state){
+		Entities.shockwave.newInstance(state.x,state.y,0,getExponentInterpolator(1),0,10000,1,0,1,0,1,0,1,0,0)
+		if(state.player){
+			state.player.visible = true;
+			state.player.active = true;
+			state.player.set(state.x+state.player.x-state.player.cx,state.y+state.player.y-state.player.cy,0,0,0,0);
+			current_music = Sound.createSound('groove',true);
+			current_music.gain = 0.5;
+			current_music.play(Date.now()+1000)
+		}
+		frozen = false;
+	}
+}))

@@ -6,15 +6,48 @@
 		<length>512</length>
 		<rechargeRate>1</rechargeRate>
 	</beam>
-	<mine>
+	<blackHole>
 		<blastRadius>256</blastRadius>
 		<cost>30</cost>
+		<damage>0.1</damage>
+		<decceleration>
+			<speed>300</speed>
+		</decceleration>
+		<explosion>
+			<radius>512</radius>
+			<damage>10</damage>
+			<force>800</force>
+			<interp>getInverseExponentInterpolator;0.5</interp>
+		</explosion>
+		<force>800</force>
+		<fuse>8</fuse>
+		<height>16</height>
+		<rechargeRate>1</rechargeRate>
+		<rof>0.2</rof> <!-- Rate of Fire -->
+		<speed>600</speed>
+		<width>16</width>
+	</blackHole>
+	<boomerang>
+		<cost>20</cost>
+		<damage>8</damage>
+		<force>100</force>
+		<fuse>1</fuse>
+		<height>16</height>
+		<maxTargets>5</maxTargets>
+		<range>256</range> <!-- ricochet travel distance -->
+		<rechargeRate>1</rechargeRate>
+		<speed>1000</speed>
+		<width>16</width>
+	</boomerang>
+	<mine>
+		<blastRadius>256</blastRadius>
+		<cost>20</cost>
 		<damage>10</damage>
 		<force>800</force>
 		<fuse>1.5</fuse>
 		<height>16</height>
 		<rechargeRate>1</rechargeRate>
-		<rof>1</rof> <!-- Rate of Fire -->
+		<rof>0.1</rof>
 		<width>16</width>
 	</mine>
 	<rocket>
@@ -25,9 +58,15 @@
 		<fuse>5</fuse> <!-- Time before detonation -->
 		<height>16</height>
 		<rechargeRate>1</rechargeRate>
-		<rof>0.5</rof>
+		<rof>0.2</rof> <!-- 0 is kinda fun :D -->
 		<speed>1000</speed>
 		<width>16</width>
+		<explosion>
+			<radius>128</radius>
+			<damage>5</damage>
+			<force>800</force>
+			<interp>getInverseExponentInterpolator;0.5</interp>
+		</explosion>
 	</rocket>
 	<wave>
 		<cost>15</cost>

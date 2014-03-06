@@ -363,7 +363,7 @@ function initPhysics(){
 							}
 						}
 					}
-					console.log(radialForces[i+4], delta);
+					//console.log(radialForces[i+4], delta);
 					radialForces[i+4]-=delta;
 				}
 				for(var i = 0; i<radialForces.length; i+=5){
@@ -409,6 +409,8 @@ function initPhysics(){
 				var c = false;
 				if(isMover(obj)){
 					movers.push(obj);
+					obj.px = obj.x;
+					obj.py = obj.y;
 					c = true;
 				}
 				if(isCollider(obj)){
@@ -478,7 +480,6 @@ function initPhysics(){
 			*/
 			setGeometry: function(newLines){
 				if(newLines.length%4 == 0){
-					console.log(newLines.length)
 					lines = newLines;
 					lineTree = new QuadTree(VecArray.getCorner(newLines,2,0)-8,VecArray.getCorner(newLines,2,1)-8,VecArray.getMaxDif(newLines,2,0)+16,VecArray.getMaxDif(newLines,2,1)+16);
 					colliderTree = new QuadTree(VecArray.getCorner(newLines,2,0)-8,VecArray.getCorner(newLines,2,1)-8,VecArray.getMaxDif(newLines,2,0)+16,VecArray.getMaxDif(newLines,2,1)+16);
@@ -742,7 +743,7 @@ function initPhysics(){
 			*/
 			radialForce: function(x,y,radius,mag,t){
 				radialForces.push(x,y,radius,mag,0);
-				console.log(radialForces[radialForces.length - 1]);
+				//console.log(radialForces[radialForces.length - 1]);
 			},
 			draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
 				if(lineTree) lineTree.draw(gl,delta,screen,manager,pMatrix,mvMatrix)
@@ -830,9 +831,17 @@ MovementState.prototype = Object.defineProperties(
 			return this;
 		},
 		deccelerate: function(mag){
-			dir = Vector(this.vel);
-			this.accel[0] = math.cos(dir)*mag;
-			this.accel[1] = math.sin(dir)*mag;
+			var speed = Vector.getMag(this.vel);
+			if(speed>mag){
+				var dir = Vector.getDir(this.vel);
+				this.accel[0] = math.cos(dir+Math.PI)*mag;
+				this.accel[1] = math.sin(dir+Math.PI)*mag;
+			}else{
+				this.vel[0] = 0;
+				this.vel[1] = 0;
+				this.accel[0] = 0;
+				this.accel[1] = 0; 
+			}
 			return this;
 		},
 		set:function(x,y,vx,vy,ax,ay){
@@ -883,28 +892,24 @@ MovementState.prototype = Object.defineProperties(
 		accelerateToSpeed: function(dir,accel,deccel,speed){
 			var s = Vector.getMag(this.vel);
 			
-			if(Math.abs(s-speed)<0.001){
+			if(s>=speed/**Math.abs(s-speed)<0.1*/){
 				var x = accel * Math.cos(dir);
 				var y = accel * Math.sin(dir);
 				var vd = (this.vel[0] * this.vel[0]) + (this.vel[1] * this.vel[1]);
-				var u = (vd * (x*x + y*y))/(vd*vd);
+				var u = (x*this.vel[0] + y*this.vel[1])/vd;
 				this.accel[0] = x - (u * this.vel[0]);
 				this.accel[1] = y - (u * this.vel[1]);
+				Vector.setMag(this.vel,this.vel,speed)
 			}else if(s<speed){
 				var x = accel * Math.cos(dir);
 				var y = accel * Math.sin(dir);
 				this.accel[0] = x;
 				this.accel[1] = y;
-			}else{
-				var x = deccel * Math.cos(dir);
-				var y = deccel * Math.sin(dir);
-				var vd = (this.vel[0] * this.vel[0]) + (this.vel[1] * this.vel[1]);
-				var u = (vd * (x*x + y*y))/(vd*vd);
-				this.accel[0] = (x - (u * this.vel[0])) - (u * this.vel[0]);
-				this.accel[1] = (y - (u * this.vel[1])) - (u * this.vel[0]);
 			}
 			this.targetSpeed = speed
+			this.tartgetDir = dir;
 		},
+		tartgetDir: NaN,
 		targetSpeed: NaN,
 		doMove:true
 	},
@@ -1031,7 +1036,10 @@ PolygonCollider.prototype = fillProperties(new BasicCollider(),
 			width = obj.width;
 			height = obj.height;
 		}
-		if(Collisions.boxBox(x,y,width,height,this.x,this.y,this.width,this.height)){
+		var mul = this.collisionScale || 1;
+		var cx = this.x+this.width/2;
+		var cy = this.y+this.height/2;
+		if(Collisions.boxBox(x,y,width,height,cx+(this.x-cx)*mul,cy+(this.y-cy)*mul,this.width*mul,this.height*mul)){
 			if(obj && obj.isCircle){
 					return Collisions.circlePolygon(x+width/2,y+height/2,width/2,this.verts,this.itemSize);
 			}else if(obj && obj.verts && obj.itemSize){
