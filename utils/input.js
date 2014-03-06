@@ -252,7 +252,7 @@ var input = {
 		var PadAlias = function(pad){
 			this.pad = pad;
 			this.dpad = {};
-			if(pad.axes.length<=4){
+			if(pad.buttons.length>=12){
 				Object.defineProperties(this.dpad,{
 					up:{
 						get: function(){
@@ -301,7 +301,7 @@ var input = {
 						writable: false
 					},
 					rightStick: {
-						value: new StickAlias(pad,2,3,11),
+						value: new StickAlias(pad,2,(pad.axes.length == 6)?5:3,11),
 						writable: false
 					}
 				})
@@ -494,7 +494,26 @@ var input = {
 				delete pads[pad.id];
 			},
 			false);
-			
+		
+		this.query = function(){
+			var gps;
+			if(navigator.webkitGetGamepads){
+				gps = navigator.webkitGetGamepads();
+			}else{
+				gps =  navigator.getGamepads()
+			}
+			for(var i = 0; i<gps.length; i++){
+				if(gps[i]){
+					var added = false;
+					if(pads[gps[i].id]){
+						pads[gps[i].id].pad = gps[i];
+					}else{
+						pads[gps[i].id] = new PadAlias(gps[i]);
+						padA.push(pads[gps[i].id]);
+					}
+				}
+			}
+		}
 	}
 };
 
