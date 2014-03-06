@@ -82,6 +82,7 @@
 		<file name='map'>values/map.xml</file>
 		<file name='weaponValues'>values/weaponValues.xml</file>
 		<file name='enemyValues'>values/enemyValues.xml</file>
+		<file name='player'>values/playerValues.xml</file>
 	</configs>
 	<resourceConfigs>
 		<file>values/enemyResources.xml</file>

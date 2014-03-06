@@ -225,6 +225,7 @@ function initScene(){
 		sePressed: false,
 		stPressed: false,
 		tick: function(){
+			gamepad.query();
 			for(var o in gamepad.pads){
 				var p = gamepad.pads[o];
 				if(p.start){
