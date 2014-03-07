@@ -1,18 +1,19 @@
 <root>
 	<beam>
-		<cost>0.8</cost>
-		<damage>5</damage>
+		<cost>0.4</cost>
+		<damage>8</damage>
 		<force>-80</force>
 		<length>512</length>
 		<rechargeRate>1</rechargeRate>
 	</beam>
 	<blackHole>
 		<blastRadius>256</blastRadius>
-		<cost>30</cost>
+		<cost>65</cost>
 		<damage>0.1</damage>
 		<decceleration>
 			<speed>300</speed>
 		</decceleration>
+		<delay>2</delay> <!-- pause before forces -->
 		<explosion>
 			<radius>512</radius>
 			<damage>10</damage>
@@ -21,23 +22,24 @@
 		</explosion>
 		<force>800</force>
 		<fuse>8</fuse>
-		<height>16</height>
+		<height>32</height>
+		<pause>1</pause> <!-- pause before exploding -->
 		<rechargeRate>1</rechargeRate>
 		<rof>0.2</rof> <!-- Rate of Fire -->
 		<speed>600</speed>
-		<width>16</width>
+		<width>32</width>
 	</blackHole>
 	<boomerang>
 		<cost>20</cost>
 		<damage>8</damage>
 		<force>100</force>
 		<fuse>1</fuse>
-		<height>16</height>
+		<height>20</height>
 		<maxTargets>5</maxTargets>
 		<range>256</range> <!-- ricochet travel distance -->
 		<rechargeRate>1</rechargeRate>
 		<speed>1000</speed>
-		<width>16</width>
+		<width>20</width>
 	</boomerang>
 	<mine>
 		<blastRadius>256</blastRadius>

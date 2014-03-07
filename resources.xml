@@ -7,6 +7,8 @@
 		<file name='health_med'>resources/audio/health_pickup_med.wav</file>
 		<file name='health_large'>resources/audio/health_pickup_large.wav</file>
 		<file name='rocket_fire'>resources/audio/weapon_sounds/rocket1.wav</file>
+		<file name='overheat_fire'>resources/audio/weapon_sounds/overheat_fire.wav</file>
+		<file name='overheated'>resources/audio/weapon_sounds/overheat_sound.wav</file>
 		<file name='beam_fire'>resources/audio/laser1.wav</file>
 		<file name='wave_fire'>resources/audio/weapon_sounds/wave.wav</file>
 		<file name='mine_fire'>resources/audio/weapon_sounds/mine_place.wav</file>
@@ -82,6 +84,7 @@
 		<file name='map'>values/map.xml</file>
 		<file name='weaponValues'>values/weaponValues.xml</file>
 		<file name='enemyValues'>values/enemyValues.xml</file>
+		<file name='player'>values/playerValues.xml</file>
 	</configs>
 	<resourceConfigs>
 		<file>values/enemyResources.xml</file>
