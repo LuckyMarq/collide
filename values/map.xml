@@ -15,12 +15,12 @@
 						<density>0.25</density>
 						<connectivity>0.75</connectivity>
 						<width>
-							<min>1024</min>
-							<max>2048</max>
+							<min>0.5</min>
+							<max>0.9</max>
 						</width>
 						<height>
-							<min>1024</min>
-							<max>2048</max>
+							<min>0.5</min>
+							<max>0.9</max>
 						</height>
 						<size>2560</size>
 						<connectorSize>128</connectorSize>
@@ -35,6 +35,14 @@
 							<max>5</max>
 						</entity>
 						<entity name='enemy_meandering_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_dragon' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='evil_triangles' margin='32'>
 							<min>0</min>
 							<max>5</max>
 						</entity>
@@ -57,12 +65,12 @@
 						<density>0.75</density>
 						<connectivity>0.75</connectivity>
 						<width>
-							<min>1024</min>
-							<max>2048</max>
+							<min>0.5</min>
+							<max>0.9</max>
 						</width>
 						<height>
-							<min>1024</min>
-							<max>2048</max>
+							<min>0.5</min>
+							<max>0.9</max>
 						</height>
 						<size>2560</size>
 						<connectorSize>128</connectorSize>
@@ -104,12 +112,12 @@
 						<density>0.75</density>
 						<connectivity>0.5</connectivity>
 						<width>
-							<min>1024</min>
-							<max>2048</max>
+							<min>0.5</min>
+							<max>0.9</max>
 						</width>
 						<height>
-							<min>1024</min>
-							<max>2048</max>
+							<min>0.5</min>
+							<max>0.9</max>
 						</height>
 						<size>2560</size>
 						<connectorSize>128</connectorSize>
@@ -142,6 +150,7 @@
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
 						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
+						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
 					</populators>
 				</config>
 			</configs>
@@ -155,12 +164,12 @@
 						<density>0.75</density>
 						<connectivity>0.75</connectivity>
 						<width>
-							<min>1024</min>
-							<max>2048</max>
+							<min>0.5</min>
+							<max>0.9</max>
 						</width>
 						<height>
-							<min>1024</min>
-							<max>2048</max>
+							<min>0.5</min>
+							<max>0.9</max>
 						</height>
 						<size>2560</size>
 						<connectorSize>128</connectorSize>
@@ -186,12 +195,18 @@
 							<min>0</min>
 							<max>5</max>
 						</entity>
+						<entity name='enemy_bam_bam' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
 					</entities>
 					<!--the first three populators are mandatory for every map-->
 					<populators>
 						<EndRoom></EndRoom>
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
+						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
+						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
 					</populators>
 				</config>
 			</configs>
@@ -205,12 +220,12 @@
 				<max>12</max>
 				<density>0.25</density>
 				<width>
-					<min>1024</min>
-					<max>2048</max>
+					<min>0.5</min>
+					<max>0.9</max>
 				</width>
 				<height>
-					<min>1024</min>
-					<max>2048</max>
+					<min>0.5</min>
+					<max>0.9</max>
 				</height>
 				<size>2560</size>
 				<connectorSize>128</connectorSize>
@@ -239,6 +254,7 @@
 				<WeaponRoom></WeaponRoom>
 				<RandomEnemies></RandomEnemies>
 				<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
+				<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
 			</populators>
 		</config>
 	</configs>

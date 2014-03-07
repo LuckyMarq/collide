@@ -458,6 +458,7 @@ Entities.add('player', Entities.create((function(){
 					gl.uniform3f(prog.tint,0,0,0);
 					
 					gl.drawArrays(gl.TRIANGLE_FAN,0,4);
+					mvMatrix.identity();
 				},
 				animator: animator,
 				keyframes: state.keyframes,

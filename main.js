@@ -35,7 +35,24 @@ function loadSource(){
 frozen  = true;
 
 function pauseGame(){
-	if(!frozen)Loop.paused = !Loop.paused;
+	if(!frozen){
+		if(map_view){
+			var screen = graphics.getScreen('gl_main');
+			var p = Entities.player.getInstance();
+			screen.follower = p;
+			screen.scale(1/map_scale_factor);
+			map_view = false;
+			Loop.paused = false; 
+		}
+		if(!Loop.paused){
+			ticker.add(PauseMenu);
+			graphics.addToDisplay(PauseMenu,'gl_main')
+		}else{
+			ticker.remove(PauseMenu);
+			graphics.removeFromDisplay(PauseMenu,'gl_main')
+		}
+		Loop.paused = !Loop.paused;
+	}
 }
 
 function goToMap(){
@@ -49,7 +66,10 @@ function goToMap(){
 				map_view = false;
 				Loop.paused = false; 
 			}else{
-				
+				if(Loop.paused){
+					ticker.remove(PauseMenu);
+					graphics.removeFromDisplay(PauseMenu,'gl_main')
+				}
 				ticker.addTimer(function(){	
 					mapMover.cx = p.cx;
 					mapMover.cy = p.cy;
@@ -61,6 +81,10 @@ function goToMap(){
 			}
 		}
 	}
+}
+
+function restart(){
+	Entities.player.getInstance(0).alive=false;
 }
 
 //initializes the keyboard and mouse objects
@@ -113,7 +137,7 @@ function initInput(){
 			onPress:function(){
 				if(!pressed){
 					pressed = true;
-					Entities.player.getInstance(0).alive=false;
+					restart();
 				}
 			},
 			onRelease:function(){
@@ -195,14 +219,57 @@ function init(){
 	}
 	Loop.add(Entities)
 	Loop.start();
-	loadResources(initScene);
+	loadResources(initStartScreen);
+}
+
+function initStartScreen(){
+	var screen = graphics.getScreen('gl_main');
+	screen.scale(2);
+	mouse.box = graphics.getScreen('gl_main');
+	
+	PauseMenu = new Menu(0.7)
+	var PauseTitle = new Title(screen.width/2,screen.height*0.8,'PAUSED',128,'Menu','rgba(255,255,255,255)')
+	var Restart
+	
+	PauseMenu.title = PauseTitle;
+	PauseMenu.add(PauseTitle)
+	PauseMenu.add(new Button(screen.width/2,screen.height*0.4,512,128,608,160,'OPTIONS',64,'Menu','rgba(255,255,255,255)',function(){pauseGame();restart();}))
+	PauseMenu.add(new Button(screen.width/2,screen.height*0.2,512,128,608,160,'RESTART',64,'Menu','rgba(255,255,255,255)',function(){pauseGame();restart();}))
+	PauseMenu.add(new MenuCursor())
+	StartMenu = new Menu(1);
+	var first = true
+
+	StartMenu.add(new MenuCursor())
+	StartMenu.add(new Title(screen.width/2,screen.height - 200,'COLLIDE',192,'Menu','rgba(255,255,255,255)'))
+	StartMenu.add(new Button(screen.width/2,screen.height - 400,512,128,608,160,'PLAY',64,'Menu','rgba(255,255,255,255)',function(){
+		graphics.removeFromDisplay(StartMenu,'gl_main');
+		ticker.remove(StartMenu);
+		if(first){
+			initScene();
+			first = false;
+		}else{
+			currentMap.rebuild(true);
+	
+			currentMap.init();
+			
+			physics.setGeometry(currentMap.lines);
+		}
+	}))
+	StartMenu.add(new Button(screen.width/2,screen.height - 600,512,128,608,160,'OPTIONS',64,'Menu','rgba(255,255,255,255)',function(){
+		
+	}))
+	StartMenu.add(new Button(screen.width/2,screen.height - 800,512,128,608,160,'LEADERBOARDS',64,'Menu','rgba(255,255,255,255)',function(){
+		
+	}))
+	
+	ticker.add(StartMenu);
+	graphics.addToDisplay(StartMenu,'gl_main')
 }
 
 function initScene(){
 	var screen = graphics.getScreen('gl_main');
-	mouse.box = graphics.getScreen('gl_main');
+	
 
-	screen.scale(2)
 	//fps counter using a simple low pass filter
 	var fpsCounter = (function(){
 		var element = document.getElementById('fps');
@@ -341,11 +408,13 @@ function reinitScene(){
 	Entities.reset();
 	Entities.reset();
 	
-	currentMap.rebuild(true);
+	ticker.add(StartMenu);
+	graphics.addToDisplay(StartMenu,'gl_main')
+	// currentMap.rebuild(true);
 	
-	currentMap.init();
+	// currentMap.init();
 	
-	physics.setGeometry(currentMap.lines);
+	// physics.setGeometry(currentMap.lines);
 }
 //initializes game
 loadSource();
