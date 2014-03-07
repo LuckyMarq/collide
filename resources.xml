@@ -7,6 +7,12 @@
 		<file name='health_med'>resources/audio/health_pickup_med.wav</file>
 		<file name='health_large'>resources/audio/health_pickup_large.wav</file>
 		<file name='rocket_fire'>resources/audio/weapon_sounds/rocket1.wav</file>
+		<file name='blackhole_fire'>resources/audio/weapon_sounds/blackhole_fire.wav</file>
+		<file name='boomerang_fire'>resources/audio/weapon_sounds/boomerang_fire.wav</file>
+		<file name='blackhole_charge'>resources/audio/weapon_sounds/blackhole_charge.wav</file>
+		<file name='boomerang_charge'>resources/audio/weapon_sounds/boomerang_charge.wav</file>
+		<file name='blackhole_active'>resources/audio/weapon_sounds/blackhole_active.wav</file>
+		<file name='boomerang_bounce'>resources/audio/weapon_sounds/boomerang_bounce.wav</file>
 		<file name='overheat_fire'>resources/audio/weapon_sounds/overheat_fire.wav</file>
 		<file name='overheated'>resources/audio/weapon_sounds/overheat_sound.wav</file>
 		<file name='beam_fire'>resources/audio/laser1.wav</file>

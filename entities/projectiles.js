@@ -99,7 +99,7 @@ Entities.add('projectile', Entities.create(
 						i = enemies.length;
 						e.life -= state.damage;
 						if (e.life <= 0) {
-							addToPoints(50);
+							addToPoints(e.points);
 						}	
 						state.hasCollided = true;
 					}
@@ -301,7 +301,7 @@ Entities.add('mine', Entities.create(
 						state.alive = false;
 						enemies[i].life -= damage;
 						if (enemies[i].life < 0) {
-							addToPoints(50);
+							addToPoints(enemies[i].points);
 						}
 					}
 				}
@@ -330,9 +330,6 @@ Entities.add('mine', Entities.create(
 );
 
 // Black Hole -- 
-// TODO: sound
-// take line between center, midpoint
-// make particles at midpoint and explode
 Entities.add('blackhole', Entities.create(
 	(function(){
 		var buffered = false;
@@ -346,7 +343,8 @@ Entities.add('blackhole', Entities.create(
 				state.configure(configs.weaponValues.blackHole);
 				state.destroyOnContact = false;
 				state.theta = 0;
-				state.scale = 1;
+				state.sound_charge = Sound.createSound('blackhole_charge');
+				state.sound_active = Sound.createSound('blackhole_active');
 				var sizew = configs.weaponValues.blackHole.width.value;
 				var sizeh = configs.weaponValues.blackHole.height.value;
 				state.glInit = function(manager)
@@ -355,7 +353,7 @@ Entities.add('blackhole', Entities.create(
 						var color = [];
 						color.push(1,1,1,1)
 						for(var i = 0; i<15; i++){
-						color.push(1,1,1,0)
+							color.push(1,1,1,0)
 						}
 						manager.addArrayBuffer('blackhole_frag_color',true,color,16,4);
 					
@@ -378,11 +376,12 @@ Entities.add('blackhole', Entities.create(
 						manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
 						manager.setArrayBufferAsProgramAttribute('blackhole_frag_color','basic','vertexColor');
 						manager.setUniform1f('basic','alpha',1);
+						mvMatrix.rotateZ(-1*state.theta);
 						mvMatrix.scale(state.scale,state.scale,1);
 						state.scale += delta*20;
 						mvMatrix.translate(state.x+state.width/2,state.y+state.height/2,state.z);
 						mvMatrix.scale(state.width,state.height,1);
-						manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+						manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current);
 						gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
 						gl.drawArrays(gl.TRIANGLE_FAN,0,16);
 					} else {
@@ -416,6 +415,9 @@ Entities.add('blackhole', Entities.create(
 				state.activate = false;
 				state.explode = false;
 				state.delay = configs.weaponValues.blackHole.delay.value;
+				state.sound_charge.gain = 0;
+				state.sound_active.gain = 0.01;
+				state.scale = 1;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
@@ -435,16 +437,22 @@ Entities.add('blackhole', Entities.create(
 						}
 					}
 					//physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
+					state.sound_active.play(0);
 				}
 				if (state.delay <= 0) {
 					state.activate = true;
 					if (state.hasCollided) {
 						state.alive = false;
+						state.sound_charge.stop(0);
 					}
 				} else {
 					state.delay -= delta;
 					if (state.hasCollided) {
-						// expansion sound
+						if (state.sound_charge.gain < 0.4)state.sound_charge.gain += delta;
+						console.log(state.sound_charge.gain);
+						state.sound_active.gain = 0;
+						state.sound_active.stop(0);
+						if (!state.sound_charge.playing)state.sound_charge.play(0);
 					}
 				}
 			}
@@ -453,7 +461,6 @@ Entities.add('blackhole', Entities.create(
 );
 
 // Boomerang -- 
-// TODO: bounce sound
 Entities.add('boomerang', Entities.create(
 	(function(){
 		var buffered = false;
@@ -466,6 +473,8 @@ Entities.add('boomerang', Entities.create(
 				var sizew = configs.weaponValues.boomerang.width.value;
 				var sizeh = configs.weaponValues.boomerang.height.value;
 				state.range = configs.weaponValues.boomerang.range.value;
+				state.sound_bounce = Sound.createSound('boomerang_bounce');
+				state.sound_bounce.gain = 0.2;
 				state.destroyOnContact = false;
 				state.glInit = function(manager) {
 					if (!buffered) {
@@ -536,6 +545,7 @@ Entities.add('boomerang', Entities.create(
 				}
 				if (state.e != 'undefined' && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
 					state.amt--;
+					state.sound_bounce.play(0);
 					if (state.e.life <= 0){
 						state.e = 'undefined';
 					}
@@ -545,7 +555,7 @@ Entities.add('boomerang', Entities.create(
 				}
 			},
 			destroy: function(state){
-				console.log(state.amt);
+				//console.log(state.amt);
 			}
 		};
 	})())

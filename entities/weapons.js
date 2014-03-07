@@ -172,8 +172,7 @@ function WaveWeapon(){
 							enemy.vel[1] = evec[1] * mag;
 							enemy.life -= damage;
 							if (enemy.life <= 0) {
-								//addToPoints(enemy.points);
-								addToPoints(50);
+								addToPoints(enemy.points);
 							}
 						}
 					}
@@ -342,8 +341,7 @@ function BeamWeapon(){
 					traceResult[i].accelerateToward(p.cx, p.cy, force * 3/i);
 					traceResult[i].life -= dt * damage * 1/i;
 					if (traceResult[i].life <= 0) {
-						//addToPoints(traceResult[i].points);
-						addToPoints(50);
+						addToPoints(traceResult[i].points);
 					}
 				}
 			}
@@ -393,8 +391,8 @@ function BlackHoleWeapon() {
 	var COST = bhConfig.cost.value;
 	var RECHARGE_RATE = bhConfig.rechargeRate.value;
 	var p = Entities.player.getInstance(0);	
-	var sound = Sound.createSound('rocket_fire'); // TODO: change sound
-	sound.gain = 0.1;
+	var sound = Sound.createSound('blackhole_fire');
+	sound.gain = 0.5;
 	var firing = false;
 	
 	this.tick =function (delta) {
@@ -436,8 +434,10 @@ function BoomerangWeapon() {
 	var RECHARGE_RATE = boomConfig.rechargeRate.value;
 	var COST = boomConfig.cost.value;
 	var p = Entities.player.getInstance(0);	
-	var sound = Sound.createSound('rocket_fire'); // TODO: change sound
-	sound.gain = 0.1;
+	var sound_fire = Sound.createSound('boomerang_fire');
+	sound_fire.gain = 0.8;
+	var sound_charge = Sound.createSound('boomerang_charge');
+	sound_charge.gain = 0;
 	var firing = false;
 	var direction;
 	var amt = 0; // how many targets to bounce off of
@@ -445,7 +445,12 @@ function BoomerangWeapon() {
 	var rotation = 0;
 	
 	this.glInit = function(manager){
-		
+		var color = [];
+		color.push(1,1,1,1)
+		for(var i = 0; i<15; i++){
+			color.push(1,1,1,0)
+		}
+		manager.addArrayBuffer('indicator_color',true,color,16,4);
 	};
 	
 	this.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
@@ -455,7 +460,7 @@ function BoomerangWeapon() {
 			if (m != 0) {
 				var theta = 2*Math.PI/m;
 				for (var i = 0; i < m; i++) {
-					manager.fillEllipse(p.cx + Math.cos(i*theta)*32,p.cy + Math.sin(i*theta)*16,0,32,8,i*theta,1,0.5,0,1);
+					manager.fillEllipse(p.cx+Math.cos(i*theta)*32,p.cy+Math.sin(i*theta)*32,0,16,16,0,1,0.5,0,1);
 				}
 			}
 		}
@@ -463,6 +468,7 @@ function BoomerangWeapon() {
 	
 	this.tick =function (delta) {
 		if (firing) {
+			if (sound_charge.gain < 0.3) sound_charge.gain += delta/2;
 			amt += delta*2;
 			rotation = (rotation + 4*delta) % (2*Math.PI);
 			if (amt < maxTargets)
@@ -482,7 +488,9 @@ function BoomerangWeapon() {
 	this.fire = function(dir) {
 		if (!firing && !this.overheated) {
 			firing = true;
-			sound.play(0);
+		}
+		if (!this.overheated){
+			sound_charge.play(0);
 		}
 	};
 	
@@ -493,8 +501,11 @@ function BoomerangWeapon() {
 				amt = maxTargets;
 			else
 				amt = Math.round(amt);
-			if (amt >= 1) 
+			if (amt >= 1) {
 				Entities.boomerang.newInstance(p.cx,p.cy,direction,amt);
+				sound_fire.play(0);
+				sound_charge.gain = 0;
+			}
 		}
 		firing = false;
 		amt = 0;
@@ -502,3 +513,9 @@ function BoomerangWeapon() {
 	graphics.addToDisplay(this, 'gl_main');
 }
 BoomerangWeapon.prototype = new GLDrawable();
+
+// Scissor/Melee Weapon
+function MeleeWeapon() {
+
+}
+MeleeWeapon.prototype - new GLDrawable();
