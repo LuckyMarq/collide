@@ -1,56 +1,124 @@
-function menuButton(x,y,z,width,height,text,size,font,color){
-	this.x = x;
-	this.y = y;
-	this.z = z;
-	this.width = width;
-	this.height = height;
-	var canvas = document.createElement('canvas');
-	canvas.width = width*2;
-	canvas.height = height*2;
-	var gfx = canvas.getContext('2d');
-	gfx.fillStyle = 'rgba(0,0,0,255)';
-	gfx.fillRect(0,0,width*2,height*2);
-	gfx.fillStyle = color;
-	gfx.textAlign = 'center';
-	gfx.textBaseline = "middle";
-	gfx.font = (size*2)+"px "+font;
-	gfx.fillText('test text',width,height)
-	this.glInit = function(manager){
-		var gl = manager.gl;
-		this.texture = gl.createTexture();
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-		gl.bindTexture(gl.TEXTURE_2D, this.texture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-		gl.generateMipmap(gl.TEXTURE_2D);
+function Menu(alpha){
+	this.elements = [];
+	this.drawables = [];
+	this.alpha = alpha;
+	this.pTime = Date.now();
+	this.delta = 0;
+}
+Menu.prototype=fillProperties(new GLDrawable(),{
+	sx: 0,
+	sy: 0,
+	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+		this.sx = screen.x;
+		this.sy = screen.y;
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+		manager.fillRect(screen.x+screen.width/2,screen.y+screen.height/2,-99.999999,screen.width,screen.height,0,0,0,0,this.alpha)
+		mvMatrix.translate(this.sx,this.sy,-99.9999999)
+		for(var i = 0; i<this.drawables.length; i++){
+			mvMatrix.push();
+				this.drawables[i].draw(gl,this.delta,screen,manager,pMatrix,mvMatrix);
+			mvMatrix.pop();
+		}
+	},
+	tick: function(delta){
+		this.delta = (Date.now()-this.pTime)/1000;
+		this.pTime = Date.now();
+		var mx=mouse.x-this.sx,my=mouse.yInv-this.sy;
+		for(var i = 0; i<this.elements.length; i++){
+			this.elements[i].tick(delta,mx,my);
+		}
+	},
+	add: function(obj){
+		if(obj.tick){
+			this.elements.push(obj);
+		}
+		if(obj.draw){
+			this.drawables.push(obj);
+		}
+	},
+	z: -99,
+	boundless: true
+})
 
-		gl.bindTexture(gl.TEXTURE_2D, null);
+function Title(x,y,text,size,font,style){
+	this.x=x;
+	this.y=y;
+	this.text=text;
+	this.size=size;
+	this.font=font;
+	this.style=style;
+}
+Title.prototype={
+	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+		manager.fillText(this.text,this.x,this.y,0,this.size,this.font,this.style)
 	}
 }
-menuButton.prototype = fillProperties(new GLDrawable(),
-	{
-		draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
-			manager.strokeRect(this.x+this.width/2,this.y+this.height/2,this.z,this.width,this.height,0,1,1,1,1);
-			
-			gl.enable(gl.BLEND);
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			manager.bindProgram('basic_texture');
-			manager.setArrayBufferAsProgramAttribute('primitive_rect','basic_texture','vertexPosition');
-			manager.setArrayBufferAsProgramAttribute('sprite_texture_coords','basic_texture','textureCoord');
-			
-			mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,this.z || 0);
-			mvMatrix.scale(this.width,this.height,1);
-			manager.setMatrixUniforms('basic_texture',pMatrix,mvMatrix.current);
-			
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
-			var prog = manager.getProgram('basic_texture');
-			gl.uniform1i(prog.samplerUniform, 0);
-			gl.uniform1f(prog.alpha,1)
-			gl.uniform1f(prog.tintWeight,0);
-			gl.uniform3f(prog.tint,0,0,0);
-			
-			gl.drawArrays(gl.TRIANGLE_FAN,0,4);
+
+
+function Button(x,y,width1,height1,width2,height2,text,size,font,style,action){
+	this.text=text;
+	this.size = size;
+	this.font = font;
+	this.style = style;
+	this.x=x;
+	this.y=y;
+	this.width1=width1;
+	this.height1=height1;
+	this.width2=width2;
+	this.height2=height2;
+	this.time=0.2;
+	this.t = 0;
+	this.selected = false;
+	this.action = action || function(){};
+}
+Button.prototype={
+	pressed:false,
+	selected: false,
+	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+		var width,height;
+		if(this.selected){
+			this.t=Math.min(this.time,this.t+delta);
+		}else{
+			this.t=Math.max(0,this.t-delta);
 		}
-	});
+		var u = Math.pow(this.t/this.time,0.5);
+		manager.strokeRect(this.x,this.y,0,this.width1+(this.width2-this.width1)*u,this.height1+(this.height2-this.height1)*u,0,1,1,1,1)
+		manager.fillText(this.text,this.x,this.y,0,this.size,this.font,this.style);
+	},
+	tick: function(delta,mx,my){
+		var x = this.x-this.width1/2;
+		var y = this.y-this.height1/2;
+		if(mx>x && mx<x+this.width1 && my>y && my<y+this.height1){
+			if(mouse.pressed){
+				this.pressed = true;
+			}else if(this.pressed){
+				this.action();
+				this.pressed = false;
+			}
+			this.selected = true;
+		}else{
+			this.selected = false;
+			this.pressed = false;
+		}
+	}
+}
+
+function MenuCursor(){}
+MenuCursor.prototype = fillProperties(new GLDrawable(),(function(){
+	var first = true;
+	var x=0, y=0;
+	return{
+		x:0,
+		y:0,
+		draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.point(this.x,this.y,0,12,1,1,1,1);
+		},
+		tick: function(delta,mx,my){
+			this.x=mx;
+			this.y=my;
+		},
+		width:12,
+		height:12
+	};
+})());
