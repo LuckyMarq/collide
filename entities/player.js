@@ -368,16 +368,16 @@ Entities.add('player', Entities.create((function(){
 			}
 			// weapon manager
 			// This section is used for weapons testing
-			var weaponsCheck = function() {
+			var weaponsCheck = function(delta) {
 				var p = gamepad.padA[0]; 
-				if (mouse.left)
+				if (mouse.left && !state.weaponManager.overheated)
 				{
 					state.weaponManager.fire((Math.PI*2)-Vector.getDir(mouse.x-state.cx,mouse.y-state.cy),false);
 				}
 				else if(p&&p.rightStick.mag>0.5){
 					state.weaponManager.fire((Math.PI*2)-p.rightStick.dir,true)
 				}else{
-					state.weaponManager.holdFire();
+					state.weaponManager.holdFire(delta);
 				}
 			}
 			
@@ -475,7 +475,7 @@ Entities.add('player', Entities.create((function(){
 							tick: function(delta){
 								if(!this.active)return;
 								movementCheck();
-								weaponsCheck();
+								weaponsCheck(delta);
 								var p = gamepad.padA[0]; 
 								var change = (!animator.animating);
 								var pos;
