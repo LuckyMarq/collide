@@ -12,6 +12,19 @@
 		<maxMedHealth>0</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
 		<maxLargeHealth>0</maxLargeHealth>
+		<burst>
+			<num>4</num>
+			<life>4</life>
+			<size>24</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<impact>0.2</impact>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<points>25</points>
 	</enemyIndirectSuicider>
 	<enemy_turret>
 		<life>3</life>
@@ -25,6 +38,19 @@
 		<maxMedHealth>5</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
 		<maxLargeHealth>1</maxLargeHealth>
+		<burst>
+			<num>4</num>
+			<life>4</life>
+			<size>24</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<impact>0.2</impact>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<points>75</points>
 	</enemy_turret>
 	<enemyShooter>
 		<life>2</life>
@@ -41,6 +67,19 @@
 		<maxMedHealth>7</maxMedHealth>
 		<minLargeHealth>1</minLargeHealth>
 		<maxLargeHealth>2</maxLargeHealth>
+		<burst>
+			<num>4</num>
+			<life>4</life>
+			<size>24</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<impact>0.2</impact>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<points>100</points>
 	</enemyShooter>
 	<enemyTank>
 		<life>7</life>
@@ -61,6 +100,19 @@
 		<minLargeHealth>0</minLargeHealth>
 		<maxLargeHealth>0</maxLargeHealth>
 		<scope>1000></scope>
+		<burst>
+			<num>4</num>
+			<life>4</life>
+			<size>24</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<impact>0.2</impact>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<points>200</points>
 	</enemyTank>
 	<enemy_direct_suicider>
 		<life>1</life>
@@ -84,6 +136,8 @@
 			<speed>200</speed>
 			<drag>0.1</drag>
 		</burst>
+		<impact>0.2</impact>
+		<points>25</points>
 	</enemy_direct_suicider>
 	<enemy_direct_move_suicider>
 		<life>1</life>
@@ -108,6 +162,7 @@
 			<speed>200</speed>
 			<drag>0.1</drag>
 		</burst>
+		<points>30</points>
 	</enemy_direct_move_suicider>
 	<enemy_meandering_suicider>
 		<life>1</life>
@@ -133,6 +188,7 @@
 			<speed>200</speed>
 			<drag>0.1</drag>
 		</burst>
+		<points>10</points>
 	</enemy_meandering_suicider>
 	<enemy_breaker_suicider>
 		<life>1</life>
@@ -150,5 +206,6 @@
 			<buffer>direct_suicider_death</buffer>
 			<gain>0.1</gain>
 		</deathSound>
+		<points>150</points>
 	</enemy_breaker_suicider>
 </root>

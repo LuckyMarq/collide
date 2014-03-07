@@ -1,26 +1,29 @@
 Entities.add('enemy_indirect_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
+	construct: function(state) {
+	state.configure(configs.enemyValues.enemyIndirectSuicider);
+	},
 	create: function(state){
 		if(!state.directSuiciderFirst){
 			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 				manager.fillRect(this.x + this.width/2,this.y +this.height/2,0,this.width,this.height,0,.3,0,.7,1);
 			}
-			state.width = configs.enemyValues.enemyIndirectSuicider.width.value;
-			state.height = configs.enemyValues.enemyIndirectSuicider.height.value;
-			state.damage = configs.enemyValues.enemyIndirectSuicider.damage.value;
-			state.minSmallHealth = configs.enemyValues.enemyIndirectSuicider.minSmallHealth.value;
-			state.maxSmallHealth = configs.enemyValues.enemyIndirectSuicider.maxSmallHealth.value;
-			state.minMedHealth = configs.enemyValues.enemyIndirectSuicider.minMedHealth.value;
-			state.maxMedHealth = configs.enemyValues.enemyIndirectSuicider.maxMedHealth.value;
-			state.minLargeHealth = configs.enemyValues.enemyIndirectSuicider.minMaxHealth.value;
-			state.maxLargeHealth = configs.enemyValues.enemyIndirectSuicider.maxMaxHealth.value;
+			//state.width = configs.enemyValues.enemyIndirectSuicider.width.value;
+			//state.height = configs.enemyValues.enemyIndirectSuicider.height.value;
+			//state.damage = configs.enemyValues.enemyIndirectSuicider.damage.value;
+			//state.minSmallHealth = configs.enemyValues.enemyIndirectSuicider.minSmallHealth.value;
+			//state.maxSmallHealth = configs.enemyValues.enemyIndirectSuicider.maxSmallHealth.value;
+			//state.minMedHealth = configs.enemyValues.enemyIndirectSuicider.minMedHealth.value;
+			//state.maxMedHealth = configs.enemyValues.enemyIndirectSuicider.maxMedHealth.value;
+			//state.minLargeHealth = configs.enemyValues.enemyIndirectSuicider.minMaxHealth.value;
+			//state.maxLargeHealth = configs.enemyValues.enemyIndirectSuicider.maxMaxHealth.value;
 			state.healthSpeed = 100;
-			state.deathSound = Sound.createSound('direct_suicider_death',false);
-			state.deathSound.gain = 0.1;
+			//state.deathSound = Sound.createSound('direct_suicider_death',false);
+			//state.deathSound.gain = 0.1;
 			state.accelCap = 1000;
 			state.maxSpeed= 800;
 			state.accelMul = 75;
-			state.impact = 0.2;
+			//state.impact = 0.2;
 			state.moveSpeed = configs.enemyValues.enemyIndirectSuicider.speed.value;
 			state.directSuiciderFirst = true;
 		}
@@ -144,6 +147,7 @@ Entities.add('enemy_turret',Entities.create({
 			manager.setMatrixUniforms('noise', pMatrix, mvMatrix.current);
 			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 		}
+		state.configure(configs.enemyValues.enemy_turret)
 		state.v = vec2.create();
 		state.theta = 0;
 		state.width = configs.enemyValues.enemy_turret.width.value;
@@ -201,6 +205,7 @@ Entities.add('enemy_shooter',Entities.create({
 			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 				manager.fillTriangle(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,state.theta+Math.PI/2,1,1,0,1);
 			}
+			state.configure(configs.enemyValues.enemyShooter)
 			state.v = vec2.create();
 			state.theta = 0;
 			state.width =  configs.enemyValues.enemyShooter.width.value;
@@ -298,6 +303,7 @@ Entities.add('enemy_tank',Entities.create({
 		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,state.r,state.g,state.b,1);
 		}
+		state.configure(configs.enemyValues.enemyTank)
 		state.width = configs.enemyValues.enemyTank.width.value;
 		state.shrink2 = configs.enemyValues.enemyTank.shrink2.value;
 		state.shrink3 = configs.enemyValues.enemyTank.shrink3.value;
@@ -375,49 +381,3 @@ Entities.add('enemy_tank',Entities.create({
 	}
 }));
 
-Entities.add('enemy_spinner',Entities.create({
-	parent: Entities.enemy_suicider,
-	construct: function(state){
-		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,1,0,0,1);
-		}
-		state.width = 50;
-		state.height = 50;
-		state.damage = 1;
-		state.minSmallHealth = 0;
-		state.maxSmallHealth = 0;
-		state.minMedHealth = 0;
-		state.maxMedHealth = 0;
-		state.minLargeHealth = 0;
-		state.maxLargeHealth = 0;
-		state.healthSpeed = 100;
-		state.deathSound = Sound.createSound('direct_suicider_death',false);
-		state.deathSound.gain = 0.1;
-		state.moveSpeed= 200;
-		state.maxSpeed= 500;
-		state.accelMul = 50	;
-		state.impact = 0.2;
-		state.stunConst = 1;
-		state.stun = 0;
-		state.scope = 400;
-		state.theta = 1;
-		state.onDamage = function(damage){
-			this.stun += damage*this.stunConst;
-		}
-	},
-	create: function(state){
-		state.life = 2;
-		state.stun = 1;
-	},
-	update: function(state,delta){
-		if(state.inActiveScope){
-			
-		}
-	},
-	destroy: function(state,reset){
-		if(!reset){
-			state.deathSound.play(0)
-			Entities.shrink_burst.burst(8,state.x+state.width/2,state.y+state.height/2,24,24,4,200,0.81,0.09,0.56,0.1,state.vel[0],state.vel[1]);
-		}
-	}
-}));
