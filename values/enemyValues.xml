@@ -3,6 +3,9 @@
 		<life>1</life>
 		<damage>10</damage>
 		<speed>400</speed>
+		<maxSpeed>800</maxSpeed>
+		<accelCap>1000</accelCap>
+		<accelMul>75</accelMul>
 		<height>25</height>
 		<width>25</width>
 		<range>8</range>
@@ -12,6 +15,9 @@
 		<maxMedHealth>0</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
 		<maxLargeHealth>0</maxLargeHealth>
+		<color>
+			<r>0.3</r><g>0</g><b>0.7</b><a>1</a>
+		</color>
 		<burst>
 			<num>4</num>
 			<life>4</life>
@@ -32,24 +38,30 @@
 		<fireSpeed>3</fireSpeed>
 		<height>80</height>
 		<width>80</width>
-		<minSmallHealth>2</minSmallHealth>
+		<minSmallHealth>0</minSmallHealth>
 		<maxSmallHealth>5</maxSmallHealth>
-		<minMedHealth>2</minMedHealth>
-		<maxMedHealth>5</maxMedHealth>
+		<minMedHealth>0</minMedHealth>
+		<maxMedHealth>0</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
-		<maxLargeHealth>1</maxLargeHealth>
+		<maxLargeHealth>0</maxLargeHealth><color>
+			<r>1</r><g>1</g><b>1</b><a>1</a>
+		</color>
 		<burst>
-			<num>4</num>
+			<num>8</num>
 			<life>4</life>
-			<size>24</size>
+			<size>32</size>
 			<speed>200</speed>
 			<drag>0.1</drag>
 		</burst>
 		<impact>0.2</impact>
 		<deathSound>
 			<buffer>direct_suicider_death</buffer>
-			<gain>0.1</gain>
+			<gain>0.2</gain>
 		</deathSound>
+		<shotSound>
+			<buffer>pew</buffer>
+			<gain>0.1</gain>
+		</shotSound>
 		<points>75</points>
 	</enemy_turret>
 	<enemyShooter>
@@ -58,15 +70,18 @@
 		<speed>800</speed>
 		<fireSpeed>.8</fireSpeed>
 		<innerRadius>250</innerRadius>
-		<outerRadius>300</outerRadius>shrink
+		<outerRadius>300</outerRadius>
 		<height>80</height>
 		<width>80</width>
-		<minSmallHealth>2</minSmallHealth>
+		<minSmallHealth>0</minSmallHealth>
 		<maxSmallHealth>10</maxSmallHealth>
-		<minMedHealth>2</minMedHealth>
-		<maxMedHealth>7</maxMedHealth>
-		<minLargeHealth>1</minLargeHealth>
-		<maxLargeHealth>2</maxLargeHealth>
+		<minMedHealth>0</minMedHealth>
+		<maxMedHealth>2</maxMedHealth>
+		<minLargeHealth>0</minLargeHealth>
+		<maxLargeHealth>0</maxLargeHealth>
+		<color>
+			<r>1</r><g>1</g><b>0</b><a>1</a>
+		</color>
 		<burst>
 			<num>4</num>
 			<life>4</life>
@@ -79,6 +94,10 @@
 			<buffer>direct_suicider_death</buffer>
 			<gain>0.1</gain>
 		</deathSound>
+		<shotSound>
+			<buffer>pew</buffer>
+			<gain>0.1</gain>
+		</shotSound>
 		<points>100</points>
 	</enemyShooter>
 	<enemyTank>
@@ -95,8 +114,8 @@
 		<shrink4>50</shrink4>
 		<minSmallHealth>5</minSmallHealth>
 		<maxSmallHealth>10</maxSmallHealth>
-		<minMedHealth>1</minMedHealth>
-		<maxMedHealth>5</maxMedHealth>
+		<minMedHealth>0</minMedHealth>
+		<maxMedHealth>3</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
 		<maxLargeHealth>0</maxLargeHealth>
 		<scope>1000></scope>

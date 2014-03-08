@@ -10,9 +10,14 @@ function initSound(){
 	})();
 	var globalGain = context.createGain();
 	globalGain.connect(context.destination);
+	var sfxGain = context.createGain();
+	sfxGain.connect(globalGain);
+	var musicGain = context.createGain();
+	musicGain.connect(globalGain);
+	
 	var buffers = {};
 	
-	var Sound = function(bufferId,loop){
+	var Sound = function(bufferId,loop,music){
 		this.loop = loop || false;
 		var gainNode = context.createGain();
 		var playing=false;
@@ -28,7 +33,7 @@ function initSound(){
 				source.loop = this.loop;
 				source.connect(gainNode);
 				source.onend = onendFunc;
-				gainNode.connect(globalGain);
+				if(music) gainNode.connect(musicGain); else gainNode.connect(sfxGain);
 				source.start(0);
 				playing = true;
 			}
@@ -123,8 +128,8 @@ function initSound(){
 				buffers[id] = new SoundBuffer(url,callback);
 				return id;
 			},
-			createSound:function(bufferId,loop){
-				return new Sound(bufferId,loop);
+			createSound:function(bufferId,loop,music){
+				return new Sound(bufferId,loop,music);
 			},
 			isLoaded: function(id){
 				return buffers[id] && buffers[id].loaded;
@@ -137,6 +142,22 @@ function initSound(){
 				},
 				set: function(gain){
 					globalGain.gain.value = gain;
+				}
+			},
+			musicGain:{
+				get: function(){
+					return musicGain.gain.value;
+				},
+				set: function(gain){
+					musicGain.gain.value = gain;
+				}
+			},
+			sfxGain:{
+				get: function(){
+					return sfxGain.gain.value;
+				},
+				set: function(gain){
+					sfxGain.gain.value = gain;
 				}
 			}
 		});

@@ -12,191 +12,6 @@ Entities.add('player', Entities.create((function(){
 	blipSound.gain = 0.05;
 	var playerExplosion=Sound.createSound('playerExplosion',false);
 	playerExplosion.gain = 0.5;
-	//creates a circle with the given number of sides and radius
-	var generateCircle = function(numOfVerts,radius){
-		numOfVerts-=2;
-		var verts = new Array();
-		verts.push(0,0,0);
-		var current = vec3.set(vec3.create(),0,radius,0);
-		
-		var rotation = mat4.create();
-		mat4.identity(rotation);
-		mat4.rotateZ(rotation,rotation,(Math.PI*2)/(numOfVerts+1));
-		
-		for(var i = 0;i<numOfVerts; i++){
-			verts.push(current[0]);verts.push(current[1]);verts.push(current[2]);
-			vec3.transformMat4(current,current,rotation);
-		}
-		
-		verts.push(0,radius,0);
-		return verts;
-	}
-	
-	//generates a triangle keyframe
-	var generateTriangle = function(numOfVerts,radius){
-		var verts = new Array();
-		verts.push(0,0,0)
-		var sides;
-		var bottom;
-		numOfVerts-=5;
-		//get the number of vertices to be
-		//hidden in the triangles sides
-		if(numOfVerts%3 == 0){
-			sides=numOfVerts/3;
-			bottom=numOfVerts/3;
-		}else{
-			var div = Math.floor(numOfVerts/3);
-			var mod = numOfVerts%3
-			sides=div;
-			bottom=div+mod;
-		}
-		
-		var pSides = 1/(sides+1);
-		var pBottom = 1/(bottom+1);
-		var pa = vec3.set(vec3.create(),0,radius,0);
-		var pc = vec3.set(vec3.create(),radius*Math.sin((Math.PI*2)/3),radius*Math.cos((Math.PI*2)/3),0);
-		var pb = vec3.set(vec3.create(),radius*Math.sin((Math.PI*4)/3),radius*Math.cos((Math.PI*4)/3),0);
-		var temp = vec3.create();
-		
-		verts.push(pa[0],pa[1],pa[2]);
-		for(var j = 1; j<=sides; j++){
-			vec3.lerp(temp,pa,pb,pSides*j)
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(pb[0],pb[1],pb[2]);
-		for(var j = 1; j<=bottom; j++){
-			vec3.lerp(temp,pb,pc,pBottom*j);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(pc[0],pc[1],pc[2]);
-		for(var j = 1; j<=sides; j++){
-			vec3.lerp(temp,pc,pa,pSides*j);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(pa[0],pa[1],pa[2]);
-		
-		return verts;
-	}
-	
-	//generates a square keyframe
-	var generateSquare = function(numOfVerts,radius){
-		numOfVerts-=7;
-		var verts = new Array();
-		verts.push(0,0,0);
-		var div = Math.floor(numOfVerts/4);
-		var mod = numOfVerts%4;
-		var top = (div - (div%2))/2;
-		var sides = div;
-		var bottom = div + mod +(sides%2);
-		
-		var topP = 1/(top+1);
-		var sideP = 1/(sides+1);
-		var bottomP = 1/(bottom+1);
-		
-		var dist = Math.sqrt((radius*radius)/2);
-		
-		var n = vec3.set(vec3.create(),0,dist,0);
-		var ne = vec3.set(vec3.create(),dist,dist,0);
-		var se = vec3.set(vec3.create(),dist,-dist,0);
-		var sw = vec3.set(vec3.create(),-dist,-dist,0);
-		var nw = vec3.set(vec3.create(),-dist,dist,0);
-		
-		var temp = vec3.create();
-		
-		verts.push(n[0],n[1],n[2]);
-		for(var i = 1; i<=top ; i++){
-			vec3.lerp(temp,n,nw,topP*i);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(nw[0],nw[1],nw[2]);
-		for(var i = 1; i<=sides ; i++){
-			vec3.lerp(temp,nw,sw,sideP*i);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(sw[0],sw[1],sw[2]);
-		for(var i = 1; i<=bottom ; i++){
-			vec3.lerp(temp,sw,se,bottomP*i);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(se[0],se[1],se[2]);
-		for(var i = 1; i<=sides ; i++){
-			vec3.lerp(temp,se,ne,sideP*i);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(ne[0],ne[1],ne[2]);
-		for(var i = 1; i<=top ; i++){
-			vec3.lerp(temp,ne,n,topP*i);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(n[0],n[1],n[2]);
-		return verts;
-	}
-	
-	var generateRocket = function(numOfVerts,radius){
-		var verts = new Array();
-		verts.push(0,0,0)
-		var sides;
-		var bottom;
-		var bottom1;
-		var bottom2;
-		numOfVerts-=6;
-		//get the number of vertices to be
-		//hidden in the triangles sides
-		if(numOfVerts%3 == 0){
-			sides=numOfVerts/3;
-			bottom=numOfVerts/3;
-		}else{
-			var div = Math.floor(numOfVerts/3);
-			var mod = numOfVerts%3
-			sides=div;
-			bottom=div+mod;
-		}
-		bottom1 = Math.floor(bottom/2);
-		bottom2 = Math.ceil(bottom/2);
-		
-		var pSides = 1/(sides+1);
-		var pBottom1 = 1/(bottom1+1);
-		var pBottom2 = 1/(bottom2+1);
-		
-		var pa = vec3.set(vec3.create(),0,radius,0);
-		var pb = vec3.set(vec3.create(),-radius,-radius*1.5,0);
-		var pc = vec3.set(vec3.create(),0,-radius/2,0);
-		var pd = vec3.set(vec3.create(),radius,-radius*1.5,0);
-		var temp = vec3.create();
-		
-		verts.push(pa[0],pa[1],pa[2]);
-		for(var j = 1; j<=sides; j++){
-			vec3.lerp(temp,pa,pb,pSides*j)
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(pb[0],pb[1],pb[2]);
-		for(var j = 1; j<=bottom1; j++){
-			vec3.lerp(temp,pb,pc,pBottom1*j);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(pc[0],pc[1],pc[2]);
-		for(var j = 1; j<=bottom2; j++){
-			vec3.lerp(temp,pc,pd,pBottom2*j);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(pd[0],pd[1],pd[2]);
-		for(var j = 1; j<=sides; j++){
-			vec3.lerp(temp,pd,pa,pSides*j);
-			verts.push(temp[0],temp[1],temp[2]);
-		}
-		verts.push(pa[0],pa[1],pa[2]);
-		
-		return verts;
-	}
-	
-	
-	var getColor = function(numOfVerts,r,g,b,a){
-		var colors = new Array()
-		for(var i = 0; i<numOfVerts; i++){
-			colors.push(0,1,0,1);
-		}
-		return colors;
-	}
 	
 	var controls = {
 		up:'w',
@@ -209,69 +24,8 @@ Entities.add('player', Entities.create((function(){
 	
 	return {
 		construct: function(state,x,y,firstKeyframe,firstWeapon){
-			{//setup animator
-				var verts = 32;
-				var radius = 32;
-				var posProps = 
-					{
-						attributeId: "vertexPosition",
-						items: verts,
-						itemSize: 3
-					}
-					
-				var colProps = 
-					{
-						attributeId: "vertexColor",
-						items: verts,
-						itemSize: 4
-					}	
-				
-				var circle = fillProperties(generateCircle(verts,32),posProps);
-				var circleColor = fillProperties(getColor(verts,0.0,0.0,1.0,1.0),colProps);
-				
-				var triangle = fillProperties(generateTriangle(verts,32),posProps);
-				var triangleColor = fillProperties(getColor(verts,1.0,0.0,0.0,1.0),colProps);
-				
-				var square = fillProperties(generateSquare(verts,32),posProps);
-				var squareColor = fillProperties(getColor(verts,0.0,1.0,0.0,1.0),colProps);
-				
-				var rocketShape = fillProperties(generateRocket(verts,32),posProps);
-				var rocketColor = fillProperties(getColor(verts,1.0,0.0,0.0,1.0),colProps);
-				
-				var animator = new VertexAnimator('basic',
-					{
-						playerPosition:circle,
-						playerColor:circleColor
-					},{},verts);
-				
-				animator.setVertexAttribute('playerPosition',3);
-				
-				animator.addKeyframe('circle',
-					{
-						playerPosition:circle,
-						playerColor:circleColor
-					},{});
-					
-				animator.addKeyframe('triangle',
-					{
-						playerPosition:triangle,
-						playerColor:triangleColor
-					},{});
-					
-				animator.addKeyframe('square',
-					{
-						playerPosition:square,
-						playerColor:squareColor
-					},{});
-					
-				animator.addKeyframe('rocket',
-					{
-						playerPosition:rocketShape,
-						playerColor:rocketColor
-					},{});	
-				
-				state.animator = animator;
-			}
+			var animator =  getPlayerAnimator();
+			state.animator = animator;
 			
 			var updateCoords;
 			var acceleration = configs.player.acceleration.value;
@@ -280,7 +34,7 @@ Entities.add('player', Entities.create((function(){
 			var drag =	configs.player.drag.value;
 			var theta = 0;
 			var boundingBoxScale = configs.player.boundingBoxScale.value;
-			var r = Vector.getDir([triangle[3],triangle[4],triangle[5]]);
+			var r = Math.PI/2;
 			var mvec = [0,0];
 			var k = 0;
 			var pk = 0;
@@ -514,7 +268,7 @@ Entities.add('player', Entities.create((function(){
 								}
 								
 								var mx= mouse.x,my=mouse.yInv;
-								theta = Vector.getDir(this.vel)-r;
+								if(this.vel[0]!=0 || this.vel[1]!=0)theta = Vector.getDir(this.vel)-r;
 								animator.theta = theta;
 								
 								if(this.life<=0){
@@ -634,6 +388,258 @@ Entities.add('player', Entities.create((function(){
 		}
 	};
 })()))
+
+var getPlayerAnimator = (function(){
+	//creates a circle with the given number of sides and radius
+	var generateCircle = function(numOfVerts,radius){
+		numOfVerts-=2;
+		var verts = new Array();
+		verts.push(0,0,0);
+		var current = vec3.set(vec3.create(),0,radius,0);
+		
+		var rotation = mat4.create();
+		mat4.identity(rotation);
+		mat4.rotateZ(rotation,rotation,(Math.PI*2)/(numOfVerts+1));
+		
+		for(var i = 0;i<numOfVerts; i++){
+			verts.push(current[0]);verts.push(current[1]);verts.push(current[2]);
+			vec3.transformMat4(current,current,rotation);
+		}
+		
+		verts.push(0,radius,0);
+		return verts;
+	}
+	
+	//generates a triangle keyframe
+	var generateTriangle = function(numOfVerts,radius){
+		var verts = new Array();
+		verts.push(0,0,0)
+		var sides;
+		var bottom;
+		numOfVerts-=5;
+		//get the number of vertices to be
+		//hidden in the triangles sides
+		if(numOfVerts%3 == 0){
+			sides=numOfVerts/3;
+			bottom=numOfVerts/3;
+		}else{
+			var div = Math.floor(numOfVerts/3);
+			var mod = numOfVerts%3
+			sides=div;
+			bottom=div+mod;
+		}
+		
+		var pSides = 1/(sides+1);
+		var pBottom = 1/(bottom+1);
+		var pa = vec3.set(vec3.create(),0,radius,0);
+		var pc = vec3.set(vec3.create(),radius*Math.sin((Math.PI*2)/3),radius*Math.cos((Math.PI*2)/3),0);
+		var pb = vec3.set(vec3.create(),radius*Math.sin((Math.PI*4)/3),radius*Math.cos((Math.PI*4)/3),0);
+		var temp = vec3.create();
+		
+		verts.push(pa[0],pa[1],pa[2]);
+		for(var j = 1; j<=sides; j++){
+			vec3.lerp(temp,pa,pb,pSides*j)
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pb[0],pb[1],pb[2]);
+		for(var j = 1; j<=bottom; j++){
+			vec3.lerp(temp,pb,pc,pBottom*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pc[0],pc[1],pc[2]);
+		for(var j = 1; j<=sides; j++){
+			vec3.lerp(temp,pc,pa,pSides*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pa[0],pa[1],pa[2]);
+		
+		return verts;
+	}
+	
+	//generates a square keyframe
+	var generateSquare = function(numOfVerts,radius){
+		numOfVerts-=7;
+		var verts = new Array();
+		verts.push(0,0,0);
+		var div = Math.floor(numOfVerts/4);
+		var mod = numOfVerts%4;
+		var top = (div - (div%2))/2;
+		var sides = div;
+		var bottom = div + mod +(sides%2);
+		
+		var topP = 1/(top+1);
+		var sideP = 1/(sides+1);
+		var bottomP = 1/(bottom+1);
+		
+		var dist = Math.sqrt((radius*radius)/2);
+		
+		var n = vec3.set(vec3.create(),0,dist,0);
+		var ne = vec3.set(vec3.create(),dist,dist,0);
+		var se = vec3.set(vec3.create(),dist,-dist,0);
+		var sw = vec3.set(vec3.create(),-dist,-dist,0);
+		var nw = vec3.set(vec3.create(),-dist,dist,0);
+		
+		var temp = vec3.create();
+		
+		verts.push(n[0],n[1],n[2]);
+		for(var i = 1; i<=top ; i++){
+			vec3.lerp(temp,n,nw,topP*i);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(nw[0],nw[1],nw[2]);
+		for(var i = 1; i<=sides ; i++){
+			vec3.lerp(temp,nw,sw,sideP*i);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(sw[0],sw[1],sw[2]);
+		for(var i = 1; i<=bottom ; i++){
+			vec3.lerp(temp,sw,se,bottomP*i);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(se[0],se[1],se[2]);
+		for(var i = 1; i<=sides ; i++){
+			vec3.lerp(temp,se,ne,sideP*i);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(ne[0],ne[1],ne[2]);
+		for(var i = 1; i<=top ; i++){
+			vec3.lerp(temp,ne,n,topP*i);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(n[0],n[1],n[2]);
+		return verts;
+	}
+	
+	var generateRocket = function(numOfVerts,radius){
+		var verts = new Array();
+		verts.push(0,0,0)
+		var sides;
+		var bottom;
+		var bottom1;
+		var bottom2;
+		numOfVerts-=6;
+		//get the number of vertices to be
+		//hidden in the triangles sides
+		if(numOfVerts%3 == 0){
+			sides=numOfVerts/3;
+			bottom=numOfVerts/3;
+		}else{
+			var div = Math.floor(numOfVerts/3);
+			var mod = numOfVerts%3
+			sides=div;
+			bottom=div+mod;
+		}
+		bottom1 = Math.floor(bottom/2);
+		bottom2 = Math.ceil(bottom/2);
+		
+		var pSides = 1/(sides+1);
+		var pBottom1 = 1/(bottom1+1);
+		var pBottom2 = 1/(bottom2+1);
+		
+		var pa = vec3.set(vec3.create(),0,radius,0);
+		var pb = vec3.set(vec3.create(),-radius,-radius*1.5,0);
+		var pc = vec3.set(vec3.create(),0,-radius/2,0);
+		var pd = vec3.set(vec3.create(),radius,-radius*1.5,0);
+		var temp = vec3.create();
+		
+		verts.push(pa[0],pa[1],pa[2]);
+		for(var j = 1; j<=sides; j++){
+			vec3.lerp(temp,pa,pb,pSides*j)
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pb[0],pb[1],pb[2]);
+		for(var j = 1; j<=bottom1; j++){
+			vec3.lerp(temp,pb,pc,pBottom1*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pc[0],pc[1],pc[2]);
+		for(var j = 1; j<=bottom2; j++){
+			vec3.lerp(temp,pc,pd,pBottom2*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pd[0],pd[1],pd[2]);
+		for(var j = 1; j<=sides; j++){
+			vec3.lerp(temp,pd,pa,pSides*j);
+			verts.push(temp[0],temp[1],temp[2]);
+		}
+		verts.push(pa[0],pa[1],pa[2]);
+		
+		return verts;
+	}
+	
+	
+	var getColor = function(numOfVerts,r,g,b,a){
+		var colors = new Array()
+		for(var i = 0; i<numOfVerts; i++){
+			colors.push(0,1,0,1);
+		}
+		return colors;
+	}
+	
+	return function(){
+		var verts = 32;
+		var radius = 32;
+		var posProps = 
+			{
+				attributeId: "vertexPosition",
+				items: verts,
+				itemSize: 3
+			}
+			
+		var colProps = 
+			{
+				attributeId: "vertexColor",
+				items: verts,
+				itemSize: 4
+			}	
+		
+		var circle = fillProperties(generateCircle(verts,32),posProps);
+		var circleColor = fillProperties(getColor(verts,0.0,0.0,1.0,1.0),colProps);
+		
+		var triangle = fillProperties(generateTriangle(verts,32),posProps);
+		var triangleColor = fillProperties(getColor(verts,1.0,0.0,0.0,1.0),colProps);
+		
+		var square = fillProperties(generateSquare(verts,32),posProps);
+		var squareColor = fillProperties(getColor(verts,0.0,1.0,0.0,1.0),colProps);
+		
+		var rocketShape = fillProperties(generateRocket(verts,32),posProps);
+		var rocketColor = fillProperties(getColor(verts,1.0,0.0,0.0,1.0),colProps);
+		
+		var animator = new VertexAnimator('basic',
+			{
+				playerPosition:circle,
+				playerColor:circleColor
+			},{},verts);
+		
+		animator.setVertexAttribute('playerPosition',3);
+		
+		animator.addKeyframe('circle',
+			{
+				playerPosition:circle,
+				playerColor:circleColor
+			},{});
+			
+		animator.addKeyframe('triangle',
+			{
+				playerPosition:triangle,
+				playerColor:triangleColor
+			},{});
+			
+		animator.addKeyframe('square',
+			{
+				playerPosition:square,
+				playerColor:squareColor
+			},{});
+			
+		animator.addKeyframe('rocket',
+			{
+				playerPosition:rocketShape,
+				playerColor:rocketColor
+			},{});	
+		
+		return animator;
+	}
+})()
 
 Entities.player.getInstance = function(){
 	return this.instanceArray[0];
@@ -806,7 +812,7 @@ Entities.add('player_initializer',Entities.create({
 			state.player.visible = true;
 			state.player.active = true;
 			state.player.set(state.x+state.player.x-state.player.cx,state.y+state.player.y-state.player.cy,0,0,0,0);
-			current_music = Sound.createSound('groove',true);
+			current_music = Sound.createSound('groove',true,true);
 			current_music.gain = 0.5;
 			current_music.play(Date.now()+1000)
 		}

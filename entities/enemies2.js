@@ -31,7 +31,7 @@ Entities.add('enemy',Entities.create({
 		})();
 		
 		state.configure = function(config){
-			this.life = config.life.value;
+			this.startLife = config.life.value;
 			this.damage = config.damage.value;
 			if(config.size){
 				this.width = config.size.value 
@@ -101,6 +101,7 @@ Entities.add('enemy',Entities.create({
 		state.healthSpeed = 0;
 	},
 	create:function(state,x,y){
+		state.life = state.startLife || 1;
 		state.set(x,y,0,0,0,0);
 		graphics.addToDisplay(state,'gl_main'); 
 		physics.add(state);

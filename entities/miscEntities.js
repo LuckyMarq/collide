@@ -102,7 +102,7 @@ Entities.add('shrink_burst',Entities.create(
 	(function(){
 		return {
 			parent: Entities.basic_collider,
-			construct:function(state,x,y,width,height,life,vx,vy,r,g,b,dragConst){
+			construct:function(state,x,y,width,height,time,vx,vy,r,g,b,dragConst){
 				state.glInit = function(manager){
 					if(!Entities.shrink_burst.initialized){
 						var color = [];
@@ -115,7 +115,7 @@ Entities.add('shrink_burst',Entities.create(
 					}
 				}
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-					var f = this.life/this.startLife
+					var f = this.time/this.startTime;
 					this.alpha = f;
 					this.width = this.startWidth * f;
 					this.height = this.startHeight * f;
@@ -140,7 +140,7 @@ Entities.add('shrink_burst',Entities.create(
 				}
 				state.z = 0;
 			},
-			create: function(state,x,y,width,height,life,vx,vy,r,g,b,dragConst){
+			create: function(state,x,y,width,height,time,vx,vy,r,g,b,dragConst){
 				
 				state.r = r || 0;
 				state.g = g || 0;
@@ -151,16 +151,16 @@ Entities.add('shrink_burst',Entities.create(
 				state.startHeight = height || 8;
 				state.height = state.startHeight;
 				
-				state.startLife = life || 1;
-				state.life = state.startLife;
+				state.startTime = time || 1;
+				state.time = state.startTime;
 				
 				state.alpha = 1;
 				state.dragConst = dragConst || 0.1;
 				state.set(x,y,vx,vy,0,0);
 			},
 			update: function(state,delta){
-				state.life-=delta;
-				if(state.life<=0)state.alive = false;
+				state.time-=delta;
+				if(state.time<=0)state.alive = false;
 			}
 		}
 	})())
@@ -178,7 +178,7 @@ Entities.add('explosion', Entities.create(
 	(function(){
 		var miscArray = []
 		return {
-			create: function(state,x,y,size,minDamage,maxDamage,minForce,maxForce,interpolator){
+			create: function(state,x,y,size,minDamage,maxDamage,minForce,maxForce,interpolator,damager){
 				state.x = x;
 				state.y = y;
 				state.width = size;
@@ -198,7 +198,11 @@ Entities.add('explosion', Entities.create(
 						var dir = Vector.getDir(u,v);
 						var damage = interpolator(minDamage,maxDamage,p);
 						var force = interpolator(minForce,maxForce,p)/(e.mass || 1);
-						e.life-=damage;
+						if(e.doDamage){
+							e.doDamage(damage,damager)
+						}else{
+							e.life-=damage;
+						}
 						e.vel[0] += force * Math.cos(dir);
 						e.vel[1] += force * Math.sin(dir);
 					}

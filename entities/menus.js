@@ -8,6 +8,11 @@ function Menu(alpha){
 Menu.prototype=fillProperties(new GLDrawable(),{
 	sx: 0,
 	sy: 0,
+	glInit:function(manager){
+		for(var i = 0; i<this.drawables.length; i++){
+			if(this.drawables[i].glInit)this.drawables[i].glInit(manager)
+		}
+	},
 	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
 		this.sx = screen.x;
 		this.sy = screen.y;
@@ -35,6 +40,13 @@ Menu.prototype=fillProperties(new GLDrawable(),{
 		}
 		if(obj.draw){
 			this.drawables.push(obj);
+		}
+		return obj
+	},
+	translate: function(x,y){
+		for(var i = 0; i<this.drawables.length;i++){
+			this.drawables[i].x+=x;
+			this.drawables[i].y+=y;
 		}
 	},
 	z: -99,
@@ -112,7 +124,7 @@ MenuCursor.prototype = fillProperties(new GLDrawable(),(function(){
 		x:0,
 		y:0,
 		draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
-			manager.point(this.x,this.y,0,12,1,1,1,1);
+			manager.point(this.x,this.y,-0.000001,12,1,1,1,1);
 		},
 		tick: function(delta,mx,my){
 			this.x=mx;
@@ -122,3 +134,28 @@ MenuCursor.prototype = fillProperties(new GLDrawable(),(function(){
 		height:12
 	};
 })());
+
+function Slider(x,y,width,height,set,value){
+	this.x =x;
+	this.y =y;
+	this.width = width;
+	this.height = height;
+	this.set = set;
+	this.value = (value)?Math.min(value,1):1;
+	this.sliderWidth = 8;
+	this.trackHeight = 8;
+}
+Slider.prototype = {
+	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+		manager.fillRect(this.x,this.y,0,this.width,this.trackHeight,0,0.3,0.3,0.3,1)
+		manager.fillRect((this.x-this.width/2)+(this.value*this.width),this.y,0,this.sliderWidth,this.height,0,0.8,0.8,0.8,1)
+	},
+	tick: function(delta,mx,my){
+		var x = this.x-this.width/2;
+		var y = this.y-this.height/2;
+		if(mouse.pressed && mx>x && mx<x+this.width && my>y && my<y+this.height){
+			this.value = Math.max(0,Math.min(1,(mx-x)/this.width))
+			this.set(this.value);
+		}
+	}
+}
