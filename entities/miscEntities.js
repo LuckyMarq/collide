@@ -116,7 +116,7 @@ Entities.add('shrink_burst',Entities.create(
 				}
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 					var f = this.time/this.startTime;
-					this.alpha = f;
+					this.alpha = 1;
 					this.width = this.startWidth * f;
 					this.height = this.startHeight * f;
 					

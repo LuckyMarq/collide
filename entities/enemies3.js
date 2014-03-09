@@ -214,50 +214,6 @@ Entities.add('enemy_oh_no_suicider',Entities.create({
 	}
 }));
 
-Entities.add('enemy_breaker_suicider_part',Entities.create({
-	parent: Entities.enemy_suicider,
-	construct: function(state){
-		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,1,0,1,1)
-		}
-		state.width = 24;
-		state.height = 24;
-		state.damage = 10;
-		state.maxSmallHealth = 3;
-		state.healthSpeed = 100;
-		state.deathSound = Sound.createSound('direct_suicider_death',false);
-		state.deathSound.gain = 0.1;
-		state.moveSpeed= 500;
-		state.accelMul = 50	;
-		state.impact = 0.2;
-		state.stunConst = 0.5;
-		state.onDamage = function(damage){
-			this.stun += damage*this.stunConst;
-		}
-		state.breakerSuiciderFirst = true;
-	},
-	create: function(state,x,y,vx,vy){
-		state.life = 1;
-		state.stun = 1;
-		state.vel[0]=vx||0;
-		state.vel[1]=vy||0;
-	},
-	update: function(state,delta){
-		if(state.stun>0){
-			state.stun = Math.max(state.stun-delta,0);
-		}else if(state.inActiveScope){
-			var p = Entities.player.getInstance(0);
-			state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
-		}
-	},
-	destroy: function(state,reset){
-		if(!reset){
-			state.deathSound.play(0)
-			Entities.shrink_burst.burst(4,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,0,1,0.1,state.vel[0],state.vel[1]);
-		}
-	}
-}));
-
 Entities.add('enemy_dragon',Entities.create({
 	parent: Entities.enemy_suicider,
 	construct: function(state){

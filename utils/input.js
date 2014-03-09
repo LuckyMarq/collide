@@ -13,14 +13,13 @@ var input = {
 		element.addEventListener(
 			'keydown',
 			function(e){
-				e.preventDefault();
 				k.press(e);
 			},		
 			false);
 		element.addEventListener(
 			'keypress',
 			function(e){
-				e.preventDefault();
+				if(k.flags.hasOwnProperty(e.keyCode))e.preventDefault();
 			},		
 			false);
 	},

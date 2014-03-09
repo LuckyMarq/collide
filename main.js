@@ -280,7 +280,7 @@ function initStartScreen(){
 	},options.musicGain))
 	OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 500,'Display Dimensions',64,'Menu','rgba(255,255,255,255)'))
 	var gettingInput = false;
-	OptionsMenu.add(new Button(screen.width*(3/4),screen.height - 500,512,64,608,160,dw+'x'+dh,48,'Menu','rgba(255,255,255,255)',function(){
+	var resolutionButton = OptionsMenu.add(new Button(screen.width*(3/4),screen.height - 500,512,64,608,160,dw+'x'+dh,48,'Menu','rgba(255,255,255,255)',function(){
 		if(!gettingInput){
 			gettingInput = true
 			var input = prompt('Enter new dimensions as WIDTHxHEIGHT',dw+'x'+dh);
@@ -302,6 +302,7 @@ function initStartScreen(){
 						OptionsMenu.translate(dif,0);
 						PauseMenu.translate(dif,0);
 						StartMenu.translate(dif,0);
+						WeaponSelect.translate(dif,0);
 						return;
 					}
 				}
@@ -310,6 +311,20 @@ function initStartScreen(){
 			gettingInput = false;
 		}
 	}))
+	OptionsMenu.add(new Button(screen.width*(1/2),screen.height - 600,512,64,608,160,'FULLSCREEN',48,'Menu','rgba(255,255,255,255)',function(){
+		dw = innerWidth;
+		dh = innerHeight;
+		options.displayWidth = dw;
+		options.displayHeight = dh;
+		resolutionButton.text = dw+'x'+dh;
+		var dif = screen.width;
+		graphics.setDisplayDimensions(dw,dh)
+		dif = (screen.width-dif)/2
+		OptionsMenu.translate(dif,0);
+		PauseMenu.translate(dif,0);
+		StartMenu.translate(dif,0);
+		WeaponSelect.translate(dif,0);
+	}));
 	OptionsMenu.add(new Button(screen.width-128,80,160,80,208,124,'Back',48,'Menu','rgba(255,255,255,255)',function(){
 		graphics.removeFromDisplay(OptionsMenu,'gl_main');
 		ticker.remove(OptionsMenu);
@@ -383,6 +398,7 @@ function initStartScreen(){
 	}))
 	var weaponIndex = 0;
 	var keyframes = configs.map.keyframes.value;
+	var names = configs.map.weaponNames.value;
 	var animator =  getPlayerAnimator();
 	animator.setCurrentKeyframe(keyframes[0],0)
 	WeaponSelect.add({
@@ -407,6 +423,8 @@ function initStartScreen(){
 			}else{
 				this.rt=Math.max(0,this.rt-delta);
 			}
+			manager.fillText(names[weaponIndex],screen.width/2,100+screen.height/2,0,48,'Menu','rgba(255,255,255,255)')
+			
 			mvMatrix.push();
 				mvMatrix.translate(screen.width/2,screen.height/2,0)
 				mvMatrix.scale(2,2,1)

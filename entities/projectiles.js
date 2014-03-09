@@ -112,7 +112,7 @@ Entities.add('projectile', Entities.create(
 					state.explosion.sound.play(0);
 					Entities.explosion_basic.newInstance(
 						state.x + state.width/2 - state.explosion.radius/2, state.y + state.height/2 - state.explosion.radius/2,
-						state.explosion.radius,0,state.explosion.damage,0,state.explosion.force, state.explosion.interp)
+						state.explosion.radius,0,state.explosion.damage,0,state.explosion.force, state.explosion.interp,((this.playerProjectile)?Entities.player.getInstance():null))
 				}
 			}
 		}

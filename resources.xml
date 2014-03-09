@@ -85,6 +85,7 @@
 		<file name='weaponValues'>values/weaponValues.xml</file>
 		<file name='enemyValues'>values/enemyValues.xml</file>
 		<file name='player'>values/playerValues.xml</file>
+		<file name='pickups'>values/pickupValues.xml</file>
 	</configs>
 	<resourceConfigs>
 		<file>values/enemyResources.xml</file>

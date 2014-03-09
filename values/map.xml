@@ -91,6 +91,10 @@
 							<min>0</min>
 							<max>5</max>
 						</entity>
+						<entity name='enemy_exploding_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
 					</entities>
 					<!--the first three populators are mandatory for every map-->
 					<populators>
