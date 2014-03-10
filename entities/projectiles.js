@@ -418,6 +418,7 @@ Entities.add('blackhole', Entities.create(
 				state.sound_charge.gain = 0;
 				state.sound_active.gain = 0.01;
 				state.scale = 1;
+				state.forcesEnabled = false;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
@@ -436,7 +437,9 @@ Entities.add('blackhole', Entities.create(
 							}
 						}
 					}
-					//physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
+					state.forcesEnabled = false;
+					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
+					state.forcesEnabled = true;
 					state.sound_active.play(0);
 				}
 				if (state.delay <= 0) {
