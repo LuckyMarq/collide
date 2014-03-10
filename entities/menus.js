@@ -64,6 +64,10 @@ function Title(x,y,text,size,font,style){
 Title.prototype={
 	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
 		manager.fillText(this.text,this.x,this.y,0,this.size,this.font,this.style)
+	},
+	set: function(x,y){
+		this.x = x;
+		this.y = y;
 	}
 }
 
@@ -113,6 +117,10 @@ Button.prototype={
 			this.selected = false;
 			this.pressed = false;
 		}
+	},
+	set: function(x,y){
+		this.x = x;
+		this.y = y;
 	}
 }
 
@@ -157,5 +165,9 @@ Slider.prototype = {
 			this.value = Math.max(0,Math.min(1,(mx-x)/this.width))
 			this.set(this.value);
 		}
+	},
+	setPos: function(x,y){
+		this.x = x;
+		this.y = y;
 	}
 }

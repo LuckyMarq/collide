@@ -535,9 +535,10 @@ input.Keyboard.prototype = {
 	press:function(event){
 		//window.console.log("up");
 		if(this.flags.hasOwnProperty(event.keyCode)){
+			
+					event.preventDefault();
 			for(var i =0;i<input.keys.length;i++ ){
 				if(event.keyCode == input.keys[i]){
-					event.preventDefault();
 					event.returnValue=false;
 					break;
 				}

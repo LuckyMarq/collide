@@ -246,39 +246,69 @@ function initStartScreen(){
 		graphics.setDisplayDimensions(dw,dh)
 	}
 	
+	var resetMenus = function(){
+		PauseTitle.set(screen.width/2,screen.height*0.8)
+		pauseOptions.set(screen.width/2,screen.height*0.4);
+		pauseRestart.set(screen.width/2,screen.height*0.2);
+		
+		optionsTitle.set(screen.width/2,screen.height - 100);
+		masterTitle.set(screen.width*(1/4),screen.height - 200);
+		masterSlider.setPos(screen.width*(3/4),screen.height - 200);
+		sfxTitle.set(screen.width*(1/4),screen.height - 300);
+		sfxSlider.setPos(screen.width*(3/4),screen.height - 300);
+		musicTitle.set(screen.width*(1/4),screen.height - 400);
+		musicSlider.setPos(screen.width*(3/4),screen.height - 400);
+		dimensionsTitle.set(screen.width*(1/4),screen.height - 500);
+		resolutionButton.set(screen.width*(3/4),screen.height - 500);
+		fullscreenButton.set(screen.width*(1/2),screen.height - 600);
+		optionsBack.set(screen.width-128,80);
+		
+		leaderBoardBack.set(screen.width-128,80);
+		
+		weaponSelectTitle.set(screen.width/2,screen.height - 128);
+		weaponSelectBack.set(screen.width-128,80);
+		weaponSelectRandom.set(128,80);
+		weaponSelectSelect.set(screen.width/2,80);
+		
+		startMenuTitle.set(screen.width/2,screen.height - 200)
+		startMenuPlay.set(screen.width/2,screen.height - 400)
+		startMenuOptions.set(screen.width/2,screen.height - 600)
+		startMenuHighscores.set(screen.width/2,screen.height - 800)
+	}
+	
 	PauseMenu = new Menu(0.7)
 	var PauseTitle = new Title(screen.width/2,screen.height*0.8,'PAUSED',128,'Menu','rgba(255,255,255,255)')
 	PauseMenu.title = PauseTitle;
 	PauseMenu.add(PauseTitle)
-	PauseMenu.add(new Button(screen.width/2,screen.height*0.4,512,128,608,160,'OPTIONS',64,'Menu','rgba(255,255,255,255)',function(){
+	var pauseOptions = PauseMenu.add(new Button(screen.width/2,screen.height*0.4,512,128,608,160,'OPTIONS',64,'Menu','rgba(255,255,255,255)',function(){
 		graphics.removeFromDisplay(PauseMenu,'gl_main');
 		ticker.remove(PauseMenu);
 		ticker.add(OptionsMenu);
 		graphics.addToDisplay(OptionsMenu,'gl_main')
 	}))
-	PauseMenu.add(new Button(screen.width/2,screen.height*0.2,512,128,608,160,'RESTART',64,'Menu','rgba(255,255,255,255)',function(){pauseGame();restart();}))
+	var pauseRestart = PauseMenu.add(new Button(screen.width/2,screen.height*0.2,512,128,608,160,'RESTART',64,'Menu','rgba(255,255,255,255)',function(){pauseGame();restart();}))
 	PauseMenu.add(new MenuCursor())
 	
 	
 	
 	OptionsMenu = new Menu(1);
-	OptionsMenu.add(new Title(screen.width/2,screen.height - 100,'OPTIONS',128,'Menu','rgba(255,255,255,255)'))
-	OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 200,'Master Volume',64,'Menu','rgba(255,255,255,255)'))
-	OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 200,512,64,function(x){
+	var optionsTitle = OptionsMenu.add(new Title(screen.width/2,screen.height - 100,'OPTIONS',128,'Menu','rgba(255,255,255,255)'))
+	var masterTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 200,'Master Volume',64,'Menu','rgba(255,255,255,255)'))
+	var masterSlider = OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 200,512,64,function(x){
 		Sound.globalGain = x;
 		options.globalGain =x;
 	},options.globalGain))
-	OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 300,'SFX Volume',64,'Menu','rgba(255,255,255,255)'))
-	OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 300,512,64,function(x){
+	var sfxTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 300,'SFX Volume',64,'Menu','rgba(255,255,255,255)'))
+	var sfxSlider = OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 300,512,64,function(x){
 		Sound.sfxGain = x;
 		options.sfxGain =x;
 	},options.sfxGain))
-	OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 400,'Music Volume',64,'Menu','rgba(255,255,255,255)'))
-	OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 400,512,64,function(x){
+	var musicTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 400,'Music Volume',64,'Menu','rgba(255,255,255,255)'))
+	var musicSlider = OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 400,512,64,function(x){
 		Sound.musicGain = x;
 		options.musicGain =x;
 	},options.musicGain))
-	OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 500,'Display Dimensions',64,'Menu','rgba(255,255,255,255)'))
+	var dimensionsTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 500,'Display Dimensions',64,'Menu','rgba(255,255,255,255)'))
 	var gettingInput = false;
 	var resolutionButton = OptionsMenu.add(new Button(screen.width*(3/4),screen.height - 500,512,64,608,160,dw+'x'+dh,48,'Menu','rgba(255,255,255,255)',function(){
 		if(!gettingInput){
@@ -299,10 +329,11 @@ function initStartScreen(){
 						options.displayWidth = w;
 						options.displayHeight = h;
 						gettingInput = false;
-						OptionsMenu.translate(dif,0);
-						PauseMenu.translate(dif,0);
-						StartMenu.translate(dif,0);
-						WeaponSelect.translate(dif,0);
+						// OptionsMenu.translate(dif,0);
+						// PauseMenu.translate(dif,0);
+						// StartMenu.translate(dif,0);
+						// WeaponSelect.translate(dif,0);
+						resetMenus();
 						return;
 					}
 				}
@@ -311,7 +342,7 @@ function initStartScreen(){
 			gettingInput = false;
 		}
 	}))
-	OptionsMenu.add(new Button(screen.width*(1/2),screen.height - 600,512,64,608,160,'FULLSCREEN',48,'Menu','rgba(255,255,255,255)',function(){
+	var fullscreenButton = OptionsMenu.add(new Button(screen.width*(1/2),screen.height - 600,512,64,608,160,'FULLSCREEN',48,'Menu','rgba(255,255,255,255)',function(){
 		dw = innerWidth;
 		dh = innerHeight;
 		options.displayWidth = dw;
@@ -320,12 +351,13 @@ function initStartScreen(){
 		var dif = screen.width;
 		graphics.setDisplayDimensions(dw,dh)
 		dif = (screen.width-dif)/2
-		OptionsMenu.translate(dif,0);
-		PauseMenu.translate(dif,0);
-		StartMenu.translate(dif,0);
-		WeaponSelect.translate(dif,0);
+		// OptionsMenu.translate(dif,0);
+		// PauseMenu.translate(dif,0);
+		// StartMenu.translate(dif,0);
+		// WeaponSelect.translate(dif,0);
+		resetMenus();
 	}));
-	OptionsMenu.add(new Button(screen.width-128,80,160,80,208,124,'Back',48,'Menu','rgba(255,255,255,255)',function(){
+	var optionsBack = OptionsMenu.add(new Button(screen.width-128,80,160,80,208,124,'Back',48,'Menu','rgba(255,255,255,255)',function(){
 		graphics.removeFromDisplay(OptionsMenu,'gl_main');
 		ticker.remove(OptionsMenu);
 		ticker.add(previous_menu);
@@ -336,7 +368,7 @@ function initStartScreen(){
 	OptionsMenu.add(new MenuCursor())
 	
 	LeaderBoard = new Menu(1);
-	LeaderBoard.add(new Title(screen.width/2,screen.height - 32,'HIGHSCORES',48,'Menu','rgba(255,255,255,255)'))
+	var leaderBoardTitle = LeaderBoard.add(new Title(screen.width/2,screen.height - 32,'HIGHSCORES',48,'Menu','rgba(255,255,255,255)'))
 	LeaderBoard.add({
 		draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
 			for(var i = 0; i<10; i++){
@@ -348,7 +380,7 @@ function initStartScreen(){
 			}
 		}
 	})
-	LeaderBoard.add(new Button(screen.width-128,80,160,80,208,124,'Back',32,'Menu','rgba(255,255,255,255)',function(){
+	var leaderBoardBack = LeaderBoard.add(new Button(screen.width-128,80,160,80,208,124,'Back',32,'Menu','rgba(255,255,255,255)',function(){
 		graphics.removeFromDisplay(LeaderBoard,'gl_main');
 		ticker.remove(LeaderBoard);
 		ticker.add(previous_menu);
@@ -358,15 +390,15 @@ function initStartScreen(){
 	LeaderBoard.add(new MenuCursor())
 	
 	WeaponSelect = new Menu(1)
-	WeaponSelect.add(new Title(screen.width/2,screen.height - 128,'Select Your Weapon',64,'Menu','rgba(255,255,255,255)'))
-	WeaponSelect.add(new Button(screen.width-128,80,160,80,208,124,'Back',32,'Menu','rgba(255,255,255,255)',function(){
+	var weaponSelectTitle = WeaponSelect.add(new Title(screen.width/2,screen.height - 128,'Select Your Weapon',64,'Menu','rgba(255,255,255,255)'))
+	var weaponSelectBack = WeaponSelect.add(new Button(screen.width-128,80,160,80,208,124,'Back',32,'Menu','rgba(255,255,255,255)',function(){
 		graphics.removeFromDisplay(WeaponSelect,'gl_main');
 		ticker.remove(WeaponSelect);
 		ticker.add(previous_menu);
 		graphics.addToDisplay(previous_menu,'gl_main');
 		localStorage.setItem('collide_game_options',JSON.stringify(options));
 	}))
-	WeaponSelect.add(new Button(128,80,208,80,248,124,'Random',32,'Menu','rgba(255,255,255,255)',function(){
+	var weaponSelectRandom = WeaponSelect.add(new Button(128,80,208,80,248,124,'Random',32,'Menu','rgba(255,255,255,255)',function(){
 		start_weapon = (configs.map.startWeapon) ? configs.map.startWeapon.value : Math.floor(Math.random()*configs.map.keyframes.value.length);
 		graphics.removeFromDisplay(WeaponSelect,'gl_main');
 		ticker.remove(WeaponSelect);
@@ -381,7 +413,7 @@ function initStartScreen(){
 			physics.setGeometry(currentMap.lines);
 		}
 	}))
-	WeaponSelect.add(new Button(screen.width/2,80,208,80,248,124,'Select',32,'Menu','rgba(255,255,255,255)',function(){
+	var weaponSelectSelect = WeaponSelect.add(new Button(screen.width/2,80,208,80,248,124,'Select',32,'Menu','rgba(255,255,255,255)',function(){
 		start_weapon = weaponIndex;
 		graphics.removeFromDisplay(WeaponSelect,'gl_main');
 		ticker.remove(WeaponSelect);
@@ -494,20 +526,20 @@ function initStartScreen(){
 	var first = true
 	
 	StartMenu.add(new MenuCursor())
-	StartMenu.add(new Title(screen.width/2,screen.height - 200,'COLLIDE',192,'Menu','rgba(255,255,255,255)'))
-	StartMenu.add(new Button(screen.width/2,screen.height - 400,512,128,608,160,'PLAY',64,'Menu','rgba(255,255,255,255)',function(){
+	var startMenuTitle = StartMenu.add(new Title(screen.width/2,screen.height - 200,'COLLIDE',192,'Menu','rgba(255,255,255,255)'))
+	var startMenuPlay = StartMenu.add(new Button(screen.width/2,screen.height - 400,512,128,608,160,'PLAY',64,'Menu','rgba(255,255,255,255)',function(){
 		graphics.removeFromDisplay(StartMenu,'gl_main');
 		ticker.remove(StartMenu);
 		ticker.add(WeaponSelect);
 		graphics.addToDisplay(WeaponSelect,'gl_main')
 	}))
-	StartMenu.add(new Button(screen.width/2,screen.height - 600,512,128,608,160,'OPTIONS',64,'Menu','rgba(255,255,255,255)',function(){
+	var startMenuOptions = StartMenu.add(new Button(screen.width/2,screen.height - 600,512,128,608,160,'OPTIONS',64,'Menu','rgba(255,255,255,255)',function(){
 		graphics.removeFromDisplay(StartMenu,'gl_main');
 		ticker.remove(StartMenu);
 		ticker.add(OptionsMenu);
 		graphics.addToDisplay(OptionsMenu,'gl_main')
 	}))
-	StartMenu.add(new Button(screen.width/2,screen.height - 800,512,128,608,160,'HIGHSCORES',64,'Menu','rgba(255,255,255,255)',function(){
+	var startMenuHighscores = StartMenu.add(new Button(screen.width/2,screen.height - 800,512,128,608,160,'HIGHSCORES',64,'Menu','rgba(255,255,255,255)',function(){
 		graphics.removeFromDisplay(StartMenu,'gl_main');
 		ticker.remove(StartMenu);
 		ticker.add(LeaderBoard);
