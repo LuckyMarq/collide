@@ -35,7 +35,8 @@
 	<enemy_turret>
 		<life>3</life>
 		<damage>10</damage>
-		<fireSpeed>3</fireSpeed>
+		<fireSpeed>1.5</fireSpeed>
+		<fireSpread>.1</fireSpread>
 		<height>80</height>
 		<width>80</width>
 		<minSmallHealth>0</minSmallHealth>
