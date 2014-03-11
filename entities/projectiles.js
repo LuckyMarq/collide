@@ -371,6 +371,7 @@ Entities.add('blackhole', Entities.create(
 						gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
 						gl.drawArrays(gl.TRIANGLE_FAN,0,16);
 					} else {
+					// TODO: draw range indicator
 						gl.enable(gl.BLEND);
 						gl.blendFunc(gl.SRC_ALPHA,gl.DST_ALPHA);
 						manager.bindProgram("noise_alpha");
@@ -423,9 +424,7 @@ Entities.add('blackhole', Entities.create(
 							}
 						}
 					}
-					state.forcesEnabled = false;
-					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
-					state.forcesEnabled = true;
+					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,delta);
 					state.sound_active.play(0);
 				}
 				if (state.delay <= 0) {
