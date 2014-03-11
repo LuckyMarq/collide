@@ -3,6 +3,9 @@
 		<life>1</life>
 		<damage>10</damage>
 		<speed>400</speed>
+		<maxSpeed>800</maxSpeed>
+		<accelCap>1000</accelCap>
+		<accelMul>75</accelMul>
 		<height>25</height>
 		<width>25</width>
 		<range>8</range>
@@ -12,6 +15,22 @@
 		<maxMedHealth>0</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
 		<maxLargeHealth>0</maxLargeHealth>
+		<color>
+			<r>0.4</r><g>0</g><b>1</b><a>1</a>
+		</color>
+		<burst>
+			<num>8</num>
+			<life>4</life>
+			<size>24</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<impact>0.2</impact>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<points>25</points>
 	</enemyIndirectSuicider>
 	<enemy_turret>
 		<life>3</life>
@@ -19,12 +38,31 @@
 		<fireSpeed>3</fireSpeed>
 		<height>80</height>
 		<width>80</width>
-		<minSmallHealth>2</minSmallHealth>
+		<minSmallHealth>0</minSmallHealth>
 		<maxSmallHealth>5</maxSmallHealth>
-		<minMedHealth>2</minMedHealth>
-		<maxMedHealth>5</maxMedHealth>
+		<minMedHealth>0</minMedHealth>
+		<maxMedHealth>0</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
-		<maxLargeHealth>1</maxLargeHealth>
+		<maxLargeHealth>0</maxLargeHealth><color>
+			<r>1</r><g>1</g><b>1</b><a>1</a>
+		</color>
+		<burst>
+			<num>12</num>
+			<life>4</life>
+			<size>32</size>
+			<speed>400</speed>
+			<drag>0.1</drag>
+		</burst>
+		<impact>0.2</impact>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.2</gain>
+		</deathSound>
+		<shotSound>
+			<buffer>pew</buffer>
+			<gain>0.1</gain>
+		</shotSound>
+		<points>75</points>
 	</enemy_turret>
 	<enemyShooter>
 		<life>2</life>
@@ -32,15 +70,35 @@
 		<speed>800</speed>
 		<fireSpeed>.8</fireSpeed>
 		<innerRadius>250</innerRadius>
-		<outerRadius>300</outerRadius>shrink
+		<outerRadius>300</outerRadius>
 		<height>80</height>
 		<width>80</width>
-		<minSmallHealth>2</minSmallHealth>
+		<minSmallHealth>0</minSmallHealth>
 		<maxSmallHealth>10</maxSmallHealth>
-		<minMedHealth>2</minMedHealth>
-		<maxMedHealth>7</maxMedHealth>
-		<minLargeHealth>1</minLargeHealth>
-		<maxLargeHealth>2</maxLargeHealth>
+		<minMedHealth>0</minMedHealth>
+		<maxMedHealth>2</maxMedHealth>
+		<minLargeHealth>0</minLargeHealth>
+		<maxLargeHealth>0</maxLargeHealth>
+		<color>
+			<r>1</r><g>1</g><b>0</b><a>1</a>
+		</color>
+		<burst>
+			<num>12</num>
+			<life>4</life>
+			<size>24</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<impact>0.2</impact>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<shotSound>
+			<buffer>pew</buffer>
+			<gain>0.1</gain>
+		</shotSound>
+		<points>100</points>
 	</enemyShooter>
 	<enemyTank>
 		<life>7</life>
@@ -56,11 +114,24 @@
 		<shrink4>50</shrink4>
 		<minSmallHealth>5</minSmallHealth>
 		<maxSmallHealth>10</maxSmallHealth>
-		<minMedHealth>1</minMedHealth>
-		<maxMedHealth>5</maxMedHealth>
+		<minMedHealth>0</minMedHealth>
+		<maxMedHealth>3</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
 		<maxLargeHealth>0</maxLargeHealth>
 		<scope>1000></scope>
+		<burst>
+			<num>8</num>
+			<life>4</life>
+			<size>24</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<impact>0.2</impact>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<points>200</points>
 	</enemyTank>
 	<enemy_direct_suicider>
 		<life>1</life>
@@ -71,19 +142,21 @@
 		<healthSpeed>100</healthSpeed>
 		<maxSmallHealth>10</maxSmallHealth>
 		<color>
-			<r>1</r><g>0</g><b>0</b><a>1</a>
+			<r>1</r><g>0.5</g><b>0</b><a>1</a>
 		</color>
 		<deathSound>
 			<buffer>direct_suicider_death</buffer>
 			<gain>0.1</gain>
 		</deathSound>
 		<burst>
-			<num>4</num>
+			<num>8</num>
 			<life>4</life>
-			<size>24</size>
+			<size>12</size>
 			<speed>200</speed>
 			<drag>0.1</drag>
 		</burst>
+		<impact>0.2</impact>
+		<points>25</points>
 	</enemy_direct_suicider>
 	<enemy_direct_move_suicider>
 		<life>1</life>
@@ -102,12 +175,13 @@
 			<gain>0.1</gain>
 		</deathSound>
 		<burst>
-			<num>4</num>
+			<num>8</num>
 			<life>4</life>
-			<size>24</size>
+			<size>12</size>
 			<speed>200</speed>
 			<drag>0.1</drag>
 		</burst>
+		<points>30</points>
 	</enemy_direct_move_suicider>
 	<enemy_meandering_suicider>
 		<life>1</life>
@@ -118,7 +192,7 @@
 		<elasticity>1</elasticity>
 		<drag>0</drag>
 		<healthSpeed>100</healthSpeed>
-		<maxSmallHealth>10</maxSmallHealth>
+		<maxSmallHealth>5</maxSmallHealth>
 		<color>
 			<r>1</r><g>1</g><b>0</b><a>1</a>
 		</color>
@@ -127,12 +201,13 @@
 			<gain>0.1</gain>
 		</deathSound>
 		<burst>
-			<num>4</num>
+			<num>8</num>
 			<life>4</life>
 			<size>24</size>
 			<speed>200</speed>
 			<drag>0.1</drag>
 		</burst>
+		<points>10</points>
 	</enemy_meandering_suicider>
 	<enemy_breaker_suicider>
 		<life>1</life>
@@ -150,5 +225,70 @@
 			<buffer>direct_suicider_death</buffer>
 			<gain>0.1</gain>
 		</deathSound>
+		<burst>
+			<num>16</num>
+			<life>4</life>
+			<size>8</size>
+			<speed>400</speed>
+			<drag>0.1</drag>
+		</burst>
+		<points>150</points>
 	</enemy_breaker_suicider>
+	<enemy_breaker_suicider_part>
+		<life>1</life>
+		<damage>10</damage>
+		<impact>0.2</impact>
+		<size>24</size>
+		<speed>500</speed>
+		<elasticity>1</elasticity>
+		<drag>0</drag>
+		<healthSpeed>100</healthSpeed>
+		<maxSmallHealth>3</maxSmallHealth>
+		<color>
+			<r>1</r><g>0</g><b>1</b><a>1</a>
+		</color>
+		<deathSound>
+			<buffer>direct_suicider_death</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<burst>
+			<num>8</num>
+			<life>4</life>
+			<size>8</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<points>50</points>
+	</enemy_breaker_suicider_part>
+	<enemy_exploding_suicider>
+		<life>1</life>
+		<damage>10</damage>
+		<impact>0.2</impact>
+		<size>24</size>
+		<speed>800</speed>
+		<acceleration>5000</acceleration>
+		<healthSpeed>100</healthSpeed>
+		<maxSmallHealth>10</maxSmallHealth>
+		<color>
+			<r>1</r><g>0</g><b>0</b><a>1</a>
+		</color>
+		<deathSound>
+			<buffer>explosion_fire</buffer>
+			<gain>0.1</gain>
+		</deathSound>
+		<burst>
+			<num>8</num>
+			<life>4</life>
+			<size>12</size>
+			<speed>200</speed>
+			<drag>0.1</drag>
+		</burst>
+		<blast>
+			<radius>128</radius>
+			<damage>5</damage>
+			<force>800</force>
+			<interpolator>getInverseExponentInterpolator;0.5</interpolator>
+		</blast>
+		<points>50</points>
+	</enemy_exploding_suicider>
 </root>

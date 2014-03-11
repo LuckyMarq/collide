@@ -254,6 +254,10 @@ Entity.prototype=(function(){
 		*/
 		update : function(delta){
 			for(var i = 0; i<this.position; i++){
+				this.def.doUpdate(this.instanceArray[i],delta)
+			}
+			
+			for(var i = 0; i<this.position; i++){
 				var instance = this.instanceArray[i];
 				while(!instance.alive && i<this.position){
 					var temp = instance;
@@ -266,9 +270,6 @@ Entity.prototype=(function(){
 					this.def.doDestroy(temp)
 					instance = this.instanceArray[i];
 				}
-			}
-			for(var i = 0; i<this.position; i++){
-				this.def.doUpdate(this.instanceArray[i],delta)
 			}
 		},
 		/**

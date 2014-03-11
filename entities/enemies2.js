@@ -31,7 +31,7 @@ Entities.add('enemy',Entities.create({
 		})();
 		
 		state.configure = function(config){
-			this.life = config.life.value;
+			this.startLife = config.life.value;
 			this.damage = config.damage.value;
 			if(config.size){
 				this.width = config.size.value 
@@ -80,8 +80,9 @@ Entities.add('enemy',Entities.create({
 		
 		state.doDamage = function(damge,src){
 			this.life-=damge;
-			if(this.life<=0 && src == Entities.player.getInstance()){
-				addToPoints(this.points)
+			if(this.life<=0){
+				this.killedBy=src;
+				if(src == Entities.player.getInstance())addToPoints(this.points);
 			}
 		}
 		
@@ -101,15 +102,23 @@ Entities.add('enemy',Entities.create({
 		state.healthSpeed = 0;
 	},
 	create:function(state,x,y){
+		state.life = state.startLife || 1;
 		state.set(x,y,0,0,0,0);
 		graphics.addToDisplay(state,'gl_main'); 
 		physics.add(state);
 	},
 	destroy: function(state,reset){
 		if(!reset){
-			var smallHealth = Math.round(state.minSmallHealth + Math.random()*(state.maxSmallHealth-state.minSmallHealth));
-			var medHealth = Math.round(state.minMedHealth + Math.random()*(state.maxMedHealth-state.minMedHealth));
-			var largeHealth = Math.round(state.minLargeHealth + Math.random()*(state.maxLargeHealth-state.minLargeHealth));
+			var health = 	Math.round(state.minSmallHealth + Math.random()*(state.maxSmallHealth-state.minSmallHealth))+
+							Math.round(state.minMedHealth + Math.random()*(state.maxMedHealth-state.minMedHealth)) +
+							Math.round(state.minLargeHealth + Math.random()*(state.maxLargeHealth-state.minLargeHealth));
+			var largeHealth = Math.floor(health/configs.pickups.largeHealth.health.value);
+			health -=largeHealth*configs.pickups.largeHealth.health.value;
+			var medHealth = Math.floor(health/configs.pickups.medHealth.health.value);
+			health -=medHealth*configs.pickups.medHealth.health.value;
+			var smallHealth = Math.floor(health/configs.pickups.smallHealth.health.value);
+			
+			
 			var cx = state.cx || state.x + state.width/2;
 			var cy = state.cy || state.y + state.height/2;
 			
@@ -294,24 +303,12 @@ Entities.add('enemy_breaker_suicider_part',Entities.create({
 	parent: Entities.enemy_suicider,
 	construct: function(state){
 		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-			manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,1,0,1,1)
+			manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,this.r,this.g,this.b,this.a)
 		}
-		state.width = 24;
-		state.height = 24;
-		state.damage = 10;
-		state.maxSmallHealth = 3;
-		state.healthSpeed = 100;
-		state.deathSound = Sound.createSound('direct_suicider_death',false);
-		state.deathSound.gain = 0.1;
-		state.moveSpeed= 500;
-		state.accelMul = 50	;
-		state.impact = 0.2;
-		state.stunConst = 0.5;
-		state.breakerSuiciderFirst = true;
+		state.configure(configs.enemyValues.enemy_breaker_suicider_part)
 	},
 	create: function(state,x,y,vx,vy){
-		state.life = 1;
-		state.stun = 1;
+		state.life = configs.enemyValues.enemy_breaker_suicider_part.life.value;
 		state.vel[0]=vx||0;
 		state.vel[1]=vy||0;
 	},
@@ -319,16 +316,42 @@ Entities.add('enemy_breaker_suicider_part',Entities.create({
 		if(state.inActiveScope){
 			var p = Entities.player.getInstance(0);
 			// state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
-			state.accelerateToSpeed(Vector.getDir(p.cx-(state.x+state.width/2),p.cy-(state.y+state.height/2)),3000,3000,state.moveSpeed)
+			state.accelerateToSpeed(Vector.getDir(p.cx-(state.x+state.width/2),p.cy-(state.y+state.height/2)),3000,3000,state.speed)
 		}
 	},
 	destroy: function(state,reset){
-		if(!reset){
-			state.deathSound.play(0)
-			Entities.shrink_burst.burst(4,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,0,1,0.1,state.vel[0],state.vel[1]);
-		}
 	}
 }));
 
+Entities.add('enemy_exploding_suicider',Entities.create({
+	parent: Entities.enemy_suicider,
+	construct: function(state){
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,this.r,this.g,this.b,this.a)
+		}
+		state.onCollision = function(){this.alive = false}
+		var c = configs.enemyValues.enemy_exploding_suicider;
+		state.configure(c);
+		state.blastRadius = c.blast.radius.value;
+		state.blastForce = c.blast.force.value;
+		state.blastDamage = c.blast.damage.value;
+		state.interpolator = c.blast.interpolator.value;
+		
+	},
+	create: function(state,x,y){
+		state.life = configs.enemyValues.enemy_exploding_suicider.life.value;
+	},
+	update: function(state,delta){
+		if(state.inActiveScope){
+			var p = Entities.player.getInstance(0);
+			// state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
+			state.accelerateToSpeed(Vector.getDir(p.cx-(state.x+state.width/2),p.cy-(state.y+state.height/2)),3000,3000,state.speed)
+		}
+	},
+	destroy: function(state,reset){
+		Entities.explosion_basic.newInstance(state.x+state.width/2-state.blastRadius/2,state.y+state.height/2-state.blastRadius/2,state.blastRadius,0,state.blastDamage,
+				0,state.blastForce,state.interpolator,state.killedBy);
+	}
+}));
 
 	

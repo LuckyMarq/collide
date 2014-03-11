@@ -97,7 +97,7 @@ Entities.add('projectile', Entities.create(
 						state.x = state.px || 0;
 						state.y = state.py || 0;
 						i = enemies.length;
-						e.life -= state.damage;
+						e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
 						if (e.life <= 0) {
 							addToPoints(e.points);
 						}	
@@ -112,7 +112,7 @@ Entities.add('projectile', Entities.create(
 					state.explosion.sound.play(0);
 					Entities.explosion_basic.newInstance(
 						state.x + state.width/2 - state.explosion.radius/2, state.y + state.height/2 - state.explosion.radius/2,
-						state.explosion.radius,0,state.explosion.damage,0,state.explosion.force, state.explosion.interp)
+						state.explosion.radius,0,state.explosion.damage,0,state.explosion.force, state.explosion.interp,((this.playerProjectile)?Entities.player.getInstance():null))
 				}
 			}
 		}
@@ -245,6 +245,7 @@ Entities.add('rocket', Entities.create(
 					this.alive = false;
 				}
 				
+				state.playerProjectile = true;
 			},
 			create: function(state,x,y,dir){
 				state.alive = true;
@@ -299,29 +300,14 @@ Entities.add('mine', Entities.create(
 				for(var i = 0; i<enemies.length; i++){
 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
 						state.alive = false;
-						enemies[i].life -= damage;
-						if (enemies[i].life < 0) {
-							addToPoints(enemies[i].points);
-						}
+						enemies[i].doDamage(damage,Entities.player.getInstance());
 					}
 				}
 			},
 			destroy: function(state){
 				sound.play(0);
 				var enemies = physics.getColliders(state.a, state.blastbox.x, state.blastbox.y, state.blastbox.width, state.blastbox.height);
-				for (var e in enemies) {
-					e = enemies[e];
-					vec2.set(vec, e.x - state.x, e.y - state.y);
-					Vector.setMag(vec, vec, 1);
-					if (e.life && state.blastbox.collision(e)) { // add player damage
-						e.life -= damage;
-						if (e.life > 0) {
-							e.vel[0] += vec[0] * blastForce;
-							e.vel[1] += vec[1] * blastForce;
-						}
-					}
-				}
-				Entities.explosion_basic.newInstance(state.x + state.width/2 - state.blastRadius/2,state.y + state.height/2 - state.blastRadius/2,state.blastRadius,0,damage,0,blastForce, interp);
+				Entities.explosion_basic.newInstance(state.x + state.width/2 - state.blastRadius/2,state.y + state.height/2 - state.blastRadius/2,state.blastRadius,0,damage,0,blastForce, interp,Entities.player.getInstance());
 				graphics.removeFromDisplay(state,'gl_main');
 				physics.remove(state);
 			}

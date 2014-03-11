@@ -1,34 +1,18 @@
 Entities.add('enemy_indirect_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
-	create: function(state){
-		if(!state.directSuiciderFirst){
-			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				manager.fillRect(this.x + this.width/2,this.y +this.height/2,0,this.width,this.height,0,.3,0,.7,1);
-			}
-			state.width = configs.enemyValues.enemyIndirectSuicider.width.value;
-			state.height = configs.enemyValues.enemyIndirectSuicider.height.value;
-			state.damage = configs.enemyValues.enemyIndirectSuicider.damage.value;
-			state.minSmallHealth = configs.enemyValues.enemyIndirectSuicider.minSmallHealth.value;
-			state.maxSmallHealth = configs.enemyValues.enemyIndirectSuicider.maxSmallHealth.value;
-			state.minMedHealth = configs.enemyValues.enemyIndirectSuicider.minMedHealth.value;
-			state.maxMedHealth = configs.enemyValues.enemyIndirectSuicider.maxMedHealth.value;
-			state.minLargeHealth = configs.enemyValues.enemyIndirectSuicider.minMaxHealth.value;
-			state.maxLargeHealth = configs.enemyValues.enemyIndirectSuicider.maxMaxHealth.value;
-			state.healthSpeed = 100;
-			state.deathSound = Sound.createSound('direct_suicider_death',false);
-			state.deathSound.gain = 0.1;
-			state.accelCap = 1000;
-			state.maxSpeed= 800;
-			state.accelMul = 75;
-			state.impact = 0.2;
-			state.moveSpeed = configs.enemyValues.enemyIndirectSuicider.speed.value;
-			state.directSuiciderFirst = true;
+	construct: function(state) {
+		state.configure(configs.enemyValues.enemyIndirectSuicider);
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillRect(this.x + this.width/2,this.y +this.height/2,0,this.width,this.height,0,this.r,this.g,this.b,this.a);
 		}
-		var dir = Math.PI*2*Math.random();
-		state.vel[0] = state.moveSpeed;
-		Vector.setDir(state.vel,state.vel,dir);
-		state.life = configs.enemyValues.enemyIndirectSuicider.life.value;
+		state.accelCap = configs.enemyValues.enemyIndirectSuicider.accelCap.value;
+		state.accelMul = configs.enemyValues.enemyIndirectSuicider.accelMul.value;
 		state.range = configs.enemyValues.enemyIndirectSuicider.range.value;
+	},
+	create: function(state){
+		state.life=configs.enemyValues.enemyIndirectSuicider.life.value;
+		state.vel[0]=state.speed;
+		Vector.setDir(state.vel,state.vel,Math.random()*(Math.PI*2))
 	},
 	update: function(state,delta){
 		if(state.inActiveScope){
@@ -50,10 +34,6 @@ Entities.add('enemy_indirect_suicider',Entities.create({
 		}
 	},
 	destroy: function(state,reset){
-		if(!reset){
-			state.deathSound.play(0)
-			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,0,0,0.1,state.vel[0],state.vel[1]);
-		}
 	}
 }));
 
@@ -134,7 +114,7 @@ Entities.add('enemy_turret',Entities.create({
 		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 			this.t += delta;
 			this.t %= 10;
-			manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,1,1,1,1)
+			manager.fillRect(this.x+this.width/2,this.y+this.height/2, 0, this.width,this.height,0,this.r,this.g,this.b,this.a)
 			mvMatrix.translate(this.x+this.width/2, this.y+this.height/2, -1);
 			mvMatrix.rotateZ(this.theta)
 			mvMatrix.scale(60,40,1);
@@ -144,28 +124,13 @@ Entities.add('enemy_turret',Entities.create({
 			manager.setMatrixUniforms('noise', pMatrix, mvMatrix.current);
 			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 		}
+		state.configure(configs.enemyValues.enemy_turret)
 		state.v = vec2.create();
 		state.theta = 0;
-		state.width = configs.enemyValues.enemy_turret.width.value;
-		state.height = configs.enemyValues.enemy_turret.height.value;
-		state.damage = configs.enemyValues.enemy_turret.damage.value;
-		state.minSmallHealth = configs.enemyValues.enemy_turret.minSmallHealth.value;
-		state.maxSmallHealth = configs.enemyValues.enemy_turret.maxSmallHealth.value;
-		state.minMedHealth = configs.enemyValues.enemy_turret.minMedHealth.value;
-		state.maxMedHealth = configs.enemyValues.enemy_turret.maxMedHealth.value;
-		state.minLargeHealth = configs.enemyValues.enemy_turret.minMedHealth.value;
-		state.maxLargeHealth = configs.enemyValues.enemy_turret.maxMedHealth.value;
-		state.healthSpeed = 100;
-		state.deathSound = Sound.createSound('direct_suicider_death',false);
-		state.deathSound.gain = 0.1;
-		state.accelCap = 1000;
 		state.maxSpeed= .001;
-		state.accelMul = .001;
-		state.impact = 0.2;
-		state.moveSpeed = .001;
 		state.delay = 0;
-		state.shotsound = Sound.createSound('pew');
-		state.shotsound.gain = 0.1;
+		state.shotsound = Sound.createSound(configs.enemyValues.enemy_turret.shotSound.buffer.text);
+		state.shotsound.gain = configs.enemyValues.enemy_turret.shotSound.gain.value;
 		state.rate = configs.enemyValues.enemy_turret.fireSpeed.value;
 		state.t = 0;
 	},
@@ -179,57 +144,37 @@ Entities.add('enemy_turret',Entities.create({
 			state.theta = Vector.getDir(vec2.set(state.v, p.cx - (state.x+state.width/2),  p.cy - (state.y+state.height/2)));
 			var dist = pythag(p.cx-state.x+state.width/2,p.cy-state.y+state.height/2);
 			if(state.delay >= state.rate) {
-			Entities.enemyFollowBullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2);
-			state.shotsound.play(0)
-			state.delay = 0;
+				Entities.enemyFollowBullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2);
+				state.shotsound.play(0)
+				state.delay = 0;
 			}
 		}
 	},
 	destroy: function(state,reset){
-		if(!reset){
-			state.deathSound.play(0)
-			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,0,0,0.1,state.vel[0],state.vel[1]);
-		}
 	}
 }));
 
 Entities.add('enemy_shooter',Entities.create({
 	parent: Entities.enemy_suicider,
-	create: function(state){
-		if(!state.directSuiciderFirst){
+	construct: function(state){
 		var p = Entities.player.getInstance(0);
-			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				manager.fillTriangle(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,state.theta+Math.PI/2,1,1,0,1);
-			}
-			state.v = vec2.create();
-			state.theta = 0;
-			state.width =  configs.enemyValues.enemyShooter.width.value;
-			state.height =  configs.enemyValues.enemyShooter.height.value;
-			state.damage =  configs.enemyValues.enemyShooter.damage.value;
-			state.minSmallHealth = configs.enemyValues.enemyShooter.minSmallHealth.value;
-			state.maxSmallHealth = configs.enemyValues.enemyShooter.maxSmallHealth.value;
-			state.minMedHealth = configs.enemyValues.enemyShooter.minMedHealth.value;
-			state.maxMedHealth = configs.enemyValues.enemyShooter.maxMedHealth.value;
-			state.minLargeHealth = configs.enemyValues.enemyShooter.minMedHealth.value;
-			state.maxLargeHealth = configs.enemyValues.enemyShooter.maxMedHealth.value;
-			state.healthSpeed = 100;
-			state.deathSound = Sound.createSound('direct_suicider_death',false);
-			state.deathSound.gain = 0.1;
-			state.accelCap = 1000;
-			state.maxSpeed= 800;
-			state.accelMul = 75;
-			state.impact = 0.2;
-			state.moveSpeed = 800;
-			state.directSuiciderFirst = true;
-			state.delay = 0;
-			state.shotsound = Sound.createSound('pew',false);
-			state.shotsound.gain = 0.1;
-			state.innerRadius =  configs.enemyValues.enemyShooter.innerRadius.value;
-			state.outerRadius =  configs.enemyValues.enemyShooter.outerRadius.value;
-			state.up = 1;
-			state.right = 1;
-			state.rate = configs.enemyValues.enemyShooter.fireSpeed.value;
+		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
+			manager.fillTriangle(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,state.theta+Math.PI/2,this.r,this.g,this.b,this.a);
 		}
+		state.configure(configs.enemyValues.enemyShooter)
+		state.v = vec2.create();
+		state.theta = 0;
+		state.directSuiciderFirst = true;
+		state.delay = 0;
+		state.shotsound = Sound.createSound(configs.enemyValues.enemy_turret.shotSound.buffer.text);
+		state.shotsound.gain = configs.enemyValues.enemy_turret.shotSound.gain.value;
+		state.innerRadius =  configs.enemyValues.enemyShooter.innerRadius.value;
+		state.outerRadius =  configs.enemyValues.enemyShooter.outerRadius.value;
+		state.up = 1;
+		state.right = 1;
+		state.rate = configs.enemyValues.enemyShooter.fireSpeed.value;
+	},
+	create: function(state){
 		state.life =  configs.enemyValues.enemyShooter.life.value;
 	},
 	update: function(state,delta){
@@ -247,14 +192,14 @@ Entities.add('enemy_shooter',Entities.create({
 			state.up = 0;
 			}
 			if(state.y < p.cy + state.innerRadius && state.up == 1){
-				state.accelerateToward(state.x, state.y+100, state.moveSpeed);
+				state.accelerateToward(state.x, state.y+100, state.speed);
 			}else if(state.y > p.cy + state.outerRadius && state.up == 1){
 				state.accelerateToward(state.x, state.y-100, state.moveSpeed);
 			//down
 			}else if(state.y > p.cy - state.innerRadius && state.up == 0){
-				state.accelerateToward(state.x, state.y-100, state.moveSpeed);
+				state.accelerateToward(state.x, state.y-100, state.speed);
 			}else if(state.y < p.cy - state.outerRadius && state.up == 0){
-				state.accelerateToward(state.x, state.y+100, state.moveSpeed);
+				state.accelerateToward(state.x, state.y+100, state.speed);
 			}
 			
 			if(state.x > p.cx){
@@ -265,14 +210,14 @@ Entities.add('enemy_shooter',Entities.create({
 			
 			//right
 			if(state.x < p.cx + state.innerRadius && state.right == 1){
-				state.accelerateToward(state.x+100, state.y, state.moveSpeed);
+				state.accelerateToward(state.x+100, state.y, state.speed);
 			}else if(state.x > p.cx + state.outerRadius && state.right == 1){
-				state.accelerateToward(state.x-100, state.y, state.moveSpeed);
+				state.accelerateToward(state.x-100, state.y, state.speed);
 			//left
 			}else if(state.x > p.cx - state.innerRadius && state.right == 0){
-				state.accelerateToward(state.x-100, state.y, state.moveSpeed);
+				state.accelerateToward(state.x-100, state.y, state.speed);
 			}else if(state.x < p.cx - state.outerRadius && state.right == 0){
-				state.accelerateToward(state.x+100, state.y, state.moveSpeed);
+				state.accelerateToward(state.x+100, state.y, state.speed);
 			}
 			
 			//shooting
@@ -284,10 +229,6 @@ Entities.add('enemy_shooter',Entities.create({
 		}
 	},
 	destroy: function(state,reset){
-		if(!reset){
-			state.deathSound.play(0)
-			Entities.shrink_burst.burst(16,state.x+state.width/2,state.y+state.height/2,24,24,4,200,1,1,0,0.1,state.vel[0],state.vel[1]);
-		}
 	}
 }));
 
@@ -298,6 +239,7 @@ Entities.add('enemy_tank',Entities.create({
 		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
 			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,state.r,state.g,state.b,1);
 		}
+		state.configure(configs.enemyValues.enemyTank)
 		state.width = configs.enemyValues.enemyTank.width.value;
 		state.shrink2 = configs.enemyValues.enemyTank.shrink2.value;
 		state.shrink3 = configs.enemyValues.enemyTank.shrink3.value;
@@ -375,49 +317,3 @@ Entities.add('enemy_tank',Entities.create({
 	}
 }));
 
-Entities.add('enemy_spinner',Entities.create({
-	parent: Entities.enemy_suicider,
-	construct: function(state){
-		state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-			manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,1,0,0,1);
-		}
-		state.width = 50;
-		state.height = 50;
-		state.damage = 1;
-		state.minSmallHealth = 0;
-		state.maxSmallHealth = 0;
-		state.minMedHealth = 0;
-		state.maxMedHealth = 0;
-		state.minLargeHealth = 0;
-		state.maxLargeHealth = 0;
-		state.healthSpeed = 100;
-		state.deathSound = Sound.createSound('direct_suicider_death',false);
-		state.deathSound.gain = 0.1;
-		state.moveSpeed= 200;
-		state.maxSpeed= 500;
-		state.accelMul = 50	;
-		state.impact = 0.2;
-		state.stunConst = 1;
-		state.stun = 0;
-		state.scope = 400;
-		state.theta = 1;
-		state.onDamage = function(damage){
-			this.stun += damage*this.stunConst;
-		}
-	},
-	create: function(state){
-		state.life = 2;
-		state.stun = 1;
-	},
-	update: function(state,delta){
-		if(state.inActiveScope){
-			
-		}
-	},
-	destroy: function(state,reset){
-		if(!reset){
-			state.deathSound.play(0)
-			Entities.shrink_burst.burst(8,state.x+state.width/2,state.y+state.height/2,24,24,4,200,0.81,0.09,0.56,0.1,state.vel[0],state.vel[1]);
-		}
-	}
-}));
