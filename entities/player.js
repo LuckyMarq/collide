@@ -27,6 +27,8 @@ Entities.add('player', Entities.create((function(){
 			var animator =  getPlayerAnimator();
 			state.animator = animator;
 			
+			state.interp = getInverseExponentInterpolator(0.5);
+			
 			var updateCoords;
 			var acceleration = configs.player.acceleration.value;
 			var turnScale = configs.player.turnScale.value;
@@ -120,6 +122,18 @@ Entities.add('player', Entities.create((function(){
 				k = this.keyframes.length-1;
 				this.weaponManager.swap(this.keyframes.length-1)
 			}
+			
+			var up = false,down=true;
+			mouse.addWheelListener('player_wheel',
+				function(delta){
+					if(delta>0){
+						up=true;
+						down=false;
+					}else{
+						down=true;
+						up=false;
+					}
+				})
 			// weapon manager
 			// This section is used for weapons testing
 			var weaponsCheck = function(delta) {
@@ -233,7 +247,7 @@ Entities.add('player', Entities.create((function(){
 								var p = gamepad.padA[0]; 
 								var change = (!animator.animating);
 								var pos;
-								if((keyboard.e || (p && (p.rightBumper || p.rightTrigger>0.5))) && canPress<=0){
+								if(up || (keyboard.e || (p && (p.rightBumper || p.rightTrigger>0.5))) && canPress<=0){
 									pos = (k+1)%this.keyframes.length
 									transitionSound.stop(0);
 									transitionSound.play(0);
@@ -242,7 +256,7 @@ Entities.add('player', Entities.create((function(){
 									k = pos;
 									this.weaponManager.swap(pos)
 									canPress = pressInterval;
-								}else if((keyboard.q || (p && (p.leftBumper || p.leftTrigger>0.5)))&& canPress<=0){
+								}else if(down || (keyboard.q || (p && (p.leftBumper || p.leftTrigger>0.5)))&& canPress<=0){
 									pos = (k-1);
 									if(pos<0)pos = this.keyframes.length+pos;
 									transitionSound.stop(0);
@@ -266,7 +280,7 @@ Entities.add('player', Entities.create((function(){
 										}
 									}
 								}
-								
+								up = false,down=false;
 								var mx= mouse.x,my=mouse.yInv;
 								if(this.vel[0]!=0 || this.vel[1]!=0)theta = Vector.getDir(this.vel)-r;
 								animator.theta = theta;
@@ -380,8 +394,10 @@ Entities.add('player', Entities.create((function(){
 			if(graphics.getScreen('gl_main').follower == state)graphics.getScreen('gl_main').follower == null;
 			state.weaponManager.clear();
 			playerExplosion.play(0);
-			Entities.explosion_player.newInstance(state.cx, state.cy,2);
-			ticker.addTimer(function(){reinitScene()},2,0);
+			Entities.explosion_basic.newInstance(state.cx-400, state.cy-400,800,100,100,600,600,state.interp,3);
+			Entities.shrink_burst.burst(24,state.cx, state.cy,24,24,3,800,1,0,0,0.2)
+			Entities.shrink_burst.burst(24,state.cx, state.cy,32,32,2,200,0,1,0,0.2)
+			ticker.addTimer(function(){reinitScene()},4,0);
 			if(current_music){
 				current_music.stop(0);
 			}

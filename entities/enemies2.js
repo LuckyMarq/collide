@@ -323,7 +323,6 @@ Entities.add('enemy_breaker_suicider_part',Entities.create({
 	}
 }));
 
-
 Entities.add('enemy_exploding_suicider',Entities.create({
 	parent: Entities.enemy_suicider,
 	construct: function(state){
@@ -348,13 +347,10 @@ Entities.add('enemy_exploding_suicider',Entities.create({
 			// state.moveToward(p.cx-state.width/2,p.cy-state.height/2,state.moveSpeed);
 			state.accelerateToSpeed(Vector.getDir(p.cx-(state.x+state.width/2),p.cy-(state.y+state.height/2)),3000,3000,state.speed)
 		}
-		if(!state.alive){
-			Entities.explosion_basic.newInstance(state.x+state.width/2,state.y+state.height/2,state.blastRadius,0,state.blastDamage,
-				0,state.blastForce,state.interpolator,state.killedBy);
-		}
 	},
 	destroy: function(state,reset){
-		
+		Entities.explosion_basic.newInstance(state.x+state.width/2-state.blastRadius/2,state.y+state.height/2-state.blastRadius/2,state.blastRadius,0,state.blastDamage,
+				0,state.blastForce,state.interpolator,state.killedBy);
 	}
 }));
 

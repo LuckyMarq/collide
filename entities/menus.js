@@ -171,3 +171,23 @@ Slider.prototype = {
 		this.y = y;
 	}
 }
+
+function TextBox(x,y,width,height,set,text){
+	this.x =x;
+	this.y =y;
+	this.width = width;
+	this.height = height;
+	this.set = set;
+	this.text = text || '';
+}
+TextBox.prototype = {
+	draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
+	
+	},
+	tick: function(delta,mx,my){
+	
+	},
+	setPos: function(x,y){
+	
+	}
+}

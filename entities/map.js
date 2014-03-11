@@ -359,7 +359,6 @@ RoomPopulators = {
 		}
 	},
 	FourCorners: function(min,max,priority,fill,entity,xOffset,yOffset,xMargin,yMargin){
-		
 		xOffset = xOffset || constructor.xOffset || constructor.width/2 || 0
 		yOffset = yOffset || constructor.yOffset || constructor.height/2 || 0
 		return {
@@ -368,6 +367,112 @@ RoomPopulators = {
 				Entities[entity].newInstance(room.x + (map.size/2) + (room.width/2) - xMargin - xOffset,room.y + map.size/2 - (room.height/2) + yMargin - yOffset);
 				Entities[entity].newInstance(room.x + (map.size/2) + (room.width/2) - xMargin - xOffset,room.y + map.size/2 + (room.height/2) - yMargin - yOffset);
 				Entities[entity].newInstance(room.x + (map.size/2) - (room.width/2) + xMargin - xOffset,room.y + map.size/2 + (room.height/2) - yMargin - yOffset)
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Random: function(min,max,priority,fill,entity,minE,maxE,margin,xOffset,yOffset){
+		margin = margin || 0;
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				for(var i=0; i<num; i++){
+					var x = room.x + (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2))) + xOffset;
+					var y = room.y + (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2))) + yOffset;
+					Entities[entity].newInstance(x,y);
+				}
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Circle: function(min,max,priority,fill,entity,minE,maxE,radius,xOffset,yOffset){
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				var theta = Math.PI/num;
+				var c = Math.cos(theta);
+				var s = Math.sin(theta);
+				var x = radius - (xOffset || 0);
+				var y = -(yOffset || 0);
+				for(var i=0; i<num; i++){
+					Entities[entity].newInstance((room.x+size/2)+x,(room.y+size/2)+y);
+					var u = x;
+					var v = y;
+					x = u*c - v*s;
+					y = u*s + v*c;
+				}
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Square: function(min,max,priority,fill,entity,minE,maxE,width,height,xOffset,yOffset){
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				var mod = num%4
+				var sides = Math.floor(num/4)
+				var edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				var cx = (room.x + (size/2));
+				var cy = (room.y + (size/2));
+				var x1 = cx - width/2;
+				var y1 = cy - height/2;
+				var x2 = cx - width/2;
+				var y2 = cy + height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx + width/2;
+				y2 = cy + height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx + width/2;
+				y2 = cy -height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx - width/2;
+				y2 = cy - height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
 				if(fill)room.full = true;
 				return true;
 			},

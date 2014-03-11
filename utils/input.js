@@ -44,6 +44,7 @@ var input = {
 		};
 			
 		var clickListeners = {};
+		var wheelListeners = {}
 		
 		this.addClickListener=function(id,callback){
 			if(typeof id == 'updefined' || typeof callback != 'function') throw "addClickListener: illegal values passed"
@@ -52,6 +53,15 @@ var input = {
 		
 		this.removeClickListener=function(id){
 			delete clickListeners[id];
+		}
+		
+		this.addWheelListener=function(id,callback){
+			if(typeof id == 'updefined' || typeof callback != 'function') throw "addClickListener: illegal values passed"
+			wheelListeners[id]=callback;
+		}
+		
+		this.removeClickListener=function(id){
+			delete wheelListeners[id];
 		}
 		
 		Object.defineProperties(this,{
@@ -197,6 +207,16 @@ var input = {
 				}
 			},
 			false);
+		
+		var wheelEvent= function(evt){
+			var delta = evt.wheelDelta || -e.detail;
+			for(var o in wheelListeners){
+				wheelListeners[o](delta,evt.wheelDelta);
+			}
+		}
+		
+		element.addEventListener('mousewheel',wheelEvent,false);
+		element.addEventListener('DOMMouseScroll',wheelEvent,false);
 		
 	},
 	Gamepad: function(){

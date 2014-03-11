@@ -3,6 +3,8 @@
 //global object to hold all of the component objects
 gameComponents = new Array();
 
+score_chars = 12;
+
 function importS(filename){
 	document.write('<script type="text/javascript" src='+filename+'><\/script>');
 }
@@ -209,6 +211,23 @@ function init(){
 	loadResources(initStartScreen);
 }
 
+function checkHighScores(score){
+	for(var i = 0; i<10; i++){
+		if(high_scores[i].score<score){
+			var name = prompt("New High Score!!\nPlease enter name") || 'Anonymous';
+			for(var j = i; j<9; j++){
+				high_scores[i+1] = high_scores[i];
+			}
+			var score=score+'';
+			while(score.length<score_chars)score='0'+score
+			var d = new Date();
+			high_scores[i] = {name:name,score:score,date:d.getMonth()+':'+d.getDate()+":"+d.getYear()};
+			localStorage.setItem('collide_game_high_scores',JSON.stringify(high_scores));
+			break;
+		}
+	}
+}
+
 function initStartScreen(){
 	var screen = graphics.getScreen('gl_main');
 	screen.scale(2);
@@ -218,10 +237,12 @@ function initStartScreen(){
 	mouse.box = graphics.getScreen('gl_main');
 	
 	high_scores = localStorage.getItem('collide_game_high_scores');
+	var str = '';
+	while(str.length<score_chars)str+='0';
 	if(!high_scores){
 		high_scores = {};
 		for(var i = 0; i<10; i++){
-			high_scores[i]={name:"empty",score:0};
+			high_scores[i]={name:"empty",score:'000000000000',date:'00:00:0000'};
 		}
 	}else{
 		high_scores = JSON.parse(high_scores);
@@ -293,24 +314,24 @@ function initStartScreen(){
 	
 	OptionsMenu = new Menu(1);
 	var optionsTitle = OptionsMenu.add(new Title(screen.width/2,screen.height - 100,'OPTIONS',128,'Menu','rgba(255,255,255,255)'))
-	var masterTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 200,'Master Volume',64,'Menu','rgba(255,255,255,255)'))
+	var masterTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 200,'Master Volume',64,'Score','rgba(255,255,255,255)'))
 	var masterSlider = OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 200,512,64,function(x){
 		Sound.globalGain = x;
 		options.globalGain =x;
 	},options.globalGain))
-	var sfxTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 300,'SFX Volume',64,'Menu','rgba(255,255,255,255)'))
+	var sfxTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 300,'SFX Volume',64,'Score','rgba(255,255,255,255)'))
 	var sfxSlider = OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 300,512,64,function(x){
 		Sound.sfxGain = x;
 		options.sfxGain =x;
 	},options.sfxGain))
-	var musicTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 400,'Music Volume',64,'Menu','rgba(255,255,255,255)'))
+	var musicTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 400,'Music Volume',64,'Score','rgba(255,255,255,255)'))
 	var musicSlider = OptionsMenu.add(new Slider(screen.width*(3/4),screen.height - 400,512,64,function(x){
 		Sound.musicGain = x;
 		options.musicGain =x;
 	},options.musicGain))
-	var dimensionsTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 500,'Display Dimensions',64,'Menu','rgba(255,255,255,255)'))
+	var dimensionsTitle = OptionsMenu.add(new Title(screen.width*(1/4),screen.height - 500,'Display Dimensions',64,'Score','rgba(255,255,255,255)'))
 	var gettingInput = false;
-	var resolutionButton = OptionsMenu.add(new Button(screen.width*(3/4),screen.height - 500,512,64,608,160,dw+'x'+dh,48,'Menu','rgba(255,255,255,255)',function(){
+	var resolutionButton = OptionsMenu.add(new Button(screen.width*(3/4),screen.height - 500,512,64,608,160,dw+'x'+dh,48,'Score','rgba(255,255,255,255)',function(){
 		if(!gettingInput){
 			gettingInput = true
 			var input = prompt('Enter new dimensions as WIDTHxHEIGHT',dw+'x'+dh);
@@ -342,7 +363,7 @@ function initStartScreen(){
 			gettingInput = false;
 		}
 	}))
-	var fullscreenButton = OptionsMenu.add(new Button(screen.width*(1/2),screen.height - 600,512,64,608,160,'FULLSCREEN',48,'Menu','rgba(255,255,255,255)',function(){
+	var fullscreenButton = OptionsMenu.add(new Button(screen.width*(1/2),screen.height - 600,512,64,608,160,'FULLSCREEN',48,'Score','rgba(255,255,255,255)',function(){
 		dw = innerWidth;
 		dh = innerHeight;
 		options.displayWidth = dw;
@@ -372,11 +393,11 @@ function initStartScreen(){
 	LeaderBoard.add({
 		draw: function(gl,delta,screen,manager,pMatrix,mvMatrix){
 			for(var i = 0; i<10; i++){
-				manager.fillText((i+1)+"",200,screen.height-(100+(i*70)),0,40,'Menu','rgba(255,255,255,255)',manager.LEFT)
-				manager.fillText(":",248,screen.height-(100+(i*70)),0,40,'Menu','rgba(255,255,255,255)',manager.LEFT)
-				manager.fillText(high_scores[i].name,296,screen.height-(100+(i*70)),0,40,'Menu','rgba(255,255,255,255)',manager.LEFT)
-				manager.fillText(high_scores[i].score,512,screen.height-(100+(i*70)),0,40,'Menu','rgba(255,255,255,255)',manager.LEFT)
-				
+				manager.fillText((i+1)+"",200,screen.height-(100+(i*70)),0,40,'Score','rgba(255,255,255,255)',manager.LEFT)
+				manager.fillText(":",248,screen.height-(100+(i*70)),0,40,'Score','rgba(255,255,255,255)',manager.LEFT)
+				manager.fillText(high_scores[i].name,296,screen.height-(100+(i*70)),0,40,'Score','rgba(255,255,255,255)',manager.LEFT)
+				manager.fillText(high_scores[i].score,512,screen.height-(100+(i*70)),0,40,'Score','rgba(255,255,255,255)',manager.LEFT)
+				manager.fillText(high_scores[i].date,900,screen.height-(100+(i*70)),0,40,'Score','rgba(255,255,255,255)',manager.LEFT)
 			}
 		}
 	})
@@ -689,6 +710,7 @@ function initScene(){
 }
 
 function reinitScene(){
+	checkHighScores(current_points);
 	current_level = 1;
 	current_points = 0;
 	Entities.reset();
