@@ -220,7 +220,7 @@ Entities.add('enemy_shooter',Entities.create({
 			if(state.y < p.cy + state.innerRadius && state.up == 1){
 				state.accelerateToward(state.x, state.y+100, state.speed);
 			}else if(state.y > p.cy + state.outerRadius && state.up == 1){
-				state.accelerateToward(state.x, state.y-100, state.moveSpeed);
+				state.accelerateToward(state.x, state.y-100, state.speed);
 			//down
 			}else if(state.y > p.cy - state.innerRadius && state.up == 0){
 				state.accelerateToward(state.x, state.y-100, state.speed);
