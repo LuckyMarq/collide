@@ -583,6 +583,185 @@ var getPlayerAnimator = (function(){
 		return verts;
 	}
 	
+	var generateHex = function(numOfVerts,radius){
+		var verts = [];
+		numOfVerts--;
+		var sides = Math.floor(numOfVerts/6);
+		var mod = numOfVerts%6;
+		var theta = (Math.PI*2)/6;
+		var c = Math.cos(theta);
+		var s = Math.sin(theta);
+		
+		verts.push(0,0,0);
+		
+		var num = sides + ((mod>0)?1:0);
+		mod--;
+		var x1 = 0;
+		var y1 = radius;
+		var x2 = x1*c - s*y1;
+		var y2 = x1*s + y1*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		x1 = x2;
+		y1 = y2;
+		x2 = x1*c - s*y1;
+		y2 = x1*s + y1*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		x1 = x2;
+		y1 = y2;
+		x2 = x1*c - s*y1;
+		y2 = x1*s + y1*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		x1 = x2;
+		y1 = y2;
+		x2 = x1*c - s*y1;
+		y2 = x1*s + y1*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		x1 = x2;
+		y1 = y2;
+		x2 = x1*c - s*y1;
+		y2 = x1*s + y1*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		x1 = x2;
+		y1 = y2;
+		x2 = x1*c - s*y1;
+		y2 = x1*s + y1*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/(num-1)),y1 + (y2-y1)*(i/(num-1)),0);
+		}
+		return verts;
+	}
+	
+	var generateStar = function(numOfVerts,radius,innerRadius){
+		var verts = [];
+		numOfVerts--;
+		var sides = Math.floor(numOfVerts/8);
+		var mod = numOfVerts%8;
+		
+		console.log(sides,mod)
+		
+		verts.push(0,0,0);
+		var u,v;
+		var theta = Math.PI/2;
+		var c = Math.cos(theta);
+		var s = Math.sin(theta);
+		
+		var num = sides + ((mod>0)?1:0);
+		mod--;
+		var x1 = 0;
+		var y1 = radius;
+		var x2 = innerRadius*Math.cos(Math.PI*3/4);
+		var y2 = innerRadius*Math.sin(Math.PI*3/4);
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		u=x1;
+		v=y1;
+		x1 = x2;
+		y1 = y2;
+		x2 = u*c - v*s;
+		y2 = u*s + v*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		u=x1;
+		v=y1;
+		x1 = x2;
+		y1 = y2;
+		x2 = u*c - v*s;
+		y2 = u*s + v*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		u=x1;
+		v=y1;
+		x1 = x2;
+		y1 = y2;
+		x2 = u*c - v*s;
+		y2 = u*s + v*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		u=x1;
+		v=y1;
+		x1 = x2;
+		y1 = y2;
+		x2 = u*c - v*s;
+		y2 = u*s + v*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		u=x1;
+		v=y1;
+		x1 = x2;
+		y1 = y2;
+		x2 = u*c - v*s;
+		y2 = u*s + v*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		u=x1;
+		v=y1;
+		x1 = x2;
+		y1 = y2;
+		x2 = u*c - v*s;
+		y2 = u*s + v*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/num),y1 + (y2-y1)*(i/num),0);
+		}
+		
+		num = sides + ((mod>0)?1:0);
+		mod--;
+		u=x1;
+		v=y1;
+		x1 = x2;
+		y1 = y2;
+		x2 = u*c - v*s;
+		y2 = u*s + v*c;
+		for(var i = 0; i <num; i++){
+			verts.push(x1 + (x2-x1)*(i/(num-1)),y1 + (y2-y1)*(i/(num-1)),0);
+		}
+		
+		console.log(verts.length)
+		return verts;
+	}
 	
 	var getColor = function(numOfVerts,r,g,b,a){
 		var colors = new Array()
@@ -621,6 +800,12 @@ var getPlayerAnimator = (function(){
 		var rocketShape = fillProperties(generateRocket(verts,32),posProps);
 		var rocketColor = fillProperties(getColor(verts,1.0,0.0,0.0,1.0),colProps);
 		
+		var hex = fillProperties(generateHex(verts,32),posProps);
+		var hexColor = fillProperties(getColor(verts,0.0,1.0,0.0,1.0),colProps);
+		
+		var star = fillProperties(generateStar(verts,32,8),posProps);
+		var starColor = fillProperties(getColor(verts,0.0,1.0,0.0,1.0),colProps);
+		
 		var animator = new VertexAnimator('basic',
 			{
 				playerPosition:circle,
@@ -651,6 +836,18 @@ var getPlayerAnimator = (function(){
 			{
 				playerPosition:rocketShape,
 				playerColor:rocketColor
+			},{});	
+			
+		animator.addKeyframe('hex',
+			{
+				playerPosition:hex,
+				playerColor:hexColor
+			},{});	
+			
+		animator.addKeyframe('star',
+			{
+				playerPosition:star,
+				playerColor:starColor
 			},{});	
 		
 		return animator;

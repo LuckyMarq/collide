@@ -131,6 +131,7 @@ function WaveWeapon(){
 			if (enemies.length > 1) {
 				for (var i = 0; i < a.length; i++) {
 					var enemy = a[i];
+					if(enemy==p)continue;
 					var inRange = false;
 					var dist = Math.sqrt(Math.pow(enemy.x - p.cx,2) + Math.pow(enemy.y - p.cy,2));
 					if (dist < radius) {

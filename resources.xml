@@ -24,6 +24,7 @@
 		<file name='player_create'>resources/audio/player_create0.wav</file>
 		<file name='victory_fanfare'>resources/audio/collide_victory_1.wav</file>
 		<file name='groove'>resources/audio/groove0.wav</file>
+		<file name='killer_geometry'>resources/audio/collide_menu_final.wav</file>
 	</audio>
 	<textures>
 	</textures>
