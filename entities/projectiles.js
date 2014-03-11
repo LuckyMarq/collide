@@ -551,46 +551,44 @@ Entities.add('boomerang', Entities.create(
 );
 
 // Disk ---
-// Entities.add('disk', Entities.create(
-// 	(function(){
-// 		var damage = 0;
-// 		var interp = getInverseExponentInterpolator(0.5);
-// 		//var sound = Sound.createSound('explosion_fire');
-// 		//sound.gain = 0.2;
-// 		return {
-// 			parent: Entities.projectile,
-// 			construct: function(state,x,y) {
-// 				damage = configs.weaponValues.mine.damage.value;
-// 			},
-// 			create: function(state,x,y){
-// 				state.width = mineConfig.width.value;
-// 				state.height = mineConfig.height.value;
-// 				state.alive = true;
-// 				state.time = mineConfig.fuse.value;
-// 				state.a = []; // array for collision check
-// 				state.x = x - state.width/2;
-// 				state.y = y - state.height/2;
-// 				graphics.addToDisplay(state,'gl_main');
-// 				physics.add(state);
-// 			},
-// 			update:function(state,delta){
-// 				state.time-=delta;
-// 				state.alive = state.time>0;
-// 				var enemies = physics.getColliders(state.a, state.x, state.y, state.width, state.height);
+Entities.add('disk', Entities.create(
+	(function(){
+		//var sound = Sound.createSound('explosion_fire');
+		//sound.gain = 0.2;
+		var p;
+		return {
+			parent: Entities.projectile,
+			construct: function(state,x,y) {
+				state.configure(configs.weaponValues.disk);
+				var sizew = configs.weaponValues.disk.width.value;
+				var sizeh = configs.weaponValues.disk.height.value;
+				state.destroyOnContact = false;
+				p = Entities.player.getInstance(0);
+				state.glInit = function(manager){
+					
+				}
+				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
+					manager.fillEllipse(p.cx,p.cy,0,state.width,state.height,0,1,0.5,0,1);
+				};
+			},
+			create: function(state,x,y){
+				state.alive = true;
+			},
+			update:function(state,delta){
+			// todo
+				// var enemies = physics.getColliders(state.a, state.x, state.y, state.width, state.height);
 // 				for(var i = 0; i<enemies.length; i++){
 // 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
 // 						state.alive = false;
 // 						enemies[i].doDamage(damage,Entities.player.getInstance());
 // 					}
 // 				}
-// 			},
-// 			destroy: function(state){
-// 				sound.play(0);
-// 				var enemies = physics.getColliders(state.a, state.blastbox.x, state.blastbox.y, state.blastbox.width, state.blastbox.height);
-// 				Entities.explosion_basic.newInstance(state.x + state.width/2 - state.blastRadius/2,state.y + state.height/2 - state.blastRadius/2,state.blastRadius,0,damage,0,blastForce, interp,Entities.player.getInstance());
-// 				graphics.removeFromDisplay(state,'gl_main');
-// 				physics.remove(state);
-// 			}
-// 		};
-// 	})())
-// );
+			},
+			destroy: function(state){
+				//sound.play(0);
+				graphics.removeFromDisplay(state,'gl_main');
+				physics.remove(state);
+			}
+		};
+	})())
+);

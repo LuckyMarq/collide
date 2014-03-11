@@ -514,57 +514,55 @@ function BoomerangWeapon() {
 }
 BoomerangWeapon.prototype = new GLDrawable();
 
-// function DiskWeapon(){
-// 	var diskConfig = configs.weaponValues.disk;
-// 	this.boundless = true;
-// 	this.energy = 100;
-// 	this.overheated = false;
-// 	var COST = diskConfig.cost.value;
-// 	var RECHARGE_RATE = diskConfig.rechargeRate.value;
-// 	var p = Entities.player.getInstance(0);
-// 	//var sound = Sound.createSound('rocket_fire');
-// 	//sound.gain = 0.1;
-// 	var firing = false;
-// 	Entities.disk.newInstance(p.cx,p.cy);
-// 	var disk = Entities.disk.getInstance(0);
-// 	var direction;
-// 	
-// 	this.tick =function (delta) {
-// 		if (time > 0)
-// 			time-=delta;
-// 		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
-// 			this.energy+=RECHARGE_RATE;
-// 		if (this.energy < 0) {
-// 			this.overheated = true;
-// 			this.energy = 0;
-// 		}
-// 		if (this.energy >= 100) {
-// 			this.overheated = false;
-// 		}
-// 		
-// 		direction = (Math.PI*2)-Vector.getDir(mouse.x-state.cx,mouse.y-state.cy);
-// 		var p = gamepad.padA[0]; 
-// 		if(p&&p.rightStick.mag>0.5){
-// 			direction = (Math.PI*2)-p.rightStick.dir;
-// 		}
-// 	}
-// 	
-// 	this.fire = function(dir) {
-// 		firing = true;
-// 		if (!this.overheated) {
-// 			this.energy -= COST;
-// 			disk.extend(direction); // mouse direction
-// 			//sound.play(0);
-// 		}
-// 	};
-// 	
-// 	this.holdFire = function() {
-// 		firing = false;
-// 		disk.retract(direction);
-// 	};
-// 
-// }
-// DiskWeapon.prototype = {};
+function DiskWeapon(){
+	var diskConfig = configs.weaponValues.disk;
+	this.boundless = true;
+	this.energy = 100;
+	this.overheated = false;
+	var COST = diskConfig.cost.value;
+	var RECHARGE_RATE = diskConfig.rechargeRate.value;
+	var p = Entities.player.getInstance(0);
+	//var sound = Sound.createSound('rocket_fire');
+	//sound.gain = 0.1;
+	var firing = false;
+	Entities.disk.newInstance(p.cx,p.cy);
+	var disk = Entities.disk.getInstance(0);
+	var direction;
+	
+	this.tick =function (delta) {
+		if ((!firing || this.overheated) && this.energy < 100 && !Loop.paused)
+			this.energy+=RECHARGE_RATE;
+		if (this.energy < 0) {
+			this.overheated = true;
+			this.energy = 0;
+		}
+		if (this.energy >= 100) {
+			this.overheated = false;
+		}
+		
+		direction = (Math.PI*2)-Vector.getDir(mouse.x-p.cx,mouse.y-p.cy);
+		var c = gamepad.padA[0]; 
+		if(c&&c.rightStick.mag>0.5){
+			direction = (Math.PI*2)-c.rightStick.dir;
+		}
+	}
+	
+	this.fire = function(dir) {
+		firing = true;
+		if (!this.overheated) {
+			this.energy -= COST;
+			//disk.extend(direction); // mouse direction
+			//sound.play(0);
+		}
+	};
+	
+	this.holdFire = function() {
+		firing = false;
+		//disk.retract(direction);
+	};
+
+}
+DiskWeapon.prototype = {};
 
 
 // Scissor/Melee Weapon
