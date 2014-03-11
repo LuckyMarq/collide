@@ -5,6 +5,9 @@
 	<weapons>
 		BeamWeapon;RocketWeapon;WaveWeapon;MineWeapon
 	</weapons>
+	<weaponNames>
+		Beam;Rocket;Wave;Mine
+	</weaponNames>
 	<levels>
 		<level1>
 			<configs>
@@ -38,11 +41,7 @@
 							<min>0</min>
 							<max>5</max>
 						</entity>
-						<entity name='enemy_dragon' margin='32'>
-							<min>0</min>
-							<max>5</max>
-						</entity>
-						<entity name='evil_triangles' margin='32'>
+						<entity name='enemy_indirect_suicider' margin='32'>
 							<min>0</min>
 							<max>5</max>
 						</entity>
@@ -89,6 +88,10 @@
 							<max>5</max>
 						</entity>
 						<entity name='enemy_breaker_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_exploding_suicider' margin='32'>
 							<min>0</min>
 							<max>5</max>
 						</entity>

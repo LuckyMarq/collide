@@ -203,7 +203,7 @@ function Map(config){
 			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,player);
 		}else{
 			//create player
-			var index = (configs.map.startWeapon) ? configs.map.startWeapon.value : weaponId || Math.floor(Math.random()*this.keyframes.length)
+			var index = start_weapon;
 			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,Entities.player.newInstance(this.room.x+size/2,this.room.y + size/2,this.keyframes[index],this.weapons[index]));
 			this.weapons.splice(index,1);
 			this.keyframes.splice(index,1);
@@ -227,50 +227,6 @@ function Map(config){
 		for(var i = 0; i<rooms.length; i++){
 			rooms[i].visited = false;
 		}
-		// var weaponRoom = this.room;
-		// while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
-			// weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
-		// }
-		// var index = Math.round(Math.random()*(this.keyframes.length - 1));
-		// Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,this.keyframes[index],this.weapons[index]);
-		// console.log(this.keyframes[index])
-		// weaponRoom.full = true;
-		// this.weapons.splice(index,1);
-		// this.keyframes.splice(index,1);
-		
-		// var endRoom = this.room;
-		// while(endRoom == this.room || endRoom == weaponRoom || endRoom.adjacentTo(this.room)){
-			// endRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
-		// }
-		// Entities.level_end.newInstance(endRoom.x + size/2 - 128,endRoom.y + size/2 - 128)
-		// endRoom.full = true;
-		
-		// if(config.entities){
-			// var populate = function(room){
-				// if(!room.full){
-					// for(var i = 0; i<config.entities.children.length; i++){
-						// var entity = config.entities.children[i];
-						// var num = getNodeValue(entity);
-						// var margin = entity.attributes.margin;
-						// for(var j = 0; j< num; j++){
-							// var x = room.x+ (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2)));
-							// var y = room.y+ (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2)));
-							// Entities[entity.attributes.name].newInstance(x,y);
-						// }
-					// }
-				// }
-				// room.populated = true
-				// if(room.north!=null && !room.north.populated)populate(room.north);
-				// if(room.south!=null && !room.south.populated)populate(room.south);
-				// if(room.east!=null && !room.east.populated)populate(room.east);
-				// if(room.west!=null && !room.west.populated)populate(room.west);
-			// }
-			// this.room.populated = true;
-			// if(this.room.north!=null)populate(this.room.north);
-			// if(this.room.south!=null)populate(this.room.south);
-			// if(this.room.east!=null)populate(this.room.east);
-			// if(this.room.west!=null)populate(this.room.west);
-		// }
 	}
 	this.visit= function(x,y,width,height){
 		for(var i = 0; i<rooms.length; i++){
@@ -403,7 +359,6 @@ RoomPopulators = {
 		}
 	},
 	FourCorners: function(min,max,priority,fill,entity,xOffset,yOffset,xMargin,yMargin){
-		
 		xOffset = xOffset || constructor.xOffset || constructor.width/2 || 0
 		yOffset = yOffset || constructor.yOffset || constructor.height/2 || 0
 		return {
@@ -412,6 +367,112 @@ RoomPopulators = {
 				Entities[entity].newInstance(room.x + (map.size/2) + (room.width/2) - xMargin - xOffset,room.y + map.size/2 - (room.height/2) + yMargin - yOffset);
 				Entities[entity].newInstance(room.x + (map.size/2) + (room.width/2) - xMargin - xOffset,room.y + map.size/2 + (room.height/2) - yMargin - yOffset);
 				Entities[entity].newInstance(room.x + (map.size/2) - (room.width/2) + xMargin - xOffset,room.y + map.size/2 + (room.height/2) - yMargin - yOffset)
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Random: function(min,max,priority,fill,entity,minE,maxE,margin,xOffset,yOffset){
+		margin = margin || 0;
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				for(var i=0; i<num; i++){
+					var x = room.x + (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2))) + xOffset;
+					var y = room.y + (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2))) + yOffset;
+					Entities[entity].newInstance(x,y);
+				}
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Circle: function(min,max,priority,fill,entity,minE,maxE,radius,xOffset,yOffset){
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				var theta = Math.PI/num;
+				var c = Math.cos(theta);
+				var s = Math.sin(theta);
+				var x = radius - (xOffset || 0);
+				var y = -(yOffset || 0);
+				for(var i=0; i<num; i++){
+					Entities[entity].newInstance((room.x+size/2)+x,(room.y+size/2)+y);
+					var u = x;
+					var v = y;
+					x = u*c - v*s;
+					y = u*s + v*c;
+				}
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Square: function(min,max,priority,fill,entity,minE,maxE,width,height,xOffset,yOffset){
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				var mod = num%4
+				var sides = Math.floor(num/4)
+				var edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				var cx = (room.x + (size/2));
+				var cy = (room.y + (size/2));
+				var x1 = cx - width/2;
+				var y1 = cy - height/2;
+				var x2 = cx - width/2;
+				var y2 = cy + height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx + width/2;
+				y2 = cy + height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx + width/2;
+				y2 = cy -height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx - width/2;
+				y2 = cy - height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
 				if(fill)room.full = true;
 				return true;
 			},
