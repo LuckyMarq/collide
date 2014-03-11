@@ -68,7 +68,9 @@ WeaponManager.prototype = Object.defineProperties(
  		},
  		
  		tick: function(delta) {
- 			this.currentWeapon.tick(delta);	
+ 			for (var i = 0; i < this.position; i++){
+				this.weaponList[i].tick(delta); 			
+ 			}	
  		},
  	
  		// Removes all weapons from the player

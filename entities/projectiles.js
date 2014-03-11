@@ -506,37 +506,36 @@ Entities.add('boomerang', Entities.create(
 				state.theta = dir-(Math.PI/2);
 				state.amt = amt;
 				state.theta = 0;
-				state.e = 'undefined';
+				state.e = null;
+				state.locked = false;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta + 4*delta) % (2*Math.PI);
 				
 				if (state.hasCollided) {
-					if (state.e != 'undefined') {
+					if (state.e != null && state.locked) {
 						state.moveToward(state.e.x,state.e.y,state.speed);
-					}
-				}
-				
-				var distance = 99999;
-				var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
-				for (var i = 0; i < enemies.length; i++) {
-					var e = enemies[i];
-					if (state.hasCollided) {
-						if (e.isEnemy) {
-							var u = Math.sqrt(Math.pow(e.x+state.x,2) + Math.pow(e.y+state.y,2));
-							if (u < distance && u > 5 && state.e != e) {
-								distance = u;
-								state.e = e;
+					} else {
+						var distance = 99999;
+						var enemies = physics.getColliders(state.a, state.x-state.range/2,state.y-state.range/2,state.range,state.range);
+						for (var i = 0; i < enemies.length; i++) {
+							var e = enemies[i];
+							if (e.isEnemy) {
+								var u = Math.sqrt(Math.pow(e.x+state.x,2) + Math.pow(e.y+state.y,2));
+								if (u < distance && state.e != e) {
+									distance = u;
+									state.e = e;
+									state.locked = true;
+								}
 							}
 						}
 					}
 				}
-				if (state.e != 'undefined' && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
+				
+				if (state.e != null && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
 					state.amt--;
+					state.locked = false;
 					state.sound_bounce.play(0);
-					if (state.e.life <= 0){
-						state.e = 'undefined';
-					}
 				}
 				if (state.amt <= 0) {
 					state.alive = false;
