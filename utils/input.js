@@ -209,7 +209,7 @@ var input = {
 			false);
 		
 		var wheelEvent= function(evt){
-			var delta = evt.wheelDelta || -e.detail;
+			var delta = evt.wheelDelta || -evt.detail;
 			for(var o in wheelListeners){
 				wheelListeners[o](delta,evt.wheelDelta);
 			}

@@ -17,7 +17,7 @@ function initSound(){
 	
 	var buffers = {};
 	
-	var Sound = function(bufferId,loop,music){
+	var Sound = function(bufferId,loop,music,loopStart,loopEnd){
 		this.loop = loop || false;
 		var gainNode = context.createGain();
 		var playing=false;
@@ -30,6 +30,8 @@ function initSound(){
 			if(buffers[bufferId].loaded){
 				source = context.createBufferSource(); // Create Sound Source
 				source.buffer = buffers[bufferId].data; // Add Buffered Data to Object
+				if(loopStart) source.loopStart = loopStart;
+				if(loopEnd) source.loopEnd = loopEnd;
 				source.loop = this.loop;
 				source.connect(gainNode);
 				source.onend = onendFunc;
@@ -128,8 +130,8 @@ function initSound(){
 				buffers[id] = new SoundBuffer(url,callback);
 				return id;
 			},
-			createSound:function(bufferId,loop,music){
-				return new Sound(bufferId,loop,music);
+			createSound:function(bufferId,loop,music,loopStart,loopEnd){
+				return new Sound(bufferId,loop,music,loopStart,loopEnd);
 			},
 			isLoaded: function(id){
 				return buffers[id] && buffers[id].loaded;

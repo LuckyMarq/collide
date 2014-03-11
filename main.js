@@ -229,6 +229,8 @@ function checkHighScores(score){
 }
 
 function initStartScreen(){
+	menu_music = Sound.createSound('killer_geometry',true,true,9.6,76.8)
+	menu_music.play(0);
 	var screen = graphics.getScreen('gl_main');
 	screen.scale(2);
 	var dw=configs.misc.displayDimensions.attributes.width,dh=configs.misc.displayDimensions.attributes.height;
@@ -423,6 +425,8 @@ function initStartScreen(){
 		start_weapon = (configs.map.startWeapon) ? configs.map.startWeapon.value : Math.floor(Math.random()*configs.map.keyframes.value.length);
 		graphics.removeFromDisplay(WeaponSelect,'gl_main');
 		ticker.remove(WeaponSelect);
+		menu_music.gain = 0.5
+		menu_music.stop(0);
 		if(first){
 			initScene();
 			first = false;
@@ -438,6 +442,7 @@ function initStartScreen(){
 		start_weapon = weaponIndex;
 		graphics.removeFromDisplay(WeaponSelect,'gl_main');
 		ticker.remove(WeaponSelect);
+		menu_music.stop(0);
 		if(first){
 			initScene();
 			first = false;
@@ -719,6 +724,7 @@ function reinitScene(){
 	previous_menu = StartMenu;
 	ticker.add(StartMenu);
 	graphics.addToDisplay(StartMenu,'gl_main');
+	menu_music.play(0);
 	frozen = true;
 	// currentMap.rebuild(true);
 	
