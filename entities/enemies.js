@@ -132,7 +132,10 @@ Entities.add('enemy_turret',Entities.create({
 		state.shotsound = Sound.createSound(configs.enemyValues.enemy_turret.shotSound.buffer.text);
 		state.shotsound.gain = configs.enemyValues.enemy_turret.shotSound.gain.value;
 		state.rate = configs.enemyValues.enemy_turret.fireSpeed.value;
+		state.rate2 = configs.enemyValues.enemy_turret.fireSpeed.value + configs.enemyValues.enemy_turret.fireSpread.value;
+		state.rate3 = configs.enemyValues.enemy_turret.fireSpeed.value + configs.enemyValues.enemy_turret.fireSpread.value*2;
 		state.t = 0;
+		state.scope = 1024*1.3;
 	},
 	create: function(state){
 		state.life = configs.enemyValues.enemy_turret.life.value;
@@ -140,14 +143,37 @@ Entities.add('enemy_turret',Entities.create({
 	update: function(state,delta){
 		if(state.inActiveScope){
 			state.delay += delta;
+			state.delay2 += delta;
+			state.delay3 += delta;
 			var p = Entities.player.getInstance(0);
 			state.theta = Vector.getDir(vec2.set(state.v, p.cx - (state.x+state.width/2),  p.cy - (state.y+state.height/2)));
 			var dist = pythag(p.cx-state.x+state.width/2,p.cy-state.y+state.height/2);
 			if(state.delay >= state.rate) {
-				Entities.enemyFollowBullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2);
-				state.shotsound.play(0)
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2) ,p.cy-(state.y + state.height/2)));
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2)+80 ,p.cy-(state.y + state.height/2)+80));
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2)-80 ,p.cy-(state.y + state.height/2)-80));
+				state.shotsound.play(0);
 				state.delay = 0;
 			}
+			if(state.delay2 >= state.rate2) {
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2) ,p.cy-(state.y + state.height/2)));
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2)+100 ,p.cy-(state.y + state.height/2)+100));
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2)-100 ,p.cy-(state.y + state.height/2)-100));
+				state.shotsound.play(0);
+				state.delay2 = 0;
+			}
+			if(state.delay3 >= state.rate3) {
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2) ,p.cy-(state.y + state.height/2)));
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2)+120 ,p.cy-(state.y + state.height/2)+120));
+				Entities.enemy_bullet.newInstance((Math.cos(state.theta)*40)+state.x + state.width/2, (Math.sin(state.theta)*40)+state.y + state.height/2,Vector.getDir(p.cx-(state.x + state.width/2)-120 ,p.cy-(state.y + state.height/2)-120));
+				state.shotsound.play(0);
+				state.delay2 = state.delay;
+				state.delay3 = state.delay;
+			}
+		}else{
+		state.delay = 0;
+		state.delay2 = 0;
+		state.delay3 = 0;
 		}
 	},
 	destroy: function(state,reset){
@@ -194,7 +220,7 @@ Entities.add('enemy_shooter',Entities.create({
 			if(state.y < p.cy + state.innerRadius && state.up == 1){
 				state.accelerateToward(state.x, state.y+100, state.speed);
 			}else if(state.y > p.cy + state.outerRadius && state.up == 1){
-				state.accelerateToward(state.x, state.y-100, state.moveSpeed);
+				state.accelerateToward(state.x, state.y-100, state.speed);
 			//down
 			}else if(state.y > p.cy - state.innerRadius && state.up == 0){
 				state.accelerateToward(state.x, state.y-100, state.speed);

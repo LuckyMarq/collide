@@ -23,9 +23,10 @@ Entities.add('player_only_projectile',Entities.create(
 		create: function(state,x,y){
 			state.set(x,y,0,0,0,0);
 			state.damage = 5;
-			state.time = 2;
+			state.time = 1.7;
 			physics.add(state);
 			graphics.addToDisplay(state,'gl_main');
+			state.isEnemyProjectile= true;
 		},
 		destroy: function(state){
 			physics.remove(state);
@@ -38,23 +39,30 @@ Entities.add('enemy_bullet', Entities.create(
 	{
 		parent: Entities.player_only_projectile,
 		construct: function(state){
-			state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-				manager.fillEllipse(state.x+state.width/2,state.y+state.height/2,0,state.width,state.height,0,1,0,0,1);
-			}
+			
 		},
 		create: function(state,x,y,dir){
 			state.set(x,y,0,0,0,0);
 			state.c = Math.cos(dir);
 			state.s = Math.sin(dir);
-			state.speed = 600;
+			state.speed = 800;
 			state.vel[0] = state.speed*state.c;
 			state.vel[1] = state.speed*state.s;
+			Vector.setDir(state.vel,state.vel,dir);
 		},
 		update: function(state,delta){
+			Entities.enemy_bullet_part.newInstance(state.x + state.width/2 - 12, state.y + state.height/2 - 12,.2,1,1,0);
 		}
 	}
 ))
 
+Entities.add('enemy_bullet_part', Entities.create({
+	parent: Entities.player_trail_particles,
+	create: function(state,x,y,life,r,g,b){
+		state.width=48;
+		state.height=48;
+	}
+}));
 
 Entities.add('enemyFollowBullet', Entities.create(
 	{
