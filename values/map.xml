@@ -3,7 +3,7 @@
 		triangle;rocket;circle;square
 	</keyframes>
 	<weapons>
-		BeamWeapon;RocketWeapon;WaveWeapon;MineWeapon
+		BeamWeapon;RocketWeapon;WaveWeapon;MineWeapon;WaveWeapon
 	</weapons>
 	<weaponNames>
 		Beam;Rocket;Wave;Mine

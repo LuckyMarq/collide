@@ -131,6 +131,7 @@ function WaveWeapon(){
 			if (enemies.length > 1) {
 				for (var i = 0; i < a.length; i++) {
 					var enemy = a[i];
+					if(enemy==p)continue;
 					var inRange = false;
 					var dist = Math.sqrt(Math.pow(enemy.x - p.cx,2) + Math.pow(enemy.y - p.cy,2));
 					if (dist < radius) {
@@ -167,9 +168,9 @@ function WaveWeapon(){
 					}
 					if (inRange) {
 						Vector.setMag(evec, evec, 1);
+						enemy.vel[0] = evec[0] * mag;
+						enemy.vel[1] = evec[1] * mag;
 						if(enemy.isEnemy) {
-							enemy.vel[0] = evec[0] * mag;
-							enemy.vel[1] = evec[1] * mag;
 							enemy.life -= damage;
 							if (enemy.life <= 0) {
 								//addToPoints(enemy.points);
