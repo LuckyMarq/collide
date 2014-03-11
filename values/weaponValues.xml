@@ -41,6 +41,15 @@
 		<speed>1000</speed>
 		<width>20</width>
 	</boomerang>
+	<disk>
+		<cost>20</cost>
+		<damage>8</damage>
+		<force>100</force>
+		<height>64</height>
+		<rechargeRate>1</rechargeRate>
+		<speed>1000</speed>
+		<width>64</width>
+	</disk>
 	<mine>
 		<blastRadius>256</blastRadius>
 		<cost>20</cost>

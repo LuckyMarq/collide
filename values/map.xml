@@ -1,12 +1,12 @@
 <root>
 	<keyframes>
-		triangle;rocket;circle;square
+		triangle;rocket;circle;square;hex;star
 	</keyframes>
 	<weapons>
-		BeamWeapon;RocketWeapon;WaveWeapon;MineWeapon;WaveWeapon
+		BeamWeapon;RocketWeapon;WaveWeapon;MineWeapon;BlackHoleWeapon;BoomerangWeapon
 	</weapons>
 	<weaponNames>
-		Beam;Rocket;Wave;Mine
+		Beam;Rocket;Wave;Mine;BlackHole;Boomerang
 	</weaponNames>
 	<levels>
 		<level1>
