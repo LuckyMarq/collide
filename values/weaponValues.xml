@@ -22,12 +22,12 @@
 		</explosion>
 		<force>800</force>
 		<fuse>8</fuse>
-		<height>32</height>
+		<height>64</height>
 		<pause>1</pause> <!-- pause before exploding -->
 		<rechargeRate>1</rechargeRate>
 		<rof>0.2</rof> <!-- Rate of Fire -->
 		<speed>600</speed>
-		<width>32</width>
+		<width>64</width>
 	</blackHole>
 	<boomerang>
 		<cost>20</cost>
