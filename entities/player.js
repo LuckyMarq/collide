@@ -862,7 +862,7 @@ Entities.player.reset = function(){}
 
 Entities.add('player_trail_particles',Entities.create(
 		{
-			create: function(state,x,y,life,r,g,b){
+			create: function(state,x,y,life,r,g,b,size){
 				state.alive = true;
 				state.life = life || 0.5;
 				state.lifeStart = state.life;
@@ -905,8 +905,8 @@ Entities.add('player_trail_particles',Entities.create(
 					state.z = 1;
 					state.first = true;
 				}
-				state.width = 32;
-				state.height = 32;
+				state.width = size||32;
+				state.height = size||32;
 				state.x = x-state.width/2;
 				state.y = y-state.height/2;
 				graphics.addToDisplay(state,'gl_main');
@@ -923,11 +923,11 @@ Entities.add('player_trail_particles',Entities.create(
 		}
 	));
 
-Entities.player_trail_particles.burst = function(x,y,size,num,life,r,g,b){
+Entities.player_trail_particles.burst = function(x,y,size,num,life,r,g,b,psize){
 	for(var i = 0; i< num; i++){
 		var t = Math.random()*(Math.PI*2);
 		var rad = Math.pow(Math.random(),2)* size;
-		this.newInstance(x+Math.cos(t)*rad,y+Math.sin(t)*rad,life,r,g,b);
+		this.newInstance(x+Math.cos(t)*rad,y+Math.sin(t)*rad,life,r,g,b,psize);
 	}
 }
 

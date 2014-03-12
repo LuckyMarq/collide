@@ -469,7 +469,7 @@ function BoomerangWeapon() {
 	
 	this.tick =function (delta) {
 		if (firing) {
-			if (sound_charge.gain < 0.3) sound_charge.gain += delta/2;
+			if (sound_charge.gain < 0.2) sound_charge.gain += delta/4;
 			amt += delta*2;
 			rotation = (rotation + 4*delta) % (2*Math.PI);
 			if (amt < maxTargets)
@@ -526,7 +526,7 @@ function DiskWeapon(){
 	//var sound = Sound.createSound('rocket_fire');
 	//sound.gain = 0.1;
 	var firing = false;
-	Entities.disk.newInstance(p.cx,p.cy);
+// 	Entities.disk.newInstance(p.cx,p.cy);
 	var disk = Entities.disk.getInstance(0);
 	var direction;
 	

@@ -46,6 +46,10 @@ var input = {
 		var clickListeners = {};
 		var wheelListeners = {}
 		
+		this.resetBoundingBox = function(){
+			rect = frame.getBoundingClientRect();
+		}
+		
 		this.addClickListener=function(id,callback){
 			if(typeof id == 'updefined' || typeof callback != 'function') throw "addClickListener: illegal values passed"
 			clickListeners[id]=callback;

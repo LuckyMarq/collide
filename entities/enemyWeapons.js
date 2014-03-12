@@ -39,7 +39,7 @@ Entities.add('enemy_bullet', Entities.create(
 	{
 		parent: Entities.player_only_projectile,
 		construct: function(state){
-			
+			state.z=0;
 		},
 		create: function(state,x,y,dir){
 			state.set(x,y,0,0,0,0);
@@ -51,18 +51,29 @@ Entities.add('enemy_bullet', Entities.create(
 			Vector.setDir(state.vel,state.vel,dir);
 		},
 		update: function(state,delta){
-			Entities.enemy_bullet_part.newInstance(state.x + state.width/2 - 12, state.y + state.height/2 - 12,.2,1,1,0);
+			Entities.player_trail_particles.burst(state.x + state.width/2, state.y + state.height/2,state.width/2,1,0.2,1,0,0,32);
+			Entities.player_trail_particles.newInstance(state.x + state.width/2, state.y + state.height/2,0.2,1,1,1,state.width);
 		}
 	}
 ))
 
 Entities.add('enemy_bullet_part', Entities.create({
 	parent: Entities.player_trail_particles,
-	create: function(state,x,y,life,r,g,b){
-		state.width=48;
-		state.height=48;
+	create: function(state,x,y,life,r,g,b,size){
+		// state.x = state.x-size/2;
+		// state.y = state.y-size/2;
+		// state.width=size;
+		// state.height=size;
 	}
 }));
+
+Entities.enemy_bullet_part.burst = function(x,y,size,num,life,r,g,b,psize){
+	for(var i = 0; i< num; i++){
+		var t = Math.random()*(Math.PI*2);
+		var rad = Math.pow(Math.random(),2)* size;
+		this.newInstance(x+Math.cos(t)*rad,y+Math.sin(t)*rad,life,r,g,b,psize);
+	}
+}
 
 Entities.add('enemyFollowBullet', Entities.create(
 	{
