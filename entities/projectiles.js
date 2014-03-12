@@ -55,7 +55,7 @@ Entities.add('projectile', Entities.create(
 				graphics.addToDisplay(state,'gl_main');
 			},
 			update: function(state,delta){
-				state.a = [];	
+				state.a.length = 0;	
 				state.fuse -= delta;
 				if (state.fuse < 0) state.alive = false;
 				
@@ -89,6 +89,7 @@ Entities.add('projectile', Entities.create(
 						}
 					}
 				}
+				
 				
 				if(state.doHitCheck){
 					var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
@@ -322,6 +323,7 @@ Entities.add('blackhole', Entities.create(
 		var buffered = false;
 		var verts = [];
 		var alpha = [];
+		var enemies = [];
 		var t = 10;
 		return {
 			parent: Entities.projectile,
@@ -413,9 +415,14 @@ Entities.add('blackhole', Entities.create(
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
 				// apply forces
 				//if (state.activate) {
+					state.a.length = 0;
 					physics.getColliders(state.a,state.x,state.y,state.width,state.height);
 					for (var i = 0; i < state.a.length; i++) {
 						var b = state.a[i];
+						if(b.doDamage && Collisions.circleBox(state.x+state.width/2,state.y+state.height/2,state.width,b.x,b.y,b.width,b.height)){
+							b.doDamage(delta*state.damage*(pythag(state.x+state.width/2-b.x+b.width/2,state.y+state.height-b.y+b.height/2)/state.width))
+							console.log(state.damage)
+						}
 						if (b != state && !b.isEnemy) {
 							if (b.isBlackhole && b.activate && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
 								state.explode = true;
@@ -429,8 +436,6 @@ Entities.add('blackhole', Entities.create(
 							}
 						}
 					}
-					
-					state.factor += delta;
 					physics.createGravityWell(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
 					state.sound_active.play(0);
 				//}
