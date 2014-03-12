@@ -338,11 +338,10 @@ function BeamWeapon(){
 		
 			var traceResult = physics.rayTrace(hits,p.cx,p.cy,p.cx+Math.cos(dir),p.cy+Math.sin(dir));
 			if (traceResult.length > 3) {
-				for (var i = 1; i < traceResult.length -2; i++) {
-					traceResult[i].accelerateToward(p.cx, p.cy, force * 3/i);
-					traceResult[i].life -= dt * damage * 1/i;
-					if (traceResult[i].life <= 0) {
-						addToPoints(traceResult[i].points);
+				for (var i = 1; i < traceResult.length -2; i++) {	
+					var e = traceResult[i];
+					if(pythag(e.x+e.width/2-p.cx,e.y+e.height/2-p.cy)<length){
+						if(e.doDamage)e.doDamage(dt * damage * 1/i,p)
 					}
 				}
 			}
@@ -442,8 +441,11 @@ function BoomerangWeapon() {
 	var firing = false;
 	var direction;
 	var amt = 0; // how many targets to bounce off of
+	var chargeRate = boomConfig.chargeRate.value;
 	var maxTargets = boomConfig.maxTargets.value;
 	var rotation = 0;
+	var ldir;
+	
 	
 	this.glInit = function(manager){
 		var color = [];
@@ -470,7 +472,7 @@ function BoomerangWeapon() {
 	this.tick =function (delta) {
 		if (firing) {
 			if (sound_charge.gain < 0.2) sound_charge.gain += delta/4;
-			amt += delta*2;
+			amt += delta*chargeRate;
 			rotation = (rotation + 4*delta) % (2*Math.PI);
 			if (amt < maxTargets)
 				this.energy -= delta * COST;
@@ -493,11 +495,11 @@ function BoomerangWeapon() {
 		if (!this.overheated){
 			sound_charge.play(0);
 		}
+		direction = dir;
 	};
 	
 	this.holdFire = function() {
 		if (firing) {
-			direction = (Math.PI*2)-Vector.getDir(mouse.x-p.cx,mouse.y-p.cy);
 			if (amt > maxTargets)
 				amt = maxTargets;
 			else

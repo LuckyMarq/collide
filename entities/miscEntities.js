@@ -199,7 +199,7 @@ Entities.add('explosion', Entities.create(
 						var damage = interpolator(minDamage,maxDamage,p);
 						var force = interpolator(minForce,maxForce,p)/(e.mass || 1);
 						if(e.doDamage){
-							e.doDamage(damage,damager)
+							e.doDamage(damage,damager);
 						}else{
 							e.life-=damage;
 						}
