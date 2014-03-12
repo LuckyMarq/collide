@@ -215,8 +215,8 @@ function checkHighScores(score){
 	for(var i = 0; i<10; i++){
 		if(high_scores[i].score<score){
 			var name = prompt("New High Score!!\nPlease enter name") || 'Anonymous';
-			for(var j = i; j<9; j++){
-				high_scores[j+1] = high_scores[j];
+			for(var j = 9; j>i; j--){
+				high_scores[j] = high_scores[j-1];
 			}
 			var score=score+'';
 			while(score.length<score_chars)score='0'+score

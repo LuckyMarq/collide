@@ -1,15 +1,15 @@
 <root>
 	<beam>
 		<cost>0.4</cost>
-		<damage>8</damage>
+		<damage>16</damage>
 		<force>-80</force>
-		<length>512</length>
+		<length>1024</length>
 		<rechargeRate>1</rechargeRate>
 	</beam>
 	<blackHole>
 		<blastRadius>256</blastRadius>
 		<cost>65</cost>
-		<damage>0.05</damage>
+		<damage>0.1</damage>
 		<decceleration>
 			<speed>300</speed>
 		</decceleration>
@@ -35,7 +35,8 @@
 		<force>100</force>
 		<fuse>2</fuse>
 		<height>20</height>
-		<maxTargets>5</maxTargets>
+		<chargeRate>4</chargeRate>
+		<maxTargets>10</maxTargets>
 		<range>512</range> <!-- ricochet travel distance -->
 		<rechargeRate>1</rechargeRate>
 		<speed>1000</speed>

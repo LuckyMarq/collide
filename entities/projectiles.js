@@ -55,7 +55,7 @@ Entities.add('projectile', Entities.create(
 				graphics.addToDisplay(state,'gl_main');
 			},
 			update: function(state,delta){
-				state.a = [];	
+				state.a.length = 0;	
 				state.fuse -= delta;
 				if (state.fuse < 0) state.alive = false;
 				
@@ -90,6 +90,7 @@ Entities.add('projectile', Entities.create(
 					}
 				}
 				
+				
 				if(state.doHitCheck){
 					var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
 					for (var i = 0; i < enemies.length; i++) {
@@ -99,7 +100,7 @@ Entities.add('projectile', Entities.create(
 							state.x = state.px || 0;
 							state.y = state.py || 0;
 							i = enemies.length;
-							if(state.doHitDamage)e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
+							if(state.doHitDamage)e.doDamage(state.damage,((state.playerProjectile)?Entities.player.getInstance():null));
 							state.hasCollided = true;
 							state.collidedWith = e;
 						}
@@ -113,7 +114,7 @@ Entities.add('projectile', Entities.create(
 					state.explosion.sound.play(0);
 					Entities.explosion_basic.newInstance(
 						state.x + state.width/2 - state.explosion.radius/2, state.y + state.height/2 - state.explosion.radius/2,
-						state.explosion.radius,0,state.explosion.damage,0,state.explosion.force, state.explosion.interp,((this.playerProjectile)?Entities.player.getInstance():null))
+						state.explosion.radius,0,state.explosion.damage,0,state.explosion.force, state.explosion.interp,((state.playerProjectile)?Entities.player.getInstance():null))
 				}
 			}
 		}
@@ -322,6 +323,7 @@ Entities.add('blackhole', Entities.create(
 		var buffered = false;
 		var verts = [];
 		var alpha = [];
+		var enemies = [];
 		var t = 10;
 		return {
 			parent: Entities.projectile,
@@ -413,9 +415,13 @@ Entities.add('blackhole', Entities.create(
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
 				// apply forces
 				//if (state.activate) {
+					state.a.length = 0;
 					physics.getColliders(state.a,state.x,state.y,state.width,state.height);
 					for (var i = 0; i < state.a.length; i++) {
 						var b = state.a[i];
+						if(b.doDamage && Collisions.circleBox(state.x+state.width/2,state.y+state.height/2,state.width,b.x,b.y,b.width,b.height)){
+							b.doDamage(delta*state.damage*(pythag(state.x+state.width/2-b.x+b.width/2,state.y+state.height-b.y+b.height/2)/state.width))
+						}
 						if (b != state && !b.isEnemy) {
 							if (b.isBlackhole && b.activate && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
 								state.explode = true;
@@ -429,8 +435,6 @@ Entities.add('blackhole', Entities.create(
 							}
 						}
 					}
-					
-					state.factor += delta;
 					physics.createGravityWell(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
 					state.sound_active.play(0);
 				//}
