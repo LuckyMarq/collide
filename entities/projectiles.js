@@ -415,7 +415,7 @@ Entities.add('blackhole', Entities.create(
 					physics.getColliders(state.a,state.x,state.y,state.radius*2,state.radius*2);
 					for (var i = 0; i < state.a.length; i++) {
 						var b = state.a[i];
-						if (b != state) {
+						if (b != state && !b.isEnemy) {
 							if (b.isBlackhole && b.activate && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
 								state.explode = true;
 								if (!state.hasCollided) {
