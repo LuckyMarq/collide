@@ -34,7 +34,8 @@ Entities.add('projectile', Entities.create(
 				fillProperties(state, Entities.createStandardCollisionState({},x,y,16,16,1));
 				
 				state.configure = configure;
-				
+				state.doHitCheck = true;
+				state.doHitDamage = true;
 			},
 			create: function(state,x,y,dir){
 				state.x = x;
@@ -89,19 +90,19 @@ Entities.add('projectile', Entities.create(
 					}
 				}
 				
-				var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
-				for (var i = 0; i < enemies.length; i++) {
-					var e = enemies[i];
-					if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
-						if(state.destroyOnContact) state.alive = false;
-						state.x = state.px || 0;
-						state.y = state.py || 0;
-						i = enemies.length;
-						e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
-						if (e.life <= 0) {
-							addToPoints(e.points);
-						}	
-						state.hasCollided = true;
+				if(state.doHitCheck){
+					var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
+					for (var i = 0; i < enemies.length; i++) {
+						var e = enemies[i];
+						if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
+							if(state.destroyOnContact) state.alive = false;
+							state.x = state.px || 0;
+							state.y = state.py || 0;
+							i = enemies.length;
+							if(state.doHitDamage)e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
+							state.hasCollided = true;
+							state.collidedWith = e;
+						}
 					}
 				}
 			},
@@ -357,7 +358,7 @@ Entities.add('blackhole', Entities.create(
 					}
 				}
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-					if (state.hasCollided) {
+					if (state.collided) {
 						manager.bindProgram('basic');
 						manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
 						manager.setArrayBufferAsProgramAttribute('blackhole_frag_color','basic','vertexColor');
@@ -371,8 +372,6 @@ Entities.add('blackhole', Entities.create(
 						gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
 						gl.drawArrays(gl.TRIANGLE_FAN,0,16);
 					} else {
-					// TODO: draw range indicator
-						//manager.fillEllipse(state.x+state.width/2,state.y+state.height/2,0,state.radius,state.radius,0,1,1,1,1);
 						gl.enable(gl.BLEND);
 						gl.blendFunc(gl.SRC_ALPHA,gl.DST_ALPHA);
 						manager.bindProgram("noise_alpha");
@@ -395,7 +394,7 @@ Entities.add('blackhole', Entities.create(
 			},
 			create: function(state,x,y,dir){
 				state.isBlackhole=true;
-				state.hasCollided = false;
+				state.collided = false;
 				state.alive = true;
 				state.radius = configs.weaponValues.blackHole.blastRadius.value;
 				state.force = -1*configs.weaponValues.blackHole.force.value;
@@ -407,37 +406,43 @@ Entities.add('blackhole', Entities.create(
 				state.sound_active.gain = 0.01;
 				state.scale = 1;
 				state.forcesEnabled = false;
+				state.factor = 1;
+				state.doHitCheck = false;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
 				// apply forces
-				if (state.activate) {
-					physics.getColliders(state.a,state.x,state.y,state.radius*2,state.radius*2);
+				//if (state.activate) {
+					physics.getColliders(state.a,state.x,state.y,state.width,state.height);
 					for (var i = 0; i < state.a.length; i++) {
 						var b = state.a[i];
 						if (b != state && !b.isEnemy) {
 							if (b.isBlackhole && b.activate && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
 								state.explode = true;
-								if (!state.hasCollided) {
-									state.hasCollided = true;
+								b.explode = true;
+								if (!state.collided) {
+									state.collided = true;
+									b.collided = true;
 									state.delay = configs.weaponValues.blackHole.pause.value;
+									b.delay = configs.weaponValues.blackHole.pause.value;
 								}
 							}
 						}
 					}
 					
-					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,delta);
+					state.factor += delta;
+					physics.createGravityWell(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
 					state.sound_active.play(0);
-				}
+				//}
 				if (state.delay <= 0) {
 					state.activate = true;
-					if (state.hasCollided) {
+					if (state.collided) {
 						state.alive = false;
 						state.sound_charge.stop(0);
 					}
 				} else {
 					state.delay -= delta;
-					if (state.hasCollided) {
+					if (state.collided) {
 						if (state.sound_charge.gain < 0.4)state.sound_charge.gain += delta;
 						//console.log(state.sound_charge.gain);
 						state.sound_active.gain = 0;
@@ -466,6 +471,7 @@ Entities.add('boomerang', Entities.create(
 				state.sound_bounce = Sound.createSound('boomerang_bounce');
 				state.sound_bounce.gain = 0.2;
 				state.destroyOnContact = false;
+				state.playerProjectile = true;
 				state.glInit = function(manager) {
 					if (!buffered) {
 						var alt = false;
@@ -507,23 +513,31 @@ Entities.add('boomerang', Entities.create(
 				state.alive = true;
 				state.theta = dir-(Math.PI/2);
 				state.amt = amt;
+				state.famt = amt;
 				state.theta = 0;
 				state.e = null;
 				state.locked = false;
+				state.doHitDamage = true;
+				state.firstHit = true;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta + 4*delta) % (2*Math.PI);
 				
 				if (state.hasCollided) {
+					if(state.firstHit){
+						state.fuse = state.fuseStart;
+						state.firstHit = false;
+						state.doHitDamage = false;
+					}
 					if (state.e != null && state.locked) {
 						state.moveToward(state.e.x,state.e.y,state.speed);
 					} else {
 						var distance = 99999;
-						var enemies = physics.getColliders(state.a, state.x-state.range/2,state.y-state.range/2,state.range,state.range);
+						var enemies = physics.getColliders(state.a, state.x+state.width/2-state.range/2,state.y+state.width/2-state.range/2,state.range,state.range);
 						for (var i = 0; i < enemies.length; i++) {
 							var e = enemies[i];
 							if (e.isEnemy) {
-								var u = Math.sqrt(Math.pow(e.x+state.x,2) + Math.pow(e.y+state.y,2));
+								var u = Math.sqrt(Math.pow(e.x+e.width/2-state.x+state.width/2,2) + Math.pow(e.y+e.height/2-state.y+state.height/2,2));
 								if (u < distance && state.e != e) {
 									distance = u;
 									state.e = e;
@@ -534,10 +548,12 @@ Entities.add('boomerang', Entities.create(
 					}
 				}
 				
-				if (state.e != null && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
+				if (state.hasCollided && state.e != null && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
 					state.amt--;
 					state.locked = false;
+					state.fuse = state.fuseStart;
 					state.sound_bounce.play(0);
+					state.e.doDamage(state.damage,Entities.player.getInstance())
 				}
 				if (state.amt <= 0) {
 					state.alive = false;
