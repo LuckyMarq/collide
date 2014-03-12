@@ -345,6 +345,8 @@ function initPhysics(){
 		
 		var miscArray = [];
 		
+		var angleEpsilon = Math.PI/4
+		
 		var doForces = function(delta){
 			if(colliderTree){
 				for(var i = 0; i<radialForces.length; i+=5){
@@ -354,12 +356,19 @@ function initPhysics(){
 					for(var j in effected){
 						var e = effected[j];
 						if(e.forcesEnabled){
-							miscVec[0] = (e.x+(e.width/2))-x;
-							miscVec[1] = (e.y+(e.height/2))-y;
-							if(Vector.getMag(miscVec)<radius){
-								var m = mag - (mag*(Vector.getMag(miscVec)/radius));
-								var theta = Vector.getDir(miscVec);
-								e.addForce(Math.cos(theta)*m,Math.sin(theta)*m);
+							var u = (e.x+(e.width/2))-x;
+							var v = (e.y+(e.height/2))-y;
+							var r  = pythag(u,v);
+							if(r<radius){
+								var m = mag*(1-Math.pow((r/radius),2));
+								var theta = Vector.getDir(u,v);
+								var fx = Math.cos(theta)*m/e.mass;
+								var fy = Math.sin(theta)*m/e.mass;
+								e.accel[0]+=fx;
+								e.accel[1]+=fy;
+								if((r<1)||(r<pythag(getDif(delta,e.vel[0],e.accel[0]),getDif(delta,e.vel[1],e.accel[1])))&&(Math.abs(Vector.getDir(getDif(delta,e.vel[0],e.accel[0]),getDif(delta,e.vel[1],e.accel[1]))-theta)%Math.PI<angleEpsilon)){
+									e.set(x-e.width/2,y-e.height/2,0,0,0,0);
+								}	
 							}
 						}
 					}
@@ -741,7 +750,7 @@ function initPhysics(){
 			*	creates a force that expands outward
 			*
 			*/
-			radialForce: function(x,y,radius,mag,t){
+			createGravityWell: function(x,y,radius,mag,t){
 				radialForces.push(x,y,radius,mag,0);
 				//console.log(radialForces[radialForces.length - 1]);
 			},

@@ -152,8 +152,9 @@ Entities.add('enemyTail', Entities.create(
 			create: function(state,x,y){
 				// destroy will be called when state.alive is false
 				state.alive = true;
-				state.time = 2; // temporary variable created to destroy the instance after 1 second
+				state.time = 1.2; // temporary variable created to destroy the instance after 1 second
 				var p = Entities.player.getInstance(0);
+				state.isEnemyProjectile= true;
 				
 				if(!state.first){
 					// fill the state with standard collision state properties
@@ -165,10 +166,10 @@ Entities.add('enemyTail', Entities.create(
 							// check graphics file for more information
 							// some methods include: fillEllipse, fillRect, fillTriangle
 							// paramters are x,y,angle,width,height,zindex,r,g,b,a
-							manager.fillEllipse(this.x+this.width/2,this.y+this.height/2,0,this.width,this.height,0,.5,.8,.3,1);
+							manager.fillRect(this.x+this.width/2-10,this.y+this.height/2-10,0,this.width,this.height,0,.3,.3,.8,1);
 						}
 					// values for collision box (x,y,width,height,zindex?)
-					},x,y,20,20,1.1));
+					},x,y,25,25,.9));
 					
 					state.hitSound = Sound.createSound('player_hit');
 					state.hitSound.gain = 0.1;

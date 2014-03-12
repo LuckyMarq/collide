@@ -106,6 +106,7 @@ Entities.add('player', Entities.create((function(){
 					state.accel[0]=0;
 					state.accel[1]=0;
 				}
+				state.forcesEnabled = false;
 			}
 			state.weaponManager = new WeaponManager();
 			// state.weaponManager.add(new BeamWeapon());
