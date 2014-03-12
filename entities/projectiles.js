@@ -372,6 +372,7 @@ Entities.add('blackhole', Entities.create(
 						gl.drawArrays(gl.TRIANGLE_FAN,0,16);
 					} else {
 					// TODO: draw range indicator
+						//manager.fillEllipse(state.x+state.width/2,state.y+state.height/2,0,state.radius,state.radius,0,1,1,1,1);
 						gl.enable(gl.BLEND);
 						gl.blendFunc(gl.SRC_ALPHA,gl.DST_ALPHA);
 						manager.bindProgram("noise_alpha");
@@ -424,6 +425,7 @@ Entities.add('blackhole', Entities.create(
 							}
 						}
 					}
+					
 					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,delta);
 					state.sound_active.play(0);
 				}
@@ -562,14 +564,15 @@ Entities.add('disk', Entities.create(
 				var sizeh = configs.weaponValues.disk.height.value;
 				state.destroyOnContact = false;
 				p = Entities.player.getInstance(0);
-				state.glInit = function(manager){
-					
-				}
+				state.glInit = function(manager){};
+				
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-					manager.fillEllipse(p.cx,p.cy,0,state.width,state.height,0,1,0.5,0,1);
+				console.log("draw");
+					manager.fillEllipse(p.cx,p.cy,0,state.width,state.height,0,1,1,1,1);
 				};
 			},
 			create: function(state,x,y){
+				state.explode = true;
 				state.alive = true;
 			},
 			update:function(state,delta){
