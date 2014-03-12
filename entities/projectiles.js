@@ -35,7 +35,7 @@ Entities.add('projectile', Entities.create(
 				
 				state.configure = configure;
 				state.doHitCheck = true;
-				state.doDamage = true;
+				state.doHitDamage = true;
 			},
 			create: function(state,x,y,dir){
 				state.x = x;
@@ -99,7 +99,7 @@ Entities.add('projectile', Entities.create(
 							state.x = state.px || 0;
 							state.y = state.py || 0;
 							i = enemies.length;
-							if(state.doDamage)e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
+							if(state.doHitDamage)e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
 							state.hasCollided = true;
 							state.collidedWith = e;
 						}
@@ -412,28 +412,28 @@ Entities.add('blackhole', Entities.create(
 			update: function(state,delta) {
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
 				// apply forces
-				if (state.activate) {
+				//if (state.activate) {
 					physics.getColliders(state.a,state.x,state.y,state.width,state.height);
 					for (var i = 0; i < state.a.length; i++) {
 						var b = state.a[i];
 						if (b != state && !b.isEnemy) {
 							if (b.isBlackhole && b.activate && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
 								state.explode = true;
+								b.explode = true;
 								if (!state.collided) {
 									state.collided = true;
+									b.collided = true;
 									state.delay = configs.weaponValues.blackHole.pause.value;
+									b.delay = configs.weaponValues.blackHole.pause.value;
 								}
 							}
-						}
-						if (b.isEnemy) {
-							
 						}
 					}
 					
 					state.factor += delta;
-					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.factor*state.force,0);
+					physics.createGravityWell(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
 					state.sound_active.play(0);
-				}
+				//}
 				if (state.delay <= 0) {
 					state.activate = true;
 					if (state.collided) {
@@ -517,7 +517,7 @@ Entities.add('boomerang', Entities.create(
 				state.theta = 0;
 				state.e = null;
 				state.locked = false;
-				state.doDamage = true;
+				state.doHitDamage = true;
 				state.firstHit = true;
 			},
 			update: function(state,delta) {
@@ -527,7 +527,7 @@ Entities.add('boomerang', Entities.create(
 					if(state.firstHit){
 						state.fuse = state.fuseStart;
 						state.firstHit = false;
-						state.doDamage = false;
+						state.doHitDamage = false;
 					}
 					if (state.e != null && state.locked) {
 						state.moveToward(state.e.x,state.e.y,state.speed);

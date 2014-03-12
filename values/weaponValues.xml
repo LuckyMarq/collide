@@ -20,7 +20,7 @@
 			<force>800</force>
 			<interp>getInverseExponentInterpolator;0.5</interp>
 		</explosion>
-		<force>1000</force>
+		<force>10000</force>
 		<fuse>8</fuse>
 		<height>64</height>
 		<pause>1</pause> <!-- pause before exploding -->
