@@ -34,7 +34,8 @@ Entities.add('projectile', Entities.create(
 				fillProperties(state, Entities.createStandardCollisionState({},x,y,16,16,1));
 				
 				state.configure = configure;
-				
+				state.doHitCheck = true;
+				state.doDamage = true;
 			},
 			create: function(state,x,y,dir){
 				state.x = x;
@@ -89,19 +90,19 @@ Entities.add('projectile', Entities.create(
 					}
 				}
 				
-				var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
-				for (var i = 0; i < enemies.length; i++) {
-					var e = enemies[i];
-					if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
-						if(state.destroyOnContact) state.alive = false;
-						state.x = state.px || 0;
-						state.y = state.py || 0;
-						i = enemies.length;
-						e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
-						if (e.life <= 0) {
-							addToPoints(e.points);
-						}	
-						state.hasCollided = true;
+				if(state.doHitCheck){
+					var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
+					for (var i = 0; i < enemies.length; i++) {
+						var e = enemies[i];
+						if (e.isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,e.x,e.y,e.width,e.height)){
+							if(state.destroyOnContact) state.alive = false;
+							state.x = state.px || 0;
+							state.y = state.py || 0;
+							i = enemies.length;
+							if(state.doDamage)e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
+							state.hasCollided = true;
+							state.collidedWith = e;
+						}
 					}
 				}
 			},
@@ -406,6 +407,7 @@ Entities.add('blackhole', Entities.create(
 				state.scale = 1;
 				state.forcesEnabled = false;
 				state.factor = 1;
+				state.doHitCheck = false;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
@@ -469,6 +471,7 @@ Entities.add('boomerang', Entities.create(
 				state.sound_bounce = Sound.createSound('boomerang_bounce');
 				state.sound_bounce.gain = 0.2;
 				state.destroyOnContact = false;
+				state.playerProjectile = true;
 				state.glInit = function(manager) {
 					if (!buffered) {
 						var alt = false;
@@ -510,23 +513,31 @@ Entities.add('boomerang', Entities.create(
 				state.alive = true;
 				state.theta = dir-(Math.PI/2);
 				state.amt = amt;
+				state.famt = amt;
 				state.theta = 0;
 				state.e = null;
 				state.locked = false;
+				state.doDamage = true;
+				state.firstHit = true;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta + 4*delta) % (2*Math.PI);
 				
 				if (state.hasCollided) {
+					if(state.firstHit){
+						state.fuse = state.fuseStart;
+						state.firstHit = false;
+						state.doDamage = false;
+					}
 					if (state.e != null && state.locked) {
 						state.moveToward(state.e.x,state.e.y,state.speed);
 					} else {
 						var distance = 99999;
-						var enemies = physics.getColliders(state.a, state.x-state.range/2,state.y-state.range/2,state.range,state.range);
+						var enemies = physics.getColliders(state.a, state.x+state.width/2-state.range/2,state.y+state.width/2-state.range/2,state.range,state.range);
 						for (var i = 0; i < enemies.length; i++) {
 							var e = enemies[i];
 							if (e.isEnemy) {
-								var u = Math.sqrt(Math.pow(e.x+state.x,2) + Math.pow(e.y+state.y,2));
+								var u = Math.sqrt(Math.pow(e.x+e.width/2-state.x+state.width/2,2) + Math.pow(e.y+e.height/2-state.y+state.height/2,2));
 								if (u < distance && state.e != e) {
 									distance = u;
 									state.e = e;
@@ -537,10 +548,12 @@ Entities.add('boomerang', Entities.create(
 					}
 				}
 				
-				if (state.e != null && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
+				if (state.hasCollided && state.e != null && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
 					state.amt--;
 					state.locked = false;
+					state.fuse = state.fuseStart;
 					state.sound_bounce.play(0);
+					state.e.doDamage(state.damage,Entities.player.getInstance())
 				}
 				if (state.amt <= 0) {
 					state.alive = false;
