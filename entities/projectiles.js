@@ -357,7 +357,7 @@ Entities.add('blackhole', Entities.create(
 					}
 				}
 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix){
-					if (state.hasCollided) {
+					if (state.collided) {
 						manager.bindProgram('basic');
 						manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
 						manager.setArrayBufferAsProgramAttribute('blackhole_frag_color','basic','vertexColor');
@@ -371,8 +371,6 @@ Entities.add('blackhole', Entities.create(
 						gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
 						gl.drawArrays(gl.TRIANGLE_FAN,0,16);
 					} else {
-					// TODO: draw range indicator
-						//manager.fillEllipse(state.x+state.width/2,state.y+state.height/2,0,state.radius,state.radius,0,1,1,1,1);
 						gl.enable(gl.BLEND);
 						gl.blendFunc(gl.SRC_ALPHA,gl.DST_ALPHA);
 						manager.bindProgram("noise_alpha");
@@ -395,7 +393,7 @@ Entities.add('blackhole', Entities.create(
 			},
 			create: function(state,x,y,dir){
 				state.isBlackhole=true;
-				state.hasCollided = false;
+				state.collided = false;
 				state.alive = true;
 				state.radius = configs.weaponValues.blackHole.blastRadius.value;
 				state.force = -1*configs.weaponValues.blackHole.force.value;
@@ -407,37 +405,42 @@ Entities.add('blackhole', Entities.create(
 				state.sound_active.gain = 0.01;
 				state.scale = 1;
 				state.forcesEnabled = false;
+				state.factor = 1;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
 				// apply forces
 				if (state.activate) {
-					physics.getColliders(state.a,state.x,state.y,state.radius*2,state.radius*2);
+					physics.getColliders(state.a,state.x,state.y,state.width,state.height);
 					for (var i = 0; i < state.a.length; i++) {
 						var b = state.a[i];
 						if (b != state && !b.isEnemy) {
 							if (b.isBlackhole && b.activate && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
 								state.explode = true;
-								if (!state.hasCollided) {
-									state.hasCollided = true;
+								if (!state.collided) {
+									state.collided = true;
 									state.delay = configs.weaponValues.blackHole.pause.value;
 								}
 							}
 						}
+						if (b.isEnemy) {
+							
+						}
 					}
 					
-					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,delta);
+					state.factor += delta;
+					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.factor*state.force,0);
 					state.sound_active.play(0);
 				}
 				if (state.delay <= 0) {
 					state.activate = true;
-					if (state.hasCollided) {
+					if (state.collided) {
 						state.alive = false;
 						state.sound_charge.stop(0);
 					}
 				} else {
 					state.delay -= delta;
-					if (state.hasCollided) {
+					if (state.collided) {
 						if (state.sound_charge.gain < 0.4)state.sound_charge.gain += delta;
 						//console.log(state.sound_charge.gain);
 						state.sound_active.gain = 0;
