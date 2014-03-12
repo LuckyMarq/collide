@@ -1,28 +1,38 @@
 Entities.add('health_generic',Entities.create(
 		{
-			create: function(state,x,y,vx,vy){
-				if(!state.firstHealth){
-					fillProperties(state,Entities.createStandardCollisionState(
-							{
-								draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
-									manager.fillEllipse(this.x+(this.width/2),this.y+(this.width/2),0,this.width/2,this.height/2,0,0,1,0,1);
-									gl.enable(gl.BLEND);
-									gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
-									manager.fillEllipse(this.x+(this.width/2),this.y+(this.width/2),0,this.width,this.height,0,0,1,0,0.5);
-									gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
-								},
-								z: 0
-							},x,y,16,16,1));
-					state.health = 1;
-					state.dragConst = 0.4;
-					state.pickupSound = Sound.createSound('health_small');
-					state.pickupSound.gain = 0.1;
-					state.firstHealth = true;
-					state.pullRange = 512;
-					state.moveRange = 128;
-					state.pullMag = 1000;
-					state.moveSpeed = 500;
+			construct: function(state,x,y,vx,vy){
+				fillProperties(state,Entities.createStandardCollisionState(
+						{
+							draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+								manager.fillEllipse(this.x+(this.width/2),this.y+(this.width/2),0,this.width/2,this.height/2,0,0,1,0,1);
+								gl.enable(gl.BLEND);
+								gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+								manager.fillEllipse(this.x+(this.width/2),this.y+(this.width/2),0,this.width,this.height,0,0,1,0,0.5);
+								gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
+							},
+							z: 0
+						},x,y,16,16,1));
+				state.health = 1;
+				state.dragConst = 0.4;
+				state.pickupSound = Sound.createSound('health_small');
+				state.pickupSound.gain = 0.1;
+				state.pullRange = configs.pickups.health.pullRange.value;
+				state.moveRange = configs.pickups.health.moveRange.value;
+				state.pullMag = configs.pickups.health.pullMag.value;
+				state.moveSpeed = configs.pickups.health.moveSpeed.value;
+				state.burstNum = configs.pickups.health.burst.num.value;
+				state.burstSizeMul = configs.pickups.health.burst.sizeMul.value;
+				state.burstTime = configs.pickups.health.burst.time.value;
+				state.burstSpeed = configs.pickups.health.burst.speed.value;
+				state.configure = function(config){
+					this.width = config.size.value;
+					this.height = config.size.value;
+					this.health = config.health.value;
+					this.pickupSound = Sound.createSound(config.pickupSound.buffer.text);
+					this.pickupSound.gain = config.pickupSound.gain.value;
 				}
+			},
+			create: function(state,x,y,vx,vy){
 				state.set(x,y,vx || 0,vy || 0,0,0);
 				graphics.addToDisplay(state,'gl_main');
 				physics.add(state);
@@ -46,7 +56,8 @@ Entities.add('health_generic',Entities.create(
 			destroy: function(state,reset){
 				if(!reset) {
 					state.pickupSound.play(0);
-					Entities.shrink_burst.burst(8,state.x,state.y,state.width*.75,state.width*.75,3,50,0,1,0,0.1,state.vel[0],state.vel[1])
+					Entities.shrink_burst.burst(state.burstNum,state.x,state.y,state.width*state.burstSizeMul,
+						state.width*state.burstSizeMul,state.burstTime,state.burstSpeed,0,1,0,0.1,state.vel[0],state.vel[1])
 				}
 				graphics.removeFromDisplay(state,'gl_main');
 				physics.remove(state);
@@ -58,7 +69,10 @@ Entities.add('health_generic',Entities.create(
 //small health pickup
 Entities.add('health_small',Entities.create(
 		{
-			parent: Entities.health_generic
+			parent: Entities.health_generic,
+			construct: function(state){
+				state.configure(configs.pickups.smallHealth)
+			}
 		}
 		)
 	)
@@ -67,15 +81,8 @@ Entities.add('health_small',Entities.create(
 Entities.add('health_med',Entities.create(
 	{
 		parent: Entities.health_generic,
-		create: function(state,x,y,vx,vy){
-			if(!state.healthMed){
-				state.width = 24;
-				state.height = 24;
-				state.health = 15;
-				state.pickupSound = Sound.createSound('health_med');
-				state.pickupSound.gain = 0.1;
-				state.healthMed = true;
-			}
+		construct: function(state){
+			state.configure(configs.pickups.medHealth)
 		}
 	}
 	)
@@ -84,15 +91,8 @@ Entities.add('health_med',Entities.create(
 Entities.add('health_large',Entities.create(
 	{
 		parent: Entities.health_generic,
-		create: function(state,x,y,vx,vy){
-			if(!state.healthLarge){
-				state.width = 32;
-				state.height = 32;
-				state.health = 25;
-				state.pickupSound = Sound.createSound('health_large');
-				state.pickupSound.gain = 0.1;
-				state.healthLarge = true;
-			}
+		construct: function(state){
+			state.configure(configs.pickups.largeHealth)
 		}
 	}
 	)

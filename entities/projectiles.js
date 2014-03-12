@@ -97,9 +97,9 @@ Entities.add('projectile', Entities.create(
 						state.x = state.px || 0;
 						state.y = state.py || 0;
 						i = enemies.length;
-						e.life -= state.damage;
+						e.doDamage(state.damage,((this.playerProjectile)?Entities.player.getInstance():null));
 						if (e.life <= 0) {
-							addToPoints(50);
+							addToPoints(e.points);
 						}	
 						state.hasCollided = true;
 					}
@@ -112,7 +112,7 @@ Entities.add('projectile', Entities.create(
 					state.explosion.sound.play(0);
 					Entities.explosion_basic.newInstance(
 						state.x + state.width/2 - state.explosion.radius/2, state.y + state.height/2 - state.explosion.radius/2,
-						state.explosion.radius,0,state.explosion.damage,0,state.explosion.force, state.explosion.interp)
+						state.explosion.radius,0,state.explosion.damage,0,state.explosion.force, state.explosion.interp,((this.playerProjectile)?Entities.player.getInstance():null))
 				}
 			}
 		}
@@ -245,6 +245,7 @@ Entities.add('rocket', Entities.create(
 					this.alive = false;
 				}
 				
+				state.playerProjectile = true;
 			},
 			create: function(state,x,y,dir){
 				state.alive = true;
@@ -299,29 +300,14 @@ Entities.add('mine', Entities.create(
 				for(var i = 0; i<enemies.length; i++){
 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
 						state.alive = false;
-						enemies[i].life -= damage;
-						if (enemies[i].life < 0) {
-							addToPoints(50);
-						}
+						enemies[i].doDamage(damage,Entities.player.getInstance());
 					}
 				}
 			},
 			destroy: function(state){
 				sound.play(0);
 				var enemies = physics.getColliders(state.a, state.blastbox.x, state.blastbox.y, state.blastbox.width, state.blastbox.height);
-				for (var e in enemies) {
-					e = enemies[e];
-					vec2.set(vec, e.x - state.x, e.y - state.y);
-					Vector.setMag(vec, vec, 1);
-					if (e.life && state.blastbox.collision(e)) { // add player damage
-						e.life -= damage;
-						if (e.life > 0) {
-							e.vel[0] += vec[0] * blastForce;
-							e.vel[1] += vec[1] * blastForce;
-						}
-					}
-				}
-				Entities.explosion_basic.newInstance(state.x + state.width/2 - state.blastRadius/2,state.y + state.height/2 - state.blastRadius/2,state.blastRadius,0,damage,0,blastForce, interp);
+				Entities.explosion_basic.newInstance(state.x + state.width/2 - state.blastRadius/2,state.y + state.height/2 - state.blastRadius/2,state.blastRadius,0,damage,0,blastForce, interp,Entities.player.getInstance());
 				graphics.removeFromDisplay(state,'gl_main');
 				physics.remove(state);
 			}
@@ -330,9 +316,6 @@ Entities.add('mine', Entities.create(
 );
 
 // Black Hole -- 
-// TODO: sound
-// take line between center, midpoint
-// make particles at midpoint and explode
 Entities.add('blackhole', Entities.create(
 	(function(){
 		var buffered = false;
@@ -346,7 +329,8 @@ Entities.add('blackhole', Entities.create(
 				state.configure(configs.weaponValues.blackHole);
 				state.destroyOnContact = false;
 				state.theta = 0;
-				state.scale = 1;
+				state.sound_charge = Sound.createSound('blackhole_charge');
+				state.sound_active = Sound.createSound('blackhole_active');
 				var sizew = configs.weaponValues.blackHole.width.value;
 				var sizeh = configs.weaponValues.blackHole.height.value;
 				state.glInit = function(manager)
@@ -355,7 +339,7 @@ Entities.add('blackhole', Entities.create(
 						var color = [];
 						color.push(1,1,1,1)
 						for(var i = 0; i<15; i++){
-						color.push(1,1,1,0)
+							color.push(1,1,1,0)
 						}
 						manager.addArrayBuffer('blackhole_frag_color',true,color,16,4);
 					
@@ -378,14 +362,17 @@ Entities.add('blackhole', Entities.create(
 						manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
 						manager.setArrayBufferAsProgramAttribute('blackhole_frag_color','basic','vertexColor');
 						manager.setUniform1f('basic','alpha',1);
+						mvMatrix.rotateZ(-1*state.theta);
 						mvMatrix.scale(state.scale,state.scale,1);
 						state.scale += delta*20;
 						mvMatrix.translate(state.x+state.width/2,state.y+state.height/2,state.z);
 						mvMatrix.scale(state.width,state.height,1);
-						manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+						manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current);
 						gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
 						gl.drawArrays(gl.TRIANGLE_FAN,0,16);
 					} else {
+					// TODO: draw range indicator
+						//manager.fillEllipse(state.x+state.width/2,state.y+state.height/2,0,state.radius,state.radius,0,1,1,1,1);
 						gl.enable(gl.BLEND);
 						gl.blendFunc(gl.SRC_ALPHA,gl.DST_ALPHA);
 						manager.bindProgram("noise_alpha");
@@ -416,6 +403,10 @@ Entities.add('blackhole', Entities.create(
 				state.activate = false;
 				state.explode = false;
 				state.delay = configs.weaponValues.blackHole.delay.value;
+				state.sound_charge.gain = 0;
+				state.sound_active.gain = 0.01;
+				state.scale = 1;
+				state.forcesEnabled = false;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta-4*delta) % (2*Math.PI)
@@ -424,7 +415,7 @@ Entities.add('blackhole', Entities.create(
 					physics.getColliders(state.a,state.x,state.y,state.radius*2,state.radius*2);
 					for (var i = 0; i < state.a.length; i++) {
 						var b = state.a[i];
-						if (b != state) {
+						if (b != state && !b.isEnemy) {
 							if (b.isBlackhole && b.activate && Collisions.boxBox(state.x,state.y,state.width,state.height,b.x,b.y,b.width,b.height)){
 								state.explode = true;
 								if (!state.hasCollided) {
@@ -434,17 +425,24 @@ Entities.add('blackhole', Entities.create(
 							}
 						}
 					}
-					//physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,0);
+					
+					physics.radialForce(state.x+state.width/2,state.y+state.height/2,2*state.radius,state.force,delta);
+					state.sound_active.play(0);
 				}
 				if (state.delay <= 0) {
 					state.activate = true;
 					if (state.hasCollided) {
 						state.alive = false;
+						state.sound_charge.stop(0);
 					}
 				} else {
 					state.delay -= delta;
 					if (state.hasCollided) {
-						// expansion sound
+						if (state.sound_charge.gain < 0.4)state.sound_charge.gain += delta;
+						//console.log(state.sound_charge.gain);
+						state.sound_active.gain = 0;
+						state.sound_active.stop(0);
+						if (!state.sound_charge.playing)state.sound_charge.play(0);
 					}
 				}
 			}
@@ -453,7 +451,6 @@ Entities.add('blackhole', Entities.create(
 );
 
 // Boomerang -- 
-// TODO: bounce sound
 Entities.add('boomerang', Entities.create(
 	(function(){
 		var buffered = false;
@@ -466,6 +463,8 @@ Entities.add('boomerang', Entities.create(
 				var sizew = configs.weaponValues.boomerang.width.value;
 				var sizeh = configs.weaponValues.boomerang.height.value;
 				state.range = configs.weaponValues.boomerang.range.value;
+				state.sound_bounce = Sound.createSound('boomerang_bounce');
+				state.sound_bounce.gain = 0.2;
 				state.destroyOnContact = false;
 				state.glInit = function(manager) {
 					if (!buffered) {
@@ -509,43 +508,87 @@ Entities.add('boomerang', Entities.create(
 				state.theta = dir-(Math.PI/2);
 				state.amt = amt;
 				state.theta = 0;
-				state.e = 'undefined';
+				state.e = null;
+				state.locked = false;
 			},
 			update: function(state,delta) {
 				state.theta = (state.theta + 4*delta) % (2*Math.PI);
 				
 				if (state.hasCollided) {
-					if (state.e != 'undefined') {
+					if (state.e != null && state.locked) {
 						state.moveToward(state.e.x,state.e.y,state.speed);
-					}
-				}
-				
-				var distance = 99999;
-				var enemies = physics.getColliders(state.a, state.x,state.y,state.width,state.height);
-				for (var i = 0; i < enemies.length; i++) {
-					var e = enemies[i];
-					if (state.hasCollided) {
-						if (e.isEnemy) {
-							var u = Math.sqrt(Math.pow(e.x+state.x,2) + Math.pow(e.y+state.y,2));
-							if (u < distance && u > 5 && state.e != e) {
-								distance = u;
-								state.e = e;
+					} else {
+						var distance = 99999;
+						var enemies = physics.getColliders(state.a, state.x-state.range/2,state.y-state.range/2,state.range,state.range);
+						for (var i = 0; i < enemies.length; i++) {
+							var e = enemies[i];
+							if (e.isEnemy) {
+								var u = Math.sqrt(Math.pow(e.x+state.x,2) + Math.pow(e.y+state.y,2));
+								if (u < distance && state.e != e) {
+									distance = u;
+									state.e = e;
+									state.locked = true;
+								}
 							}
 						}
 					}
 				}
-				if (state.e != 'undefined' && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
+				
+				if (state.e != null && Collisions.boxBox(state.x,state.y,state.width,state.height,state.e.x,state.e.y,state.e.width,state.e.height)){
 					state.amt--;
-					if (state.e.life <= 0){
-						state.e = 'undefined';
-					}
+					state.locked = false;
+					state.sound_bounce.play(0);
 				}
 				if (state.amt <= 0) {
 					state.alive = false;
 				}
 			},
 			destroy: function(state){
-				console.log(state.amt);
+				//console.log(state.amt);
+			}
+		};
+	})())
+);
+
+// Disk ---
+Entities.add('disk', Entities.create(
+	(function(){
+		//var sound = Sound.createSound('explosion_fire');
+		//sound.gain = 0.2;
+		var p;
+		return {
+			parent: Entities.projectile,
+			construct: function(state,x,y) {
+				state.configure(configs.weaponValues.disk);
+				var sizew = configs.weaponValues.disk.width.value;
+				var sizeh = configs.weaponValues.disk.height.value;
+				state.destroyOnContact = false;
+				p = Entities.player.getInstance(0);
+				state.glInit = function(manager){};
+				
+				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
+				console.log("draw");
+					manager.fillEllipse(p.cx,p.cy,0,state.width,state.height,0,1,1,1,1);
+				};
+			},
+			create: function(state,x,y){
+				state.explode = true;
+				state.alive = true;
+			},
+			update:function(state,delta){
+			// todo
+				// var enemies = physics.getColliders(state.a, state.x, state.y, state.width, state.height);
+// 				for(var i = 0; i<enemies.length; i++){
+// 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
+// 						state.alive = false;
+// 						enemies[i].doDamage(damage,Entities.player.getInstance());
+// 					}
+// 				}
+			},
+			destroy: function(state){
+				//sound.play(0);
+				graphics.removeFromDisplay(state,'gl_main');
+				physics.remove(state);
 			}
 		};
 	})())

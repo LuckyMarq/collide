@@ -4,7 +4,7 @@
 
 initGraphics();
 var currentScreen;
-var draw_bounding_boxes  = true;
+var draw_bounding_boxes  = false;
 var do_screen_test = true;
 var draw_grid = false;
 var grid_w = 64;
@@ -270,6 +270,10 @@ function initGraphics(){
 		var programs = {};
 		var buffers = {};
 		var textures = {};
+		
+		var textCanvas = document.createElement('canvas');
+		var textGfx = textCanvas.getContext('2d');
+		var textTexture = gl.createTexture();
 		
 		var currentProgram = null;
 		var getShader = function(url){
@@ -743,6 +747,76 @@ function initGraphics(){
 			}
 		}
 		
+		this.CENTER = 0;
+		this.LEFT  = 1;
+		this.RIGHT = 2;
+		this.TOP = 3;
+		this.BOTTOM = 4;
+		
+		this.fillText = function(text,x,y,z,size,font,style,alignmentX,alignmentY){
+			alignmentX = alignmentX || this.CENTER;
+			alignmentY= alignmentY || this.CENTER;
+			
+			textGfx.font = size+'px '+font;
+			
+			var twidth = textGfx.measureText(text).width;
+			var width = Math.pow(2, Math.ceil(Math.log(twidth+8)/Math.log(2)));
+			var height = Math.pow(2, Math.ceil(Math.log(size+8)/Math.log(2)));
+			
+			textCanvas.width = width;
+			textCanvas.height = height;
+			
+			textGfx.clearRect(0,0,textCanvas.width,textCanvas.height);
+			textGfx.fillStyle = style || 'rgba(255,255,255,255)';
+			textGfx.textAlign = 'center';
+			textGfx.textBaseline = 'middle';
+			textGfx.font = size+'px '+font;
+		
+			textGfx.fillText(text,width/2,height/2)
+			
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+			gl.bindTexture(gl.TEXTURE_2D, textTexture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textCanvas);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+			gl.generateMipmap(gl.TEXTURE_2D);
+
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			
+			gl.enable(gl.BLEND);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			this.bindProgram('basic_texture');
+			this.setArrayBufferAsProgramAttribute('primitive_rect','basic_texture','vertexPosition');
+			this.setArrayBufferAsProgramAttribute('sprite_texture_coords','basic_texture','textureCoord');
+			
+			
+			if(alignmentX==this.LEFT){
+					x+=(twidth/2)
+			}else if(alignmentX==this.RIGHT){
+					x-=(twidth/2)
+			}
+			if(alignmentY==this.TOP){
+				y-=(size/2);
+			}else if(alignmentY==this.BOTTOM){
+				y+=(size/2)
+			}
+			mvMatrix.push();
+			mvMatrix.translate(x,y,z);
+			mvMatrix.scale(width,height,1);
+			this.setMatrixUniforms('basic_texture',pMatrix,mvMatrix.current);
+			mvMatrix.pop();
+			
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, textTexture);
+			var prog = this.getProgram('basic_texture');
+			gl.uniform1i(prog.samplerUniform, 0);
+			gl.uniform1f(prog.alpha,1)
+			gl.uniform1f(prog.tintWeight,0);
+			gl.uniform3f(prog.tint,0,0,0);
+			
+			gl.drawArrays(gl.TRIANGLE_FAN,0,4);
+		}
+		
 		//----------------------------------------------------------------------------------------
 		/**
 		* frees all shaders, programs, and buffers
@@ -1043,7 +1117,7 @@ function initGraphics(){
 		}
 		
 		this.draw=function(delta){
-			if(this.drawables.length<1)return;
+			if(this.drawables.length<1 && this.zDrawables.length<1)return;
 
 			manager.bindProgram('basic');
 			gl.viewport(0, 0, display.width, display.height);
@@ -1052,6 +1126,12 @@ function initGraphics(){
 			mat4.ortho(pMatrix, this.screen.x, this.screen.x+this.screen.width, this.screen.y,this.screen.y+this.screen.height, 100.0, -100.0);
 			
 			mvMatrix.identity();
+			
+			if(this.splashScreen && this.splashScreen!=null){
+				this.splashScreen.draw(gl,delta,screen,manager,pMatrix,mvMatrix);
+				gl.flush();
+				return;
+			}
 			
 			if(draw_grid) manager.drawGrid(this.screen,grid_z,grid_w,grid_h,1);
 			

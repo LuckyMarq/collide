@@ -130,6 +130,7 @@ Entities.add('evil_enemy',Entities.create({
 	}
 ))
 
+<<<<<<< HEAD
 Entities.add('enemy_direct_suicider1',Entities.create({
 	parent: Entities.enemy_suicider,
 	construct: function(state){
@@ -206,6 +207,9 @@ Entities.add('enemy_direct_move_suicider1',Entities.create({
 		}
 	}
 }));
+=======
+
+>>>>>>> origin/master
 
 //basically a projectile
 Entities.add('enemy_killer_suicider_oh_no',Entities.create({
@@ -295,6 +299,7 @@ Entities.add('enemy_oh_no_suicider',Entities.create({
 	}
 }));
 
+<<<<<<< HEAD
 Entities.add('enemy_breaker_suicider_part1',Entities.create({
 	parent: Entities.enemy_suicider,
 	construct: function(state){
@@ -339,6 +344,8 @@ Entities.add('enemy_breaker_suicider_part1',Entities.create({
 	}
 }));
 
+=======
+>>>>>>> origin/master
 Entities.add('enemy_dragon',Entities.create({
 	parent: Entities.enemy_suicider,
 	construct: function(state){

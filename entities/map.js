@@ -7,6 +7,7 @@ function Map(config){
 	var lines= new Array();
 	this.lines = lines;
 	this.config = config;
+	this.populators = new Array();
 	var size;
 	var rooms= new Array();
 	var getConfiguration = function(mapConfig){
@@ -44,36 +45,33 @@ function Map(config){
 	var  Room = function(north,east,south,west,x,y,limit, roomChance, minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth){
 		this.x = x;
 		this.y= y;
-		north = north || null;
-		south = south || null;
-		east = east || null;
-		west = west || null;
+		this.north = north || null;
+		this.south = south || null;
+		this.east = east || null;
+		this.west = west || null;
 		var first = true;
 		rooms.push(this);
 		num++;
-		while(((this.north==null && this.east == null && this.south==null && this.west == null)||first) && num<limit){
-			first = false;
-			if((Math.random() <= roomChance) && north == null && check(x, y+size)){
+		
+		this.build = function(){
+			if(num<limit && (this.north == null || !this.north) && (Math.random() <= roomChance) && north == null && check(x, y+size)){
 				this.north = new Room(null,null,this,null,x,y+size, limit, roomChance,minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth);
 			}
-			if((Math.random() <= roomChance) && south == null && check(x, y-size)){
+			if(num<limit && (this.south == null || !this.south) && (Math.random() <= roomChance) && south == null && check(x, y-size)){
 				this.south = new Room(this,null,null,null,x,y-size,limit, roomChance,minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth);
 			}
-			if((Math.random() <= roomChance) && east == null && check(x+size,y)){
+			if(num<limit && (this.east == null || !this.east) && (Math.random() <= roomChance) && east == null && check(x+size,y)){
 				this.east = new Room(null,null,null,this, x+size,y,limit, roomChance,minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth);
 			}
-			if((Math.random() <= roomChance) && west == null && check(x-size, y)){
+			if(num<limit && (this.west == null || !this.west) && (Math.random() <= roomChance) && west == null && check(x-size, y)){
 				this.west= new Room(null,this,null,null,x-size,y,limit, roomChance,minWidth, maxWidth, minHeight, maxHeight, size, connectorWidth);
-			}      
+			}
 		}
-		this.north = (north!=null) ? north : this.north;
-		this.south =  (south!=null) ? south : this.south;
-		this.east =  (east!=null) ? east : this.east;
-		this.west = (west!=null) ? west : this.west;
+		
 		
 		this.initLines= function(){
-			this.width = minWidth + (Math.random() * (maxWidth - minWidth));
-			this.height= minHeight + (Math.random() * (maxHeight - minHeight));
+			this.width = Math.min(1,(minWidth + (Math.random() * (maxWidth - minWidth))))*size;
+			this.height= Math.min(1,(minHeight + (Math.random() * (maxHeight - minHeight))))*size;
 			var cx = this.x + size/2;
 			var cy = this.y + size/2;
 			// top 
@@ -166,43 +164,7 @@ function Map(config){
 			return room==this.west || room==this.east || room==this.north || room==this.south;
 		}
 	}
-	this.setColor = function(gr){
-		this.r = 0;
-		this.g = 0;
-		this.b = 0;
-		while(gr>0){
-			var p = this.r;
-			this.r = Math.min(1,this.r+Math.max(0,Math.min(gr,Math.random())));
-			gr -= (this.r-p);
-			p = this.g;
-			this.g = Math.min(1,this.g+Math.max(0,Math.min(gr,Math.random())));
-			gr -= (this.g-p);
-			p = this.b;
-			this.b = Math.min(1,this.b+Math.max(0,Math.min(gr,Math.random())));
-			gr -= (this.b-p);
-		}
-	}
 	
-	this.setColor(2);
-	config = getConfiguration(config);
-	size = getNodeValue(config.rooms.size);
-	this.size = size;
-	
-	this.room = new Room(null,null,null,null,0,0,Math.round(getNodeValue(config.rooms)), getNodeValue(config.rooms.density), 
-		config.rooms.width.min.value, config.rooms.width.max.value, config.rooms.height.min.value,
-		config.rooms.width.max.value, size, getNodeValue(config.rooms.connectorSize));
-	this.room.checkConnections(getNodeValue(config.rooms.connectivity));
-	this.room.initLines();
-	
-	this.keyframes = this.config.keyframes.value.slice(0,this.config.keyframes.value.length);
-	this.weapons = this.config.weapons.value.slice(0,this.config.weapons.value.length);
-	
-	this.populators = [];
-	for(var i = 0; i<config.populators.children.length; i++){
-		this.populators.push(RoomPopulators[config.populators.children[i].name].apply(this,
-			(config.populators.children[i].value instanceof Array) ? config.populators.children[i].value : []));
-	}
-	this.populators.sort(function(a,b){return a.priority-b.priority})
 	
 	this.rebuild = function(reset){
 		config = getConfiguration(this.config);
@@ -213,18 +175,26 @@ function Map(config){
 		size = getNodeValue(config.rooms.size);
 		this.size = size;
 		num = 0;
+		var limit = Math.round(getNodeValue(config.rooms));
 		lines.length = 0;
 		rooms.length = 0;
 		this.setColor(2);
-		this.room = new Room(null,null,null,null,0,0,Math.round(getNodeValue(config.rooms)), getNodeValue(config.rooms.density), 
+		this.room = new Room(null,null,null,null,0,0,limit, getNodeValue(config.rooms.density), 
 				config.rooms.width.min.value, config.rooms.width.max.value, config.rooms.height.min.value,
 				config.rooms.width.max.value, size, getNodeValue(config.rooms.connectorSize));
+		while(num<limit){
+			var rms = rooms.slice(0,rooms.length)
+			for(var i = 0; num<limit && i<rms.length; i++){
+				rms[i].build();
+			}
+		}
 		this.room.checkConnections(getNodeValue(config.rooms.connectivity));
 		this.room.initLines();
 		
 		this.populators.length = 0;
 		for(var i = 0; i<config.populators.children.length; i++){
-			this.populators.push(RoomPopulators[config.populators.children[i].name](config.populators.children[i].value));
+			this.populators.push(RoomPopulators[config.populators.children[i].name].apply(new Object(),
+				(config.populators.children[i].value instanceof Array) ? config.populators.children[i].value : []));
 		}
 		this.populators.sort(function(a,b){return a.priority-b.priority})
 	}
@@ -233,7 +203,7 @@ function Map(config){
 			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,player);
 		}else{
 			//create player
-			var index = (configs.map.startWeapon) ? configs.map.startWeapon.value : weaponId || Math.floor(Math.random()*this.keyframes.length)
+			var index = start_weapon;
 			Entities.player_initializer.newInstance(this.room.x+size/2,this.room.y + size/2,Entities.player.newInstance(this.room.x+size/2,this.room.y + size/2,this.keyframes[index],this.weapons[index]));
 			this.weapons.splice(index,1);
 			this.keyframes.splice(index,1);
@@ -257,50 +227,6 @@ function Map(config){
 		for(var i = 0; i<rooms.length; i++){
 			rooms[i].visited = false;
 		}
-		// var weaponRoom = this.room;
-		// while(weaponRoom == this.room || weaponRoom.adjacentTo(this.room)){
-			// weaponRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
-		// }
-		// var index = Math.round(Math.random()*(this.keyframes.length - 1));
-		// Entities.weapon_pickup.newInstance(weaponRoom.x + size/2 - 256,weaponRoom.y + size/2 - 256,this.keyframes[index],this.weapons[index]);
-		// console.log(this.keyframes[index])
-		// weaponRoom.full = true;
-		// this.weapons.splice(index,1);
-		// this.keyframes.splice(index,1);
-		
-		// var endRoom = this.room;
-		// while(endRoom == this.room || endRoom == weaponRoom || endRoom.adjacentTo(this.room)){
-			// endRoom = rooms[Math.round(Math.random()*(rooms.length -1))]
-		// }
-		// Entities.level_end.newInstance(endRoom.x + size/2 - 128,endRoom.y + size/2 - 128)
-		// endRoom.full = true;
-		
-		// if(config.entities){
-			// var populate = function(room){
-				// if(!room.full){
-					// for(var i = 0; i<config.entities.children.length; i++){
-						// var entity = config.entities.children[i];
-						// var num = getNodeValue(entity);
-						// var margin = entity.attributes.margin;
-						// for(var j = 0; j< num; j++){
-							// var x = room.x+ (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2)));
-							// var y = room.y+ (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2)));
-							// Entities[entity.attributes.name].newInstance(x,y);
-						// }
-					// }
-				// }
-				// room.populated = true
-				// if(room.north!=null && !room.north.populated)populate(room.north);
-				// if(room.south!=null && !room.south.populated)populate(room.south);
-				// if(room.east!=null && !room.east.populated)populate(room.east);
-				// if(room.west!=null && !room.west.populated)populate(room.west);
-			// }
-			// this.room.populated = true;
-			// if(this.room.north!=null)populate(this.room.north);
-			// if(this.room.south!=null)populate(this.room.south);
-			// if(this.room.east!=null)populate(this.room.east);
-			// if(this.room.west!=null)populate(this.room.west);
-		// }
 	}
 	this.visit= function(x,y,width,height){
 		for(var i = 0; i<rooms.length; i++){
@@ -338,11 +264,27 @@ function Map(config){
 			}
 		}
 	}
-	
+	this.rebuild(true)
 }
 Map.prototype=fillProperties(new GLDrawable(),{
 	z:98,
-	boundless:true
+	boundless:true,
+	setColor: function(gr){
+		this.r = 0;
+		this.g = 0;
+		this.b = 0;
+		while(gr>0){
+			var p = this.r;
+			this.r = Math.min(1,this.r+Math.max(0,Math.min(gr,Math.random())));
+			gr -= (this.r-p);
+			p = this.g;
+			this.g = Math.min(1,this.g+Math.max(0,Math.min(gr,Math.random())));
+			gr -= (this.g-p);
+			p = this.b;
+			this.b = Math.min(1,this.b+Math.max(0,Math.min(gr,Math.random())));
+			gr -= (this.b-p);
+		}
+	}
 });
 
 RoomPopulators = {
@@ -385,13 +327,6 @@ RoomPopulators = {
 			priority: 0
 		}
 	},
-	// itemRoom: {
-		// populate: function(x,y,width,height,config,room){
-			
-		// },
-		// min: 0,
-		// max: 1
-	// },
 	EndRoom: function(){
 		return {
 			populate: function(config,room,map){
@@ -409,11 +344,135 @@ RoomPopulators = {
 		}
 	},
 	RoomCenter: function(min,max,priority,fill,entity,xOffset,yOffset){
+		
 		xOffset = xOffset || constructor.xOffset || constructor.width/2 || 0
 		yOffset = yOffset || constructor.yOffset || constructor.height/2 || 0
 		return {
 			populate: function(config,room,map){
 				Entities[entity].newInstance(room.x + map.size/2 - xOffset,room.y + map.size/2 - yOffset)
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	FourCorners: function(min,max,priority,fill,entity,xOffset,yOffset,xMargin,yMargin){
+		xOffset = xOffset || constructor.xOffset || constructor.width/2 || 0
+		yOffset = yOffset || constructor.yOffset || constructor.height/2 || 0
+		return {
+			populate: function(config,room,map){
+				Entities[entity].newInstance(room.x + (map.size/2) - (room.width/2) + xMargin - xOffset,room.y + map.size/2 - (room.height/2) + yMargin - yOffset);
+				Entities[entity].newInstance(room.x + (map.size/2) + (room.width/2) - xMargin - xOffset,room.y + map.size/2 - (room.height/2) + yMargin - yOffset);
+				Entities[entity].newInstance(room.x + (map.size/2) + (room.width/2) - xMargin - xOffset,room.y + map.size/2 + (room.height/2) - yMargin - yOffset);
+				Entities[entity].newInstance(room.x + (map.size/2) - (room.width/2) + xMargin - xOffset,room.y + map.size/2 + (room.height/2) - yMargin - yOffset)
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Random: function(min,max,priority,fill,entity,minE,maxE,margin,xOffset,yOffset){
+		margin = margin || 0;
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				for(var i=0; i<num; i++){
+					var x = room.x + (size/2) - (room.width/2) + margin + (Math.random()*(room.width-(margin*2))) + xOffset;
+					var y = room.y + (size/2) - (room.height/2) + margin + (Math.random()*(room.height-(margin*2))) + yOffset;
+					Entities[entity].newInstance(x,y);
+				}
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Circle: function(min,max,priority,fill,entity,minE,maxE,radius,xOffset,yOffset){
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				var theta = Math.PI/num;
+				var c = Math.cos(theta);
+				var s = Math.sin(theta);
+				var x = radius - (xOffset || 0);
+				var y = -(yOffset || 0);
+				for(var i=0; i<num; i++){
+					Entities[entity].newInstance((room.x+size/2)+x,(room.y+size/2)+y);
+					var u = x;
+					var v = y;
+					x = u*c - v*s;
+					y = u*s + v*c;
+				}
+				if(fill)room.full = true;
+				return true;
+			},
+			min: min,
+			max: max,
+			priority: priority
+		}
+	},
+	Square: function(min,max,priority,fill,entity,minE,maxE,width,height,xOffset,yOffset){
+		xOffset = xOffset || 0;
+		yOffset = yOffset || 0;
+		return {
+			populate: function(config,room,map){
+				var size = map.size;
+				var num = minE + (maxE-minE)*Math.random();
+				var mod = num%4
+				var sides = Math.floor(num/4)
+				var edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				var cx = (room.x + (size/2));
+				var cy = (room.y + (size/2));
+				var x1 = cx - width/2;
+				var y1 = cy - height/2;
+				var x2 = cx - width/2;
+				var y2 = cy + height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx + width/2;
+				y2 = cy + height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx + width/2;
+				y2 = cy -height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
+				
+				edge = sides+ (mod>=0) ? 1 : 0;
+				mod--;
+				x1 = x2;
+				y1 = y2;
+				x2 = cx - width/2;
+				y2 = cy - height/2;
+				for(var i=0; i<edge; i++){
+					Entities[entity].newInstance(x1 + (x2-x1)*(i/edge),y1 + (y2-y1)*(i/edge));
+				}
 				if(fill)room.full = true;
 				return true;
 			},

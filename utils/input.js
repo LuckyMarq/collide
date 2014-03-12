@@ -13,14 +13,13 @@ var input = {
 		element.addEventListener(
 			'keydown',
 			function(e){
-				e.preventDefault();
 				k.press(e);
 			},		
 			false);
 		element.addEventListener(
 			'keypress',
 			function(e){
-				e.preventDefault();
+				if(k.flags.hasOwnProperty(e.keyCode))e.preventDefault();
 			},		
 			false);
 	},
@@ -45,6 +44,11 @@ var input = {
 		};
 			
 		var clickListeners = {};
+		var wheelListeners = {}
+		
+		this.resetBoundingBox = function(){
+			rect = frame.getBoundingClientRect();
+		}
 		
 		this.addClickListener=function(id,callback){
 			if(typeof id == 'updefined' || typeof callback != 'function') throw "addClickListener: illegal values passed"
@@ -53,6 +57,15 @@ var input = {
 		
 		this.removeClickListener=function(id){
 			delete clickListeners[id];
+		}
+		
+		this.addWheelListener=function(id,callback){
+			if(typeof id == 'updefined' || typeof callback != 'function') throw "addClickListener: illegal values passed"
+			wheelListeners[id]=callback;
+		}
+		
+		this.removeClickListener=function(id){
+			delete wheelListeners[id];
 		}
 		
 		Object.defineProperties(this,{
@@ -198,6 +211,16 @@ var input = {
 				}
 			},
 			false);
+		
+		var wheelEvent= function(evt){
+			var delta = evt.wheelDelta || -evt.detail;
+			for(var o in wheelListeners){
+				wheelListeners[o](delta,evt.wheelDelta);
+			}
+		}
+		
+		element.addEventListener('mousewheel',wheelEvent,false);
+		element.addEventListener('DOMMouseScroll',wheelEvent,false);
 		
 	},
 	Gamepad: function(){
@@ -536,9 +559,10 @@ input.Keyboard.prototype = {
 	press:function(event){
 		//window.console.log("up");
 		if(this.flags.hasOwnProperty(event.keyCode)){
+			
+					event.preventDefault();
 			for(var i =0;i<input.keys.length;i++ ){
 				if(event.keyCode == input.keys[i]){
-					event.preventDefault();
 					event.returnValue=false;
 					break;
 				}
