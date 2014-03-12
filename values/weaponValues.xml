@@ -9,7 +9,7 @@
 	<blackHole>
 		<blastRadius>256</blastRadius>
 		<cost>65</cost>
-		<damage>0.05</damage>
+		<damage>0.1</damage>
 		<decceleration>
 			<speed>300</speed>
 		</decceleration>
