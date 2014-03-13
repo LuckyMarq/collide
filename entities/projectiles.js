@@ -574,45 +574,45 @@ Entities.add('boomerang', Entities.create(
 );
 
 // Disk ---
-Entities.add('disk', Entities.create(
-	(function(){
-		//var sound = Sound.createSound('explosion_fire');
-		//sound.gain = 0.2;
-		var p;
-		return {
-			parent: Entities.projectile,
-			construct: function(state,x,y) {
-				state.configure(configs.weaponValues.disk);
-				var sizew = configs.weaponValues.disk.width.value;
-				var sizeh = configs.weaponValues.disk.height.value;
-				state.destroyOnContact = false;
-				p = Entities.player.getInstance(0);
-				state.glInit = function(manager){};
-				
-				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
-				console.log("draw");
-					manager.fillEllipse(p.cx,p.cy,0,state.width,state.height,0,1,1,1,1);
-				};
-			},
-			create: function(state,x,y){
-				state.explode = true;
-				state.alive = true;
-			},
-			update:function(state,delta){
-			// todo
-				// var enemies = physics.getColliders(state.a, state.x, state.y, state.width, state.height);
-// 				for(var i = 0; i<enemies.length; i++){
-// 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
-// 						state.alive = false;
-// 						enemies[i].doDamage(damage,Entities.player.getInstance());
-// 					}
-// 				}
-			},
-			destroy: function(state){
-				//sound.play(0);
-				graphics.removeFromDisplay(state,'gl_main');
-				physics.remove(state);
-			}
-		};
-	})())
-);
+// Entities.add('disk', Entities.create(
+// 	(function(){
+// 		//var sound = Sound.createSound('explosion_fire');
+// 		//sound.gain = 0.2;
+// 		var p;
+// 		return {
+// 			parent: Entities.projectile,
+// 			construct: function(state,x,y) {
+// 				state.configure(configs.weaponValues.disk);
+// 				var sizew = configs.weaponValues.disk.width.value;
+// 				var sizeh = configs.weaponValues.disk.height.value;
+// 				state.destroyOnContact = false;
+// 				p = Entities.player.getInstance(0);
+// 				state.glInit = function(manager){};
+// 				
+// 				state.draw = function(gl,delta,screen,manager,pMatrix,mvMatrix) {
+// 				console.log("draw");
+// 					manager.fillEllipse(p.cx,p.cy,0,state.width,state.height,0,1,1,1,1);
+// 				};
+// 			},
+// 			create: function(state,x,y){
+// 				state.explode = true;
+// 				state.alive = true;
+// 			},
+// 			update:function(state,delta){
+// 			// todo
+// 				// var enemies = physics.getColliders(state.a, state.x, state.y, state.width, state.height);
+// // 				for(var i = 0; i<enemies.length; i++){
+// // 					if(enemies[i].isEnemy && Collisions.boxBox(state.x,state.y,state.width,state.height,enemies[i].x,enemies[i].y,enemies[i].width,enemies[i].height)){
+// // 						state.alive = false;
+// // 						enemies[i].doDamage(damage,Entities.player.getInstance());
+// // 					}
+// // 				}
+// 			},
+// 			destroy: function(state){
+// 				//sound.play(0);
+// 				graphics.removeFromDisplay(state,'gl_main');
+// 				physics.remove(state);
+// 			}
+// 		};
+// 	})())
+// );
