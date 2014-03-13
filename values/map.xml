@@ -53,6 +53,48 @@
 						<RandomEnemies></RandomEnemies>
 					</populators>
 				</config>
+				<config>
+					<rooms>
+						<min>22</min>
+						<max>24</max>
+						<density>0.25</density>
+						<connectivity>0.75</connectivity>
+						<width>
+							<min>0.5</min>
+							<max>0.6</max>
+						</width>
+						<height>
+							<min>0.5</min> <!-- asdfasdfasdfasfda -->
+							<max>0.6</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>4</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>4</max>
+						</entity>
+						<entity name='enemy_meandering_suicider' margin='32'>
+							<min>0</min>
+							<max>4</max>
+						</entity>
+						<entity name='enemy_indirect_suicider' margin='32'>
+							<min>0</min>
+							<max>4</max>
+						</entity>
+					</entities>
+					<!--the first three populators are mandatory for every map-->
+					<populators>
+						<EndRoom></EndRoom>
+						<WeaponRoom></WeaponRoom>
+						<RandomEnemies></RandomEnemies>
+					</populators>
+				</config>
 			</configs>
 		</level1>
 		<level2>
@@ -87,10 +129,6 @@
 							<min>0</min>
 							<max>5</max>
 						</entity>
-						<entity name='enemy_breaker_suicider' margin='32'>
-							<min>0</min>
-							<max>5</max>
-						</entity>
 						<entity name='enemy_exploding_suicider' margin='32'>
 							<min>0</min>
 							<max>5</max>
@@ -101,7 +139,7 @@
 						<EndRoom></EndRoom>
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
-						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
+						<Random>1;6;5;true;enemy_exploding_suicider;15;30;32;12;12</Random>
 					</populators>
 				</config>
 			</configs>
@@ -156,6 +194,92 @@
 						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
 					</populators>
 				</config>
+				<config>
+					<rooms>
+						<min>14</min>
+						<max>18</max>
+						<density>0.75</density>
+						<connectivity>0.5</connectivity>
+						<width>
+							<min>0.5</min>
+							<max>0.9</max>
+						</width>
+						<height>
+							<min>0.5</min>
+							<max>0.9</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_meandering_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_exploding_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+					</entities>
+					<populators>
+						<EndRoom></EndRoom>
+						<WeaponRoom></WeaponRoom>
+						<RandomEnemies></RandomEnemies>
+						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
+						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
+					</populators>
+				</config>
+				<config>
+					<rooms>
+						<min>18</min>
+						<max>22</max>
+						<density>0.75</density>
+						<connectivity>0.5</connectivity>
+						<width>
+							<min>0.5</min>
+							<max>0.9</max>
+						</width>
+						<height>
+							<min>0.5</min>
+							<max>0.9</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_meandering_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_exploding_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+					</entities>
+					<populators>
+						<EndRoom></EndRoom>
+						<WeaponRoom></WeaponRoom>
+						<RandomEnemies></RandomEnemies>
+						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
+						<Random>1;6;5;false;enemy_breaker_suicider;15;30;32;12;12</Random>
+					</populators>
+				</config>
 			</configs>
 		</level3>
 		<level4>
@@ -198,7 +322,91 @@
 							<min>0</min>
 							<max>5</max>
 						</entity>
-						<entity name='enemy_bam_bam' margin='32'>
+					</entities>
+					<!--the first three populators are mandatory for every map-->
+					<populators>
+						<EndRoom></EndRoom>
+						<WeaponRoom></WeaponRoom>
+						<RandomEnemies></RandomEnemies>
+						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
+						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
+					</populators>
+				</config>
+				<config>
+					<rooms>
+						<min>16</min>
+						<max>20</max>
+						<density>0.75</density>
+						<connectivity>0.75</connectivity>
+						<width>
+							<min>0.5</min>
+							<max>0.9</max>
+						</width>
+						<height>
+							<min>0.5</min>
+							<max>0.9</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>15</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_breaker_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_shooter' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+					</entities>
+					<!--the first three populators are mandatory for every map-->
+					<populators>
+						<EndRoom></EndRoom>
+						<WeaponRoom></WeaponRoom>
+						<RandomEnemies></RandomEnemies>
+						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
+						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
+					</populators>
+				</config>
+				<config>
+					<rooms>
+						<min>14</min>
+						<max>18</max>
+						<density>0.75</density>
+						<connectivity>0.75</connectivity>
+						<width>
+							<min>0.5</min>
+							<max>0.9</max>
+						</width>
+						<height>
+							<min>0.5</min>
+							<max>0.9</max>
+						</height>
+						<size>2560</size>
+						<connectorSize>128</connectorSize>
+					</rooms>
+					<entities>
+						<entity name='enemy_direct_suicider' margin='32'>
+							<min>0</min>
+							<max>15</max>
+						</entity>
+						<entity name='enemy_direct_move_suicider' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_shooter' margin='32'>
+							<min>0</min>
+							<max>5</max>
+						</entity>
+						<entity name='enemy_tank' margin='32'>
 							<min>0</min>
 							<max>5</max>
 						</entity>
@@ -219,8 +427,8 @@
 	<configs>
 		<config>
 			<rooms>
-				<min>9</min>
-				<max>12</max>
+				<min>12</min>
+				<max>15</max>
 				<density>0.25</density>
 				<width>
 					<min>0.5</min>
@@ -250,6 +458,14 @@
 					<min>0</min>
 					<max>10</max>
 				</entity>
+				<entity name='enemy_shooter' margin='32'>
+					<min>0</min>
+					<max>5</max>
+				</entity>
+				<entity name='enemy_tank' margin='32'>
+					<min>0</min>
+					<max>5</max>
+				</entity>
 			</entities>
 			<!--the first three populators are mandatory for every map-->
 			<populators>
@@ -258,6 +474,7 @@
 				<RandomEnemies></RandomEnemies>
 				<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
 				<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
+				<Random>1;6;5;true;enemy_exploding_suicider;15;30;32;12;12</Random>
 			</populators>
 		</config>
 	</configs>
