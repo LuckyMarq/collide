@@ -255,6 +255,9 @@ Entities.add('rocket', Entities.create(
 				state.explode = true;
 				state.animator.setCurrentKeyframe("fat",0);
 				state.animator.setCurrentKeyframe("slim", state.delay);
+			},
+			update:function(state,delta){
+				Entities.rocket_smoke.newInstance(state.x+state.width/2,state.y+state.height/2,0.5,0.5,0.5,0.5,24,64)
 			}
 		};
 	})())

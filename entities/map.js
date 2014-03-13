@@ -17,7 +17,7 @@ function Map(config){
 		}else{
 			configs = mapConfig.configs.children;
 		}
-		var config = configs[Math.round(Math.random()*(configs.length-1))]
+		var config = configs[Math.floor(Math.random()*configs.length)]
 		if(!config){
 			console.trace();
 			throw "cannot configure map"

@@ -131,6 +131,11 @@ function initSound(){
 				return id;
 			},
 			createSound:function(bufferId,loop,music,loopStart,loopEnd){
+				if(typeof bufferId == 'object'){
+					var s = new Sound(bufferId.buffer.value,loop,music,loopStart,loopEnd);
+					s.gain = bufferId.gain.value;
+					return s;
+				}
 				return new Sound(bufferId,loop,music,loopStart,loopEnd);
 			},
 			isLoaded: function(id){

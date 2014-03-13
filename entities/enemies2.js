@@ -62,12 +62,10 @@ Entities.add('enemy',Entities.create({
 				this.burstDrag = (config.burst.drag) ? config.burst.drag.value : 0.1;
 			}
 			if(config.deathSound){
-				this.deathSound = Sound.createSound(config.deathSound.buffer.value,false);
-				this.deathSound.gain = config.deathSound.gain.value;
+				this.deathSound = Sound.createSound(config.deathSound);
 			}
 			if(config.hitSound){
-				this.hitSound = Sound.createSound(config.hitSound.buffer.value,false);
-				this.hitSound.gain = config.hitSound.gain.value;
+				this.hitSound = Sound.createSound(config.hitSound,false);
 			}
 			if(config.elasticity)this.elasticity = config.elasticity.value;
 			if(config.drag)this.dragConst = config.drag.value;

@@ -863,15 +863,8 @@ Entities.player.reset = function(){}
 
 Entities.add('player_trail_particles',Entities.create(
 		{
-			create: function(state,x,y,life,r,g,b,size){
-				state.alive = true;
-				state.life = life || 0.5;
-				state.lifeStart = state.life;
-				state.r = r;
-				state.g = g;
-				state.b = b;
-				if(!state.first){
-					fillProperties(state, Entities.createStandardState(
+			construct:function(state,x,y,life,r,g,b,size){
+				fillProperties(state, Entities.createStandardState(
 					{
 						glInit: function(manager){
 							if(!Entities.player_trail_particles.initialized){
@@ -903,9 +896,15 @@ Entities.add('player_trail_particles',Entities.create(
 							manager.setUniform1f('basic','tintWeight',0);
 						}
 					},x,y,24,24,1.1));
-					state.z = 1;
-					state.first = true;
-				}
+				state.z = 1;
+			},
+			create: function(state,x,y,life,r,g,b,size){
+				state.alive = true;
+				state.life = life || 0.5;
+				state.lifeStart = state.life;
+				state.r = r;
+				state.g = g;
+				state.b = b;
 				state.width = size||32;
 				state.height = size||32;
 				state.x = x-state.width/2;
@@ -931,6 +930,39 @@ Entities.player_trail_particles.burst = function(x,y,size,num,life,r,g,b,psize){
 		this.newInstance(x+Math.cos(t)*rad,y+Math.sin(t)*rad,life,r,g,b,psize);
 	}
 }
+
+
+Entities.add('rocket_smoke',Entities.create(
+	{
+		parent:Entities.player_trail_particles,
+		construct:function(state){
+			state.draw=function(gl,delta,screen,manager,pMatrix,mvMatrix){
+				var u = this.life/this.lifeStart;
+				// manager.fillEllipse(this.x,this.y,0,width/2,height/2,0,1,0.5,0,1);
+				manager.bindProgram('basic');
+				manager.setArrayBufferAsProgramAttribute('primitive_circle_fan','basic','vertexPosition');
+				manager.setArrayBufferAsProgramAttribute('player_trail_color','basic','vertexColor');
+				manager.setUniform1f('basic','alpha',u);
+				manager.setUniform1f('basic','tintWeight',1);
+				gl.uniform3f(manager.getProgram('basic').tint,this.r,this.g,this.b);
+				
+				mvMatrix.translate(this.x+this.width/2,this.y+this.height/2,this.z);
+				var s = this.size1+(this.size2-this.size1)*(1-u);
+				mvMatrix.scale(s,s,1);
+				manager.setMatrixUniforms('basic',pMatrix,mvMatrix.current)
+				gl.enable(gl.BLEND);
+				gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+				gl.drawArrays(gl.TRIANGLE_FAN,0,16);
+				manager.setUniform1f('basic','alpha',1);
+				manager.setUniform1f('basic','tintWeight',0);
+			}
+		},
+		create:function(state,x,y,life,r,g,b,size1,size2){
+			state.size1=size1;
+			state.size2=size2;
+		}
+	}
+));
 
 Entities.add('player_init_particles',Entities.create({
 	construct: function(state){
@@ -1027,7 +1059,7 @@ Entities.add('player_initializer',Entities.create({
 			state.player.active = true;
 			state.player.set(state.x+state.player.x-state.player.cx,state.y+state.player.y-state.player.cy,0,0,0,0);
 			current_music = Sound.createSound('groove',true,true);
-			current_music.gain = 0.5;
+			current_music.gain = 0.8;
 			current_music.play(Date.now()+1000)
 		}
 		frozen = false;
