@@ -144,7 +144,7 @@ Entities.add('rocket', Entities.create(
 					mvMatrix.rotateZ(this.theta);
 					this.animator.draw(gl,delta,screen,manager,pMatrix,mvMatrix);
 				}
-				
+				state.z = 0;
 				state.animator = new VertexAnimator("basic", 
 					{
 					rocketColor: 
