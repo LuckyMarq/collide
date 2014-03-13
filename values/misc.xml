@@ -3,4 +3,5 @@
 	<fogOfWar>true</fogOfWar>
 	<godMode>false</godMode>
 	<mapMoveSpeed>300</mapMoveSpeed>
+	<showFps>true</showFps>
 </root>
