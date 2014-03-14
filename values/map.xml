@@ -59,8 +59,8 @@
 			<configs>
 				<config>
 					<rooms>
-						<min>12</min>
-						<max>16</max>
+						<min>9</min>
+						<max>12</max>
 						<density>0.75</density>
 						<connectivity>0.75</connectivity>
 						<width>
@@ -97,7 +97,7 @@
 						<EndRoom></EndRoom>
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
-						<Random>4;18;5;true;enemy_exploding_suicider;15;30;32;12;12</Random>
+						<Random>0;8;5;true;enemy_exploding_suicider;15;30;32;12;12</Random>
 					</populators>
 				</config>
 			</configs>
@@ -106,8 +106,8 @@
 			<configs>
 				<config>
 					<rooms>
-						<min>14</min>
-						<max>18</max>
+						<min>12</min>
+						<max>14</max>
 						<density>0.75</density>
 						<connectivity>0.5</connectivity>
 						<width>
@@ -138,9 +138,9 @@
 							<min>0</min>
 							<max>5</max>
 						</entity>
-						<entity name='enemy_shooter' margin='32'>
+						<entity name='enemy_exploding_suicider' margin=''>
 							<min>0</min>
-							<max>5</max>
+							<max>10</max>
 						</entity>
 					</entities>
 					<!--the first three populators are mandatory for every map-->
@@ -149,7 +149,6 @@
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
 						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
-						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
 					</populators>
 				</config>
 			</configs>
@@ -158,8 +157,8 @@
 			<configs>
 				<config>
 					<rooms>
-						<min>14</min>
-						<max>18</max>
+						<min>12</min>
+						<max>14</max>
 						<density>0.75</density>
 						<connectivity>0.75</connectivity>
 						<width>
@@ -187,10 +186,6 @@
 							<max>5</max>
 						</entity>
 						<entity name='enemy_shooter' margin='32'>
-							<min>0</min>
-							<max>5</max>
-						</entity>
-						<entity name='enemy_tank' margin='32'>
 							<min>0</min>
 							<max>5</max>
 						</entity>
