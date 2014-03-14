@@ -296,6 +296,9 @@ function BeamWeapon(){
 	var p = Entities.player.getInstance(0);
 	var damage = beamConfig.damage.value;
 	var force = beamConfig.force.value;
+	var angle = beamConfig.angle.value;
+	var wiggle = beamConfig.wiggle.value;
+	var sound = Sound.createSound(beamConfig.sound);
 	var vec = vec2.create();
 	var theta = 0;
 	var dt = 1;
@@ -308,8 +311,6 @@ function BeamWeapon(){
 				 0.0, 0.0, 0.0];
 	var v = vec2.create();
 	var hits = [];
-	var sound = Sound.createSound('beam_fire', true);
-	sound.gain = 0.1;	
 	
 	this.glInit = function(manager){
 		manager.addArrayBuffer("beam",false,verts,3,3)
@@ -347,7 +348,7 @@ function BeamWeapon(){
 			}
 			verts.length = 0
 			verts = physics.getCone(verts,p.cx,p.cy,p.cx+Math.cos(dir),p.cy+Math.sin(dir),theta);
-			theta = (0.01) + (0.005 *Math.sin(t));
+			theta = (angle) + (wiggle *Math.sin(t));
 			t+=Math.PI*2/60
 			t%=Math.PI*2;
 		} else {

@@ -191,6 +191,8 @@ function Map(config){
 		this.room.checkConnections(getNodeValue(config.rooms.connectivity));
 		this.room.initLines();
 		
+		
+		
 		this.populators.length = 0;
 		for(var i = 0; i<config.populators.children.length; i++){
 			this.populators.push(RoomPopulators[config.populators.children[i].name].apply(new Object(),

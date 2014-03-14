@@ -427,6 +427,7 @@ function initPhysics(){
 					c = true;
 				}
 				if(!c){
+					console.log(obj,isMover(obj),isCollider(obj))
 					console.trace();
 					throw 'Physics.add: invalid parameter: '+obj;
 				}

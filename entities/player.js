@@ -242,7 +242,7 @@ Entities.add('player', Entities.create((function(){
 							cx: x,
 							cy: y,
 							tick: function(delta){
-								if(!this.active)return;
+								if(!this.active || frozen)return;
 								movementCheck();
 								weaponsCheck(delta);
 								var p = gamepad.padA[0]; 
@@ -658,8 +658,6 @@ var getPlayerAnimator = (function(){
 		var sides = Math.floor(numOfVerts/8);
 		var mod = numOfVerts%8;
 		
-		console.log(sides,mod)
-		
 		verts.push(0,0,0);
 		var u,v;
 		var theta = Math.PI/2;
@@ -760,7 +758,6 @@ var getPlayerAnimator = (function(){
 			verts.push(x1 + (x2-x1)*(i/(num-1)),y1 + (y2-y1)*(i/(num-1)),0);
 		}
 		
-		console.log(verts.length)
 		return verts;
 	}
 	

@@ -4,6 +4,7 @@
 gameComponents = new Array();
 
 score_chars = 12;
+name_chars=18
 
 function importS(filename){
 	document.write('<script type="text/javascript" src='+filename+'><\/script>');
@@ -212,16 +213,26 @@ function init(){
 }
 
 function checkHighScores(score){
+	var getNumStr=function(num,digits){
+		var s = ""+num;
+		if(s.length<digits){
+			s = '0'+s;
+		}
+		return s;
+	}
 	for(var i = 0; i<10; i++){
 		if(high_scores[i].score<score){
-			var name = prompt("New High Score!!\nPlease enter name") || 'Anonymous';
+			var name = prompt("New High Score!!\nPlease enter name ("+name_chars+" limit)") || 'Anonymous';
+			if(name.length>name_chars){
+				name = name.substring(0,name_chars)
+			}
 			for(var j = 9; j>i; j--){
 				high_scores[j] = high_scores[j-1];
 			}
 			var score=score+'';
 			while(score.length<score_chars)score='0'+score
 			var d = new Date();
-			high_scores[i] = {name:name,score:score,date:d.getMonth()+':'+d.getDate()+":"+d.getYear()};
+			high_scores[i] = {name:name,score:score,date:getNumStr(d.getMonth(),2)+':'+getNumStr(d.getDate(),2)+":"+d.getFullYear()+' '+getNumStr(d.getHours(),2)+':'+getNumStr(d.getMinutes(),2)+':'+getNumStr(d.getSeconds(),2)};
 			localStorage.setItem('collide_game_high_scores',JSON.stringify(high_scores));
 			break;
 		}
@@ -244,7 +255,7 @@ function initStartScreen(){
 	if(!high_scores){
 		high_scores = {};
 		for(var i = 0; i<10; i++){
-			high_scores[i]={name:"empty",score:'000000000000',date:'00:00:0000'};
+			high_scores[i]={name:"empty",score:'000000000000',date:'00:00:0000 00:00:00'};
 		}
 	}else{
 		high_scores = JSON.parse(high_scores);
@@ -287,6 +298,7 @@ function initStartScreen(){
 		optionsBack.set(screen.width-128,80);
 		
 		leaderBoardBack.set(screen.width-128,80);
+		leaderBoardReset.set(128,80);
 		
 		weaponSelectTitle.set(screen.width/2,screen.height - 128);
 		weaponSelectBack.set(screen.width-128,80);
@@ -409,6 +421,13 @@ function initStartScreen(){
 		ticker.add(previous_menu);
 		graphics.addToDisplay(previous_menu,'gl_main');
 		localStorage.setItem('collide_game_options',JSON.stringify(options));
+	}))
+	var leaderBoardReset = LeaderBoard.add(new Button(128,80,160,80,208,124,'Reset',32,'Menu','rgba(255,255,255,255)',function(){
+		high_scores = {};
+		for(var i = 0; i<10; i++){
+			high_scores[i]={name:"empty",score:'000000000000',date:'00:00:0000 00:00:00'};
+		}
+		localStorage.setItem('collide_game_high_scores',JSON.stringify(high_scores));
 	}))
 	LeaderBoard.add(new MenuCursor())
 	
