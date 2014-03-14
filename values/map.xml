@@ -97,7 +97,7 @@
 						<EndRoom></EndRoom>
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
-						<Random>0;8;5;true;enemy_exploding_suicider;15;30;32;12;12</Random>
+						<Random>1;6;5;true;enemy_exploding_suicider;15;30;32;12;12</Random>
 					</populators>
 				</config>
 			</configs>
