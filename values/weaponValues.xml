@@ -4,7 +4,13 @@
 		<damage>16</damage>
 		<force>-80</force>
 		<length>1024</length>
+		<wiggle>0.005</wiggle>
+		<angle>0.01</angle>
 		<rechargeRate>1</rechargeRate>
+		<sound>
+			<buffer>beam_fire</buffer>
+			<gain>0.1</gain>
+		</sound>
 	</beam>
 	<blackHole>
 		<blastRadius>256</blastRadius>
