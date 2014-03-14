@@ -276,7 +276,7 @@ Entities.add('mine', Entities.create(
 			construct: function(state,x,y) {
 				damage = configs.weaponValues.mine.damage.value;
 				blastForce = configs.weaponValues.mine.force.value;
-				
+				state.playerProjectile = true;
 				fillProperties(state, Entities.createStandardState(
 					{
 					draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
@@ -395,7 +395,7 @@ Entities.add('blackhole', Entities.create(
 				state.onCollision = function() {
 					this.alive = true;
 				}
-				
+				state.playerProjectile = true;
 			},
 			create: function(state,x,y,dir){
 				state.isBlackhole=true;

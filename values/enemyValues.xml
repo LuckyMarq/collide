@@ -9,8 +9,8 @@
 		<height>25</height>
 		<width>25</width>
 		<range>8</range>
-		<minSmallHealth>2</minSmallHealth>
-		<maxSmallHealth>5</maxSmallHealth>
+		<minSmallHealth>0</minSmallHealth>
+		<maxSmallHealth>3</maxSmallHealth>
 		<minMedHealth>0</minMedHealth>
 		<maxMedHealth>0</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
@@ -40,7 +40,7 @@
 		<height>80</height>
 		<width>80</width>
 		<minSmallHealth>0</minSmallHealth>
-		<maxSmallHealth>5</maxSmallHealth>
+		<maxSmallHealth>3</maxSmallHealth>
 		<minMedHealth>0</minMedHealth>
 		<maxMedHealth>0</maxMedHealth>
 		<minLargeHealth>0</minLargeHealth>
@@ -141,7 +141,7 @@
 		<size>32</size>
 		<maxSpeed>500</maxSpeed>
 		<healthSpeed>100</healthSpeed>
-		<maxSmallHealth>10</maxSmallHealth>
+		<maxSmallHealth>5</maxSmallHealth>
 		<color>
 			<r>1</r><g>0.5</g><b>0</b><a>1</a>
 		</color>
@@ -269,7 +269,7 @@
 		<speed>800</speed>
 		<acceleration>5000</acceleration>
 		<healthSpeed>100</healthSpeed>
-		<maxSmallHealth>10</maxSmallHealth>
+		<maxSmallHealth>5</maxSmallHealth>
 		<color>
 			<r>1</r><g>0</g><b>0</b><a>1</a>
 		</color>
