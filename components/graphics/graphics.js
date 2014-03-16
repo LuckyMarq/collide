@@ -716,7 +716,7 @@ function initGraphics(){
 		}
 		
 		this.strokeEllipse = function(x,y,z,width,height,theta,r,g,b,a){
-			this.strokePrimitive(x,y,z,width,height,theta,r,g,b,a,'primitive_circle',32);
+			this.strokePrimitive(x,y,z,width,height,theta,r,g,b,a,'primitive_circle',16);
 		}
 		
 		this.line = function(x1,y1,x2,y2,z,r,g,b,a){
@@ -1156,8 +1156,11 @@ function initGraphics(){
 			}
 			gl.flush();
 		}
-		this.clear = function(delta){}
-		
+		this.clear = function(delta){
+		}
+		this.unload = function(){
+			manager.clear();
+		}
 		return this;
 	}
 	
@@ -1266,6 +1269,11 @@ function initGraphics(){
 			'	margin-left: -'+width/2+'px;'+
 			'	cursor: none;'+
 			'}'
+		},
+		unload : function(){
+			for(var o in displays){
+				if(displays[o].unload)displays[o].unload();
+			}
 		}
 	});
 	gameComponents[2] = graphics;

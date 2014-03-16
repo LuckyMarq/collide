@@ -130,6 +130,13 @@ Entities.add('enemy_turret',Entities.create({
 			manager.setArrayBufferAsProgramAttribute('turret_pos', 'noise', 'vertexPosition');
 			manager.setMatrixUniforms('noise', pMatrix, mvMatrix.current);
 			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+			
+			mvMatrix.identity();
+			mvMatrix.translate(this.x+this.width/2, this.y+this.height/2, -1);
+			mvMatrix.scale(40,40,1);
+			manager.setArrayBufferAsProgramAttribute('primitive_circle', 'noise', 'vertexPosition');
+			manager.setMatrixUniforms('noise', pMatrix, mvMatrix.current);
+			gl.drawArrays(gl.TRIANGLE_FAN, 0, 16);
 		}
 		state.configure(configs.enemyValues.enemy_turret)
 		state.v = vec2.create();

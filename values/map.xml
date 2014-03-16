@@ -26,7 +26,10 @@
 							<max>0.9</max>
 						</height>
 						<size>2560</size>
-						<connectorSize>128</connectorSize>
+						<connectorSize>
+							<min>128</min>
+							<max>256</max>
+						</connectorSize>
 					</rooms>
 					<entities>
 						<entity name='enemy_direct_suicider' margin='32'>
@@ -72,7 +75,10 @@
 							<max>0.9</max>
 						</height>
 						<size>2560</size>
-						<connectorSize>128</connectorSize>
+						<connectorSize>
+							<min>128</min>
+							<max>256</max>
+						</connectorSize>
 					</rooms>
 					<entities>
 						<entity name='enemy_direct_suicider' margin='32'>
@@ -97,7 +103,8 @@
 						<EndRoom></EndRoom>
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
-						<Random>1;6;5;true;enemy_exploding_suicider;15;30;32;12;12</Random>
+						<RoomCenter>0;1;1;true;super_health;32;32</RoomCenter>
+						<Random>1;4;5;true;enemy_exploding_suicider;10;20;32;12;12</Random>
 					</populators>
 				</config>
 			</configs>
@@ -119,7 +126,10 @@
 							<max>0.9</max>
 						</height>
 						<size>2560</size>
-						<connectorSize>128</connectorSize>
+						<connectorSize>
+							<min>128</min>
+							<max>256</max>
+						</connectorSize>
 					</rooms>
 					<entities>
 						<entity name='enemy_direct_suicider' margin='32'>
@@ -148,6 +158,7 @@
 						<EndRoom></EndRoom>
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
+						<RoomCenter>0;1;1;true;super_health;32;32</RoomCenter>
 						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
 					</populators>
 				</config>
@@ -170,7 +181,10 @@
 							<max>0.9</max>
 						</height>
 						<size>2560</size>
-						<connectorSize>128</connectorSize>
+						<connectorSize>
+							<min>128</min>
+							<max>256</max>
+						</connectorSize>
 					</rooms>
 					<entities>
 						<entity name='enemy_direct_suicider' margin='32'>
@@ -195,6 +209,7 @@
 						<EndRoom></EndRoom>
 						<WeaponRoom></WeaponRoom>
 						<RandomEnemies></RandomEnemies>
+						<RoomCenter>0;1;1;true;super_health;32;32</RoomCenter>
 						<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
 						<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
 					</populators>
@@ -218,7 +233,10 @@
 					<max>0.9</max>
 				</height>
 				<size>2560</size>
-				<connectorSize>128</connectorSize>
+				<connectorSize>
+					<min>128</min>
+					<max>256</max>
+				</connectorSize>
 			</rooms>
 			<entities>
 				<entity name='enemy_direct_suicider' margin='32'>
@@ -243,6 +261,7 @@
 				<EndRoom></EndRoom>
 				<WeaponRoom></WeaponRoom>
 				<RandomEnemies></RandomEnemies>
+				<RoomCenter>0;1;1;true;super_health;32;32</RoomCenter>
 				<RoomCenter>4;18;5;false;enemy_turret;32;32</RoomCenter>
 				<FourCorners>0;10;5;false;enemy_turret;32;32;64;64</FourCorners>
 			</populators>

@@ -98,6 +98,67 @@ Entities.add('health_large',Entities.create(
 	)
 )
 
+Entities.add('super_health',Entities.create({
+	construct:function(state,x,y){
+		fillProperties(state,Entities.createStandardCollisionState(
+				{
+					draw:function(gl,delta,screen,manager,pMatrix,mvMatrix){
+						this.t+=delta;
+						this.t%=this.period;
+						var u = this.t/this.period;
+						
+						mvMatrix.translate(this.x+(this.width/2),this.y+(this.width/2),0)
+						
+						var mul = 1.5;
+						var w = this.width*mul,h=this.height*mul;
+						var theta = Math.PI*2*u;
+						mvMatrix.push();
+							mvMatrix.rotateZ(theta)
+							mvMatrix.rotateY(theta)
+							manager.strokeEllipse(0,0,0,w,h,0,0,1,0,1);
+						mvMatrix.pop();
+						var theta = Math.PI*2*(1-u);
+						theta+=Math.PI
+						mvMatrix.push();
+							mvMatrix.rotateZ(theta)
+							mvMatrix.rotateY(theta)
+							manager.strokeEllipse(0,0,0,w,h,0,0,1,0,1);
+						mvMatrix.pop();
+						
+						manager.fillEllipse(0,0,0,this.width/2,this.height/2,0,0,1,0,1);
+						gl.enable(gl.BLEND);
+						gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+						manager.fillEllipse(0,0,0,this.width,this.height,0,0,1,0,0.5);
+						gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA);
+						
+						
+					},
+					boundless:true,
+					z: 0
+				},x,y,configs.pickups.superHealth.size.value,configs.pickups.superHealth.size.value,1));
+		state.sound = Sound.createSound(configs.pickups.superHealth.pickupSound);	
+		state.period = 2;
+	},
+	create:function(state,x,y,vx,vy){
+		state.set(x,y,vx || 0,vy || 0,0,0);
+		state.t=0;
+		graphics.addToDisplay(state,'gl_main');
+	},
+	update:function(state,delta){
+		var dist = 64
+		var p = Entities.player.getInstance(0);
+		if(p.collision(state) && p.life<p.maxLife){
+			p.life=p.maxLife
+			Entities.shrink_burst.burst(64,state.x+state.width/2,state.y+state.height/2,16,16,3,400,0,1,0,0.1,0,0)
+			state.sound.play(0);
+			state.alive = false;
+		}
+	},
+	destroy: function(state,delta){
+		graphics.removeFromDisplay(state,'gl_main');
+	}
+}))
+
 Entities.add('health_burst_frag',Entities.create(
 	{
 		create: function(state,x,y,size,life,vx,vy){

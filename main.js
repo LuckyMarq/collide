@@ -500,7 +500,7 @@ function initStartScreen(){
 			}else{
 				this.rt=Math.max(0,this.rt-delta);
 			}
-			manager.fillText(names[weaponIndex],screen.width/2,100+screen.height/2,0,48,'Menu','rgba(255,255,255,255)')
+			manager.fillText(names[weaponIndex],screen.width/2,100+screen.height/2,0,64,'Score','rgba(255,255,255,255)')
 			
 			mvMatrix.push();
 				mvMatrix.translate(screen.width/2,screen.height/2,0)
@@ -754,3 +754,4 @@ function reinitScene(){
 //initializes game
 loadSource();
 document.addEventListener("DOMContentLoaded", function(){initInput();init();}, false);
+window.addEventListener("unload", function(){graphics.unload()}, false);

@@ -3,7 +3,7 @@
 		<cost>0.4</cost>
 		<damage>16</damage>
 		<force>-80</force>
-		<length>1024</length>
+		<length>2048</length>
 		<wiggle>0.005</wiggle>
 		<angle>0.01</angle>
 		<rechargeRate>1</rechargeRate>
@@ -89,7 +89,7 @@
 	</rocket>
 	<wave>
 		<cost>15</cost>
-		<damage>0.5</damage>
+		<damage>1</damage>
 		<force>800</force>
 		<radius>250</radius>
 		<rechargeRate>1</rechargeRate>

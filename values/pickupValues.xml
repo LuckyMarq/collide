@@ -29,10 +29,17 @@
 	</medHealth>
 	<largeHealth>
 		<health>25</health>
-		<size>16</size>
+		<size>32</size>
 		<pickupSound>
 			<buffer>health_large</buffer>
 			<gain>0.1</gain>
 		</pickupSound>
 	</largeHealth>
+	<superHealth>
+		<size>64</size>
+		<pickupSound>
+			<buffer>health_large</buffer>
+			<gain>0.3</gain>
+		</pickupSound>
+	</superHealth>
 </root>

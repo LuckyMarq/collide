@@ -219,7 +219,7 @@ function Map(config){
 			var c = 0;
 			if(pop.max){
 				var min = ((pop.min)?pop.min:0);
-				num = min +(pop.max-pop.min)*Math.random();
+				num = Math.round(min +(pop.max-pop.min)*Math.random());
 			}
 			for(var j = 0; j<rooms.length && c<num; j++){
 				if(!rooms[j].full && pop.populate(config,rooms[j],this))c++;
