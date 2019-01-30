@@ -88,7 +88,7 @@
 		</explosion>
 	</rocket>
 	<wave>
-		<cost>15</cost>
+		<cost>20</cost>
 		<damage>1</damage>
 		<force>800</force>
 		<radius>250</radius>

@@ -1,1 +1,1 @@
-"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --disable-web-security file:///C:/Users/Alex/Documents/GitHub/collide/game.html
+"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --disable-web-security --allow-file-access-from-files --allow-file-access --allow-cross-origin-auth-prompt file:///C:/Users/Alex/Code/collide/game.html

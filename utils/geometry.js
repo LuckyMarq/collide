@@ -115,6 +115,7 @@ var VirtualVector = function(array,size){
 		});
 	}
 }
+
 VirtualVector.prototype = {
 	array: new Array(),
 	start:0,
